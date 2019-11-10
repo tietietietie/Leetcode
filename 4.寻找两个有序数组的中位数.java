@@ -35,19 +35,19 @@ class Solution {
                 if(i == 0)
                     medianl = B[j-1];
                 else if(j == 0)
-                    medianl = A[i];
+                    medianl = A[i-1];
                 else 
                     medianl = Math.max(A[i-1],B[j-1]); 
+                if((m+n)%2 == 1)
+                    return medianl;
+
                 if(i == m)
                     medianr = B[j];
                 else if(j == n)
                     medianr = A[i];
                 else
                     medianr = Math.min(A[i],B[j]);
-                if((m+n)/2 == 1)
-                    median = medianl;
-                else
-                    median = (medianl+medianr)/2.0;
+                median = (medianl+medianr)/2.0;
                 return median;
             }
         }
@@ -55,7 +55,7 @@ class Solution {
     }
     public static void main(String[] args) {
         double median;
-        int[] a = {1,2}, b ={3,4};
+        int[] a = {}, b ={1};
         Solution s = new Solution();  //必须创建一个新的solution，就算这个函数在class内
         median = s.findMedianSortedArrays(a, b);  //也不能直接调用non-static的函数
     }
