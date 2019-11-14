@@ -4,24 +4,26 @@ class Solution {
         int[] nums = new int[m+n];
         if(m == 0)
             nums = nums2;
-        if(n == 0)
+        else if(n == 0)
             nums = nums1;
-        int count = 0, i = 0, j = 0;
-        while(count < nums.length)
+        else
         {
-            if(i == m)
-                nums[count++] = nums2[j++];
-            if(j == n)
-                nums[count++] = nums1[i++];
-            if(nums1[i] < nums2[j])
-                nums[count++] = nums1[i++];
-            else
-                nums[count++] = nums2[j++];
+            int count = 0, i = 0, j = 0;
+            while(count < nums.length)
+            {
+                if(i == m)
+                    nums[count++] = nums2[j++];
+                if(j == n)
+                    nums[count++] = nums1[i++];
+                if(nums1[i] < nums2[j])
+                    nums[count++] = nums1[i++];
+                else
+                    nums[count++] = nums2[j++];
+            }
         }
 
-        if(m+n == 0)
-            return 0.0;
-        else if((m+n)/2 == 1)
+
+        if((m+n)%2 == 1)
             return (double)nums[(m+n)/2];
         else
             return (double)(nums[(m+n)/2 -1] + nums[(m+n)/2])/2;
