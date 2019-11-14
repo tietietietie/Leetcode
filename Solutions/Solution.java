@@ -1,10 +1,3 @@
-/*
- * @lc app=leetcode.cn id=4 lang=java
- *
- * [4] 寻找两个有序数组的中位数
- */
-
-// @lc code=start
 class Solution {
     public double findMedianSortedArrays(int[] nums1, int[] nums2) {
         // int i, j, m, n;
@@ -63,9 +56,9 @@ class Solution {
         {
             if(i == m)
                 nums[count++] = nums2[j++];
-            else if(j == n)
+            if(j == n)
                 nums[count++] = nums1[i++];
-            else if(nums1[i] < nums2[j])
+            if(nums1[i] < nums2[j])
                 nums[count++] = nums1[i++];
             else
                 nums[count++] = nums2[j++];
@@ -83,10 +76,5 @@ class Solution {
         int[] a = {1,3}, b ={2};
         Solution s = new Solution();  //必须创建一个新的solution，就算这个函数在class内
         median = s.findMedianSortedArrays(a, b);  //也不能直接调用non-static的函数
-        System.out.print(median);
     }
 }
-// @lc code=end
-
-// 合并两个数组
-
