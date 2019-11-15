@@ -7,6 +7,8 @@
 // @lc code=start
 class Solution {
     public String longestPalindrome(String s) {
+        if(s.length() == 0)
+            return "";
         int pleft = 0, pright = 0, maxlen = 0;
         for (int i = 0; i < s.length(); i++)
             for (int j = i + 1; j < s.length(); j++) {
@@ -16,7 +18,8 @@ class Solution {
                     pright = j;
                 }
             }
-        return s.substring(pleft, prigh+1);
+
+        return s.substring(pleft, pright+1);
     }
 
     private boolean isPalindrome(String s, int left, int right) {
