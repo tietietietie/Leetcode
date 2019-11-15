@@ -52,35 +52,59 @@ class Solution {
         //     }
         // }
         // return 0.0;
-        int m = nums1.length, n = nums2.length;
-        int[] nums = new int[m+n];
-        if(m == 0)
-            nums = nums2;
-        if(n == 0)
-            nums = nums1;
-        int count = 0, i = 0, j = 0;
-        while(count < nums.length)
-        {
-            if(i == m)
-                nums[count++] = nums2[j++];
-            else if(j == n)
-                nums[count++] = nums1[i++];
-            else if(nums1[i] < nums2[j])
-                nums[count++] = nums1[i++];
-            else
-                nums[count++] = nums2[j++];
-        }
+        /* 合并数组解法 */
+        // int m = nums1.length, n = nums2.length;
+        // int[] nums = new int[m+n];
+        // if(m == 0)
+        //     nums = nums2;
+        // if(n == 0)
+        //     nums = nums1;
+        // int count = 0, i = 0, j = 0;
+        // while(count < nums.length)
+        // {
+        //     if(i == m)
+        //         nums[count++] = nums2[j++];
+        //     else if(j == n)
+        //         nums[count++] = nums1[i++];
+        //     else if(nums1[i] < nums2[j])
+        //         nums[count++] = nums1[i++];
+        //     else
+        //         nums[count++] = nums2[j++];
+        // }
 
-        if(m+n == 0)
-            return 0.0;
-        else if((m+n)/2 == 1)
-            return (double)nums[(m+n)/2];
-        else
-            return (double)(nums[(m+n)/2 -1] + nums[(m+n)/2])/2;
+        // if(m+n == 0)
+        //     return 0.0;
+        // else if((m+n)/2 == 1)
+        //     return (double)nums[(m+n)/2];
+        // else
+        //     return (double)(nums[(m+n)/2 -1] + nums[(m+n)/2])/2;
+
+        /* 找k小值递归解法 */
+        int m = nums1.length, n = nums2.length;
+        int a = getKth(nums1,0,m,nums2,0,n,(m+n+1)/2);
+        int b = getKth(nums1,0,m,nums2,0,n,(m+n+2)/2);
+        return (a+b) * 0.5;
     }
+    private int getKth(int[] nums1, int left1,int m, int[] nums2, int left2, int n, int k)
+        {
+            if(left1 == m)
+                return nums2[left2+k-1];
+            else if(left2 == n)
+                return nums1[left1+k-1];
+            if(k == 1)
+                return Math.min(nums1[left1],nums2[left2]);
+            
+            int i = left1 + Math.min(k/2-1,m-left1-1);
+            int j = left2 + Math.min(k/2-1,n-left2-1);
+
+            if(nums1[i] < nums2[j])
+                return getKth(nums1,i+1,m,nums2,left2,n,k-(i-left1+1));
+            else
+            return getKth(nums1,left1,m,nums2,j+1,n,k-(j-left2+1));
+        }  
     public static void main(String[] args) {
         double median;
-        int[] a = {1,3}, b ={2};
+        int[] a = {1,4}, b ={2,3,5,6};
         Solution s = new Solution();  //必须创建一个新的solution，就算这个函数在class内
         median = s.findMedianSortedArrays(a, b);  //也不能直接调用non-static的函数
         System.out.print(median);
