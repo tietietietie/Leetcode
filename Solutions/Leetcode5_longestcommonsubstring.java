@@ -1,10 +1,3 @@
-/*
- * @lc app=leetcode.cn id=5 lang=java
- *
- * [5] 最长回文子串
- */
-
-// @lc code=start
 class Solution {
     public String longestPalindrome(String s) {
         if(s.equals(""))
@@ -16,14 +9,14 @@ class Solution {
         {
                 if(s.charAt(i) == reverse.charAt(0))
                 arr[i][0] = 1;
-            else
+            else 
                 arr[i][0] = 0;
         }
         for(int j  = 0; j < s.length(); j++)
         {
             if(s.charAt(0) == reverse.charAt(j))
                 arr[0][j] = 1;
-            else
+            else 
                 arr[0][j] = 0;
         }
         for(int i = 1; i < s.length(); i++)
@@ -33,20 +26,20 @@ class Solution {
                     arr[i][j] = arr[i-1][j-1]+1;
                 else
                     arr[i][j] = 0;
-                if(arr[i][j] > maxlen && j == s.length() - i + arr[i][j] -2)
+                if(arr[i][j] > maxlen && j == s.length() + arr[i][j] - i -2)
                 {
                     maxlen = arr[i][j];
                     pright = i;
                     pleft = i-maxlen+1;
                 }
             }
-        return s.substring(pleft,pright+1);
-    }   
+        return s.substring(pleft,pright+1);       
+        
+    }
+
     public static void main(String[] args) {
-        String a = "bababa";
+        String a = "";
         Solution s = new Solution();
-        System.out.print(s.longestPalindrome(a));
+        System.out.println(s.longestPalindrome(a));
     }
 }
-// @lc code=end
-
