@@ -7,41 +7,25 @@
 // @lc code=start
 class Solution {
     public String longestPalindrome(String s) {
-        if(s.equals(""))
+        int n = s.length(),maxlen = 0,pleft = 0,pright = 0;
+        if(n == 0)
             return "";
-        String reverse = new StringBuffer(s).reverse().toString();
-        int[][] arr = new int[s.length()][s.length()];
-        int maxlen = 1, pleft = 0, pright = 0;
-        for(int i = 0; i < s.length(); i++)
-        {
-                if(s.charAt(i) == reverse.charAt(0))
-                arr[i][0] = 1;
-            else
-                arr[i][0] = 0;
-        }
-        for(int j  = 0; j < s.length(); j++)
-        {
-            if(s.charAt(0) == reverse.charAt(j))
-                arr[0][j] = 1;
-            else
-                arr[0][j] = 0;
-        }
-        for(int i = 1; i < s.length(); i++)
-            for(int j = 1; j < s.length(); j++)
+        boolean[][] p = new boolean[n][n];
+        for(int len = 1; len <= n ;len++)
+            for(int start = 0; start < n; start++)
             {
-                if(s.charAt(i) == reverse.charAt(j))
-                    arr[i][j] = arr[i-1][j-1]+1;
-                else
-                    arr[i][j] = 0;
-                if(arr[i][j] > maxlen && j == s.length() - i + arr[i][j] -2)
+                int end = start + len - 1;
+                if(end >= n)
+                    break;
+                p[start][end] = (len == 1 || len == 2 || p[start+1][end-1]) && s.charAt(start) == s.charAt(end);
+                if(p[start][end]&&(len > maxlen))
                 {
-                    maxlen = arr[i][j];
-                    pright = i;
-                    pleft = i-maxlen+1;
+                    pleft = start;
+                    pright = end;
                 }
             }
         return s.substring(pleft,pright+1);
-    }   
+            }   
     public static void main(String[] args) {
         String a = "bababa";
         Solution s = new Solution();
