@@ -28,7 +28,7 @@ class Solution {
     {
         int len = 0;
         int i = c1, j = c2;
-        while(s.charAt(i--) == s.charAt(j++) && i >= 0 && j < s.length())
+        while(i >= 0 && j < s.length() && s.charAt(i--) == s.charAt(j++) )
             len++;
         return len;
     }
