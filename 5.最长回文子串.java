@@ -7,25 +7,32 @@
 // @lc code=start
 class Solution {
     public String longestPalindrome(String s) {
-        int n = s.length(),maxlen = 0,pleft = 0,pright = 0;
+        int n = s.length();
         if(n == 0)
-            return "";
-        boolean[][] p = new boolean[n][n];
-        for(int len = 1; len <= n ;len++)
-            for(int start = 0; start < n; start++)
+        return "";
+        int pleft = 0, pright = 0;
+        for(int i = 0; i < n; i++)
+        {
+            int len1 = PalindromeCenter(s,i,i);
+            int len2 = PalindromeCenter(s,i,i+1);
+            int len = Math.max(len1,len2);
+            if(len > pright - pleft + 1)
             {
-                int end = start + len - 1;
-                if(end >= n)
-                    break;
-                p[start][end] = (len == 1 || len == 2 || p[start+1][end-1]) && s.charAt(start) == s.charAt(end);
-                if(p[start][end]&&(len > maxlen))
-                {
-                    pleft = start;
-                    pright = end;
-                }
+                pleft = i - (len-1)/2;
+                pright = i + len/2;
             }
+        }
         return s.substring(pleft,pright+1);
-            }   
+    }
+    private static int PalindromeCenter(String s, int c1, int c2)
+    {
+        int len = 0;
+        int i = c1, j = c2;
+        while(s.charAt(i--) == s.charAt(j++) && i >= 0 && j < s.length())
+            len++;
+        return len;
+    }
+    
     public static void main(String[] args) {
         String a = "bababa";
         Solution s = new Solution();
