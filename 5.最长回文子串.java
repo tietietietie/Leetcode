@@ -29,7 +29,7 @@ class Solution {
         int len = 0;
         int i = c1, j = c2;
         while(i >= 0 && j < s.length() && s.charAt(i--) == s.charAt(j++) )
-            len++;
+            len = j - i - 1;
         return len;
     }
     
