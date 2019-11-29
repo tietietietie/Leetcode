@@ -8,13 +8,16 @@
 class Solution {
     public int maxArea(int[] height) {
         int n = height.length;
-        int maxarea = 0, area = 0;
-        for(int i = 0; i < n-1; i++)
-            for(int j = i+1; j < n; j++)
-            {
-                area = (j-i) * Math.min(height[i], height[j]);
-                maxarea = Math.max(maxarea, area);
-            }
+        int left = 0, right = n-1, maxarea = 0, area = 0;
+        while(left != right)
+        {
+            area = (right-left+1)*Math.min(height[right],height[left]);
+            maxarea = Math.max(area,maxarea);
+            if(height[left] < height[right])
+                left++;
+            else
+                right--;
+        }
         return maxarea;
     }
 }
