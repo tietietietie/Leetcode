@@ -11,12 +11,20 @@ class Solution {
         int left = 0, right = n-1, maxarea = 0, area = 0;
         while(left != right)
         {
-            area = (right-left+1)*Math.min(height[right],height[left]);
+            area = (right-left)*Math.min(height[right],height[left]);
             maxarea = Math.max(area,maxarea);
             if(height[left] < height[right])
+            {
+                while(height[left+1] < height[left])
+                    left++;
                 left++;
+            }
             else
+            {
+                while(height[right-1] < height[right])
+                    right--;
                 right--;
+            }
         }
         return maxarea;
     }
