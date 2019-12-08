@@ -6,8 +6,8 @@
 
 // @lc code=start
 class Solution {
-    public int maxArea(int[] height) {
-        int n = height.length;
+    public int maxArea(final int[] height) {
+        final int n = height.length;
         int left = 0, right = n-1, maxarea = 0, area = 0;
         while(left != right)
         {
@@ -29,5 +29,6 @@ class Solution {
         return maxarea;
     }
 }
+
 // @lc code=end
 
