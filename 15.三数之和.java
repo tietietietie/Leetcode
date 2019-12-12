@@ -16,27 +16,19 @@ class Solution {
                 continue;
             left = i+1;
             right = nums.length-1;
+            //int tar = -nums[i];
             while(left < right)
             {
-                if(left != i+1 && nums[left-1] == nums[left])
-                {
-                    left++;
-                    continue;
-                }
-                if(right != nums.length-1 && nums[right+1] == nums[right])
-                {
-                    right--;
-                    continue;
-                }
-                if(nums[left] + nums[right] + nums[i] < 0)
-                    left++;
-                else if(nums[left] + nums[right] + nums[i] > 0)
-                    right--;
-                else       
+                if(nums[left] + nums[right] + nums[i] == 0)
                 {
                     ans.add(Arrays.asList(nums[i],nums[left],nums[right]));
-                    left++;
-                }         
+                    do{left++;}while(left<right && nums[left] == nums[left-1]);
+                    do{right--;}while(left<right && nums[right] == nums[right+1]);
+                }
+                else if(nums[left] + nums[right] + nums[i] < 0)
+                   left++;
+                else
+                    right--;    
             }
         }
         return ans;
