@@ -12,6 +12,8 @@ class Solution {
         ans = nums[0] + nums[1] + nums[2];
         for(i = 0; i < nums.length; i++)
         {
+            if(i != 0 && nums[i] == nums[i-1])
+                continue;
             j = i+1;
             k = nums.length-1;
             while(j < k)
@@ -22,9 +24,17 @@ class Solution {
                 if(temp == target)
                     return target;
                 else if(temp > target)
+                {
                     k--;
+                    while(j<k && nums[k] == nums[k+1])
+                        k--;
+                }    
                 else
+                {
                     j++;
+                    while(j<k && nums[j] == nums[j-1])
+                        j++;
+                }
             }
         }
         return ans;
