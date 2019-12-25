@@ -6,50 +6,36 @@
 
 // @lc code=start
 class Solution {
-    public List<List<Integer>> fourSum(int[] nums, int target) {
-        Arrays.sort(nums);
-        int i,j,left,right;
-        List<List<Integer>> ans = new ArrayList();
-        for(i = 0; i < nums.length-3; i++)
-        {
-            while(i != 0 && i < nums.length-3 && nums[i] == nums[i-1])
-                i++;
-            for(j = i+1; j < nums.length-2; j++)
-            {
-                while(j != i+1 && j < nums.length-2 && nums[j] == nums[j-1])
-                    j++;
-                left = j+1;
-                right = nums.length-1;
-                while(left < right)
-                {
-                    int sum = nums[i] + nums[j] + nums[right] + nums[left];
-                    if(sum == target)
-                    {
-                        ans.add(Arrays.asList(nums[i],nums[j],nums[left],nums[right]));
-                        left++;
-                        while(left < right && nums[left] == nums[left-1])
-                            left++;
-                        right--;
-                        while(left < right && nums[right] == nums[right+1])
-                            right--;
-                    }
-                    else if(sum < target)
-                    {
-                        left++;
-                        while(left < right && nums[left] == nums[left-1])
-                            left++;
-                    }
-                    else
-                    {
-                        right--;
-                        while(left < right && nums[right] == nums[right+1])
-                            right--;
+    public List<List<Integer>> fourSum(int[] num, int target) {
+        Arrays.sort(num);
+        List<List<Integer>> res = new LinkedList<>();
+        //多加了层循环
+        for (int j = 0; j < num.length - 3; j++) {
+            //防止重复的
+            if (j == 0 || (j > 0 && num[j] != num[j - 1]))
+                for (int i = j + 1; i < num.length - 2; i++) {
+                    //防止重复的，不再是 i == 0 ，因为 i 从 j + 1 开始
+                    if (i == j + 1 || num[i] != num[i - 1]) {
+                        int lo = i + 1, hi = num.length - 1, sum = target - num[j] - num[i];
+                        while (lo < hi) {
+                            if (num[lo] + num[hi] == sum) {
+                                res.add(Arrays.asList(num[j], num[i], num[lo], num[hi]));
+                                while (lo < hi && num[lo] == num[lo + 1])
+                                    lo++;
+                                while (lo < hi && num[hi] == num[hi - 1])
+                                    hi--;
+                                lo++;
+                                hi--;
+                            } else if (num[lo] + num[hi] < sum)
+                                lo++;
+                            else
+                                hi--;
+                        }
                     }
                 }
-            }
         }
-        return ans;
-    }
+        return res;
+    }   
 }
 // @lc code=end
 
