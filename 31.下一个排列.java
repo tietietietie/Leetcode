@@ -17,9 +17,33 @@ class Solution {
             Arrays.sort(nums);
         else
         {
-            int temp = nums[tar];
-            nums[tar] = nums[tar+1];
-            nums[tar+1] = temp;
+            for(int j = tar+1; j < nums.length; j++)
+            {
+                if(j+1 >= nums.length || nums[j+1] <= nums[tar])
+                {
+                    swap(nums,tar,j);
+                    reverse(nums,tar+1);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void swap(int[] nums, int i, int j)
+    {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+    private void reverse(int[] nums, int i)
+    {
+        int j = nums.length-1;
+        while(i < j)
+        {
+            swap(nums,i,j);
+            i++;
+            j--;
         }
     }
 }
