@@ -7,19 +7,10 @@
 // @lc code=start
 class Solution {
     public int search(int[] nums, int target) {
-        if(nums.length < 2)
-        {
-            int ans = -1;
-            for(int i = 0; i < nums.length; i++)
-                if(nums[i] == target)
-                {
-                    ans = i;
-                    break;
-                }
-            return ans;
-        }
+        if(nums.length == 0)
+            return -1;
         int left = 0, right = nums.length-1, start;
-        if(nums[left] < nums[right])
+        if(nums[left] <= nums[right])
             start = 0;
         else
         {
@@ -37,6 +28,8 @@ class Solution {
                     right = mid-1;
             }
         }
+
+        //Three conditions
         if(start == 0)
             return bisort(nums,0,nums.length-1,target);     
         if(target >= nums[0])
