@@ -19,25 +19,26 @@ class Solution {
             return ans;
         }
         int left = 0, right = nums.length-1, start;
-        while(true)
+        if(nums[left] < nums[right])
+            start = 0;
+        else
         {
-            int mid = (left+right)/2;
-            if(nums[mid] < nums[mid+1] && nums[mid] < nums[mid-1])
+            while(true)
             {
-                start = mid;
-                break;
+                int mid = (left+right)/2;
+                if(nums[mid] > nums[mid+1])
+                {
+                    start = mid+1;
+                    break;
+                }
+                else if(nums[mid] >= nums[left])
+                    left = mid+1;
+                else 
+                    right = mid-1;
             }
-            else if(nums[mid-1] < nums[mid] && nums[mid+1] < nums[mid])
-            {
-                start = mid+1;
-                break;
-            }
-            else if(nums[mid] > left && nums[mid] > right)
-                left = mid+1;
-            else 
-                right = mid-1;
         }
-        
+        if(start == 0)
+            return bisort(nums,0,nums.length-1,target);     
         if(target >= nums[0])
             return bisort(nums,0,start-1,target);
         else 
