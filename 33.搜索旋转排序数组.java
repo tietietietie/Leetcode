@@ -7,16 +7,20 @@
 // @lc code=start
 class Solution {
     public int search(int[] nums, int target) {
+        //考虑空集
         if(nums.length == 0)
             return -1;
         int left = 0, right = nums.length-1, start;
+        // 考虑没有旋转的情况
         if(nums[left] <= nums[right])
             start = 0;
+        //旋转点非0时，如何找start
         else
         {
             while(true)
             {
                 int mid = (left+right)/2;
+                //旋转点非0，则满足：
                 if(nums[mid] > nums[mid+1])
                 {
                     start = mid+1;
