@@ -8,7 +8,7 @@
 class Solution {
     private int[] candidates;
     private int target;
-    private List<List<Integer>> ans;
+    private List<List<Integer>> ans = new ArrayList<>();
     private void addNumber(int start, int residue, Stack<Integer> temp){
         if(residue == 0){
             ans.add(new ArrayList<>(temp));
@@ -16,7 +16,7 @@ class Solution {
         }
         for(int i = start; i < candidates.length && residue - candidates[i] >= 0; i++){
             temp.push(candidates[i]);
-            addNumber(i,residue+candidates[i],temp);
+            addNumber(i,residue-candidates[i],temp);
             temp.pop();
         }
     }
