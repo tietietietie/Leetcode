@@ -15,20 +15,20 @@
  */
 class Solution {
     public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-        ListNode dummy = new ListNode(0);
-        ListNode pre = dummy, i = l1, j = l2;
-        while(i != null || j != null){
-            if(j == null || (i != null && i.val <= j.val)){
-                pre.next = new ListNode(i.val);
-                pre = pre.next;
-                i = i.next;
+        ListNode dummy = new ListNode(Integer.MIN_VALUE);
+        ListNode pre = dummy;
+        while(l1 != null && l2 != null){
+            if(l1.val <= l2.val){
+                pre.next = l1;
+                l1 = l1.next;
             }
             else{
-                pre.next = new ListNode(j.val);
-                pre = pre.next;
-                j = j.next;
+                pre.next = l2;
+                l2 = l2.next;
             }
+            pre = pre.next;
         }
+        pre.next = (l1 == null?l2:l1);
         return dummy.next;
     }
 }
