@@ -38,11 +38,12 @@ class Solution {
 
         return head.next;
     }
-}
-public class ListNodeComparator implements Comparator<ListNode>{
-    public int compare(ListNode o1, ListNode o2){
-        return o1.val - o2.val;
+    public class ListNodeComparator implements Comparator<ListNode>{
+        public int compare(ListNode o1, ListNode o2){
+            return o1.val - o2.val;
+        }
     }
 }
+
 // @lc code=end
 
