@@ -15,17 +15,22 @@
  */
 class Solution {
     public ListNode swapPairs(ListNode head) {
-        ListNode i = head, j = head.next;
-        while(j != null){
-            i.next = j.next;
-            j.next = i;
-            i = i.next;
-            j = j.next.next;
+        ListNode dummy = new ListNode(-1);
+        dummy.next = head;
+        ListNode prevNode = dummy;
+        ListNode firstNode,secondNode;
+        while((head != null) && (head.next != null)){
+            firstNode = head;
+            secondNode = head.next;
+            //交换
+            prevNode.next = secondNode;
+            firstNode.next = secondNode.next;
+            secondNode.next = firstNode;
+            //移位
+            prevNode = firstNode;
+            head = firstNode.next;
         }
-        if(head.next != null)
-            return head.next;
-        else
-            return head;
+        return dummy.next;
     }
 }
 // @lc code=end
