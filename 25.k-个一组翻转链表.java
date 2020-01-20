@@ -15,24 +15,30 @@
  */
 class Solution {
     public ListNode reverseKGroup(ListNode head, int k) {
-        Stack<ListNode> stkNode = new Stack<ListNode>();
-        ListNode preNode = head;
-        while(preNode != null){
-            stkNode.push(head);
-            preNode = preNode.next;            
+        ListNode tail = head;
+        for(int i = 0; i < k; i++){
+            if(tail == null)
+                return head;
+            else
+                tail = tail.next;
         }
-        if(stkNode.size() < k)
-            return head;
-        else{
-            ListNode top = stkNode.peek();
-            while(stkNode.size() > 1){
-                ListNode i = stkNode.pop();
-                i.next = stkNode.peek();                
-            }
+        ListNode newhead = reverse(head,tail);
+        head.next = reverseKGroup(tail,k);
+        return newhead;
+    }    
+    private ListNode reverse(ListNode head, ListNode tail) {
+        Stack<ListNode> stkNode = new Stack<ListNode>();
+        ListNode pre = head;
+        while(pre != tail){
+            stkNode.add(pre);
+            pre = pre.next;
+        }
+        ListNode newhead = stkNode.peek();
+        while(stkNode.size() > 1){
             ListNode i = stkNode.pop();
-            i.next = reverseKGroup(i.next,k);
-            return top;
-        }    
+            i.next = stkNode.peek();
+        }
+        return newhead;
     }
 }
 // @lc code=end
