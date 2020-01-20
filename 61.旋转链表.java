@@ -17,25 +17,21 @@ class Solution {
     public ListNode rotateRight(ListNode head, int k) {
         if(head == null)
             return null;
-        int len = 0;
+        int len = 1;
         ListNode dummy = new ListNode(-1);
         dummy.next = head;
-        List<Integer> a = new ArrayList<>();
-        while(head != null){
+        while(head.next != null){  //head最终停在末尾
             len++;
-            a.add(head.val);
             head = head.next;
         }
+        head.next = dummy.next; //形成了闭环
         k = k%len;
-        int[] ans = new int[len];
-        for(int i = 0; i < len; i++){
-            ans[(i+k)%len] = a.get(i);
+        ListNode pre = dummy.next;
+        for(int i = 0; i < len-k-1; i++){
+            pre = pre.next;
         }
-        ListNode ihead = dummy.next;
-        for(int i =0; i < len; i++){
-            ihead.val = ans[i];
-            ihead = ihead.next;            
-        }
+        dummy.next = pre.next;
+        pre.next = null;
         return dummy.next;
     }
 }
