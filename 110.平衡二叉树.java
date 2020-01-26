@@ -15,24 +15,16 @@
  * }
  */
 class Solution {
-    private Map<TreeNode,Integer> map = new HashMap<>();
     public boolean isBalanced(TreeNode root) {
-        maxDepth(root);
-        return recursivelyCheck(root);        
+        if(root == null)
+            return true;
+        return Math.abs(depth(root.left) - depth(root.right)) < 2 && isBalanced(root.left) && isBalanced(root.right);
     }
-    private int maxDepth(TreeNode root){
-        if(root == null){
-            map.put(root,0);
+
+    public int depth(TreeNode root){
+        if(root == null)
             return 0;
-        }
-        int depth = Math.max(maxDepth(root.left),maxDepth(root.right)) + 1;
-        map.put(root,depth);
-        return depth;            
-    }
-    private boolean recursivelyCheck(TreeNode root){
-        if(root == null) return true;
-        return Math.abs(map.get(root.left)-map.get(root.right)) < 2 
-        && recursivelyCheck(root.left) && recursivelyCheck(root.right);
+        return Math.max(depth(root.left),depth(root.right)) + 1;
     }
 }
 // @lc code=end
