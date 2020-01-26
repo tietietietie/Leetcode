@@ -31,10 +31,8 @@ class Solution {
     }
     private boolean recursivelyCheck(TreeNode root){
         if(root == null) return true;
-        if(Math.abs(map.get(root.left)-map.get(root.right)) > 1) return false;
-        if(!recursivelyCheck(root.left)) return false;
-        if(!recursivelyCheck(root.right)) return false;
-        return true;
+        return Math.abs(map.get(root.left)-map.get(root.right)) < 2 
+        && recursivelyCheck(root.left) && recursivelyCheck(root.right);
     }
 }
 // @lc code=end
