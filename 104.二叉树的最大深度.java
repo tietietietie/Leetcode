@@ -14,27 +14,26 @@
  *     TreeNode(int x) { val = x; }
  * }
  */
+import javafx.util.Pair;
 class Solution {
-    private int depth = 0;
     public int maxDepth(TreeNode root) {
         if(root == null){
             return 0;
         }
-        LinkedList<TreeNode> queue = new LinkedList<>();
-        queue.offer(root);
-        int depth = 0;
-        while(!queue.isEmpty()){
-            depth++;
-            int levelSize = queue.size();
-            for(int i = 0; i < levelSize; i++){
-                TreeNode cur = queue.poll();
-                if(cur.left != null)
-                    queue.offer(cur.left);
-                if(cur.right != null)
-                    queue.offer(cur.right);
-            }
+        LinkedList<Pair<TreeNode,Integer>> stack = new LinkedList<>();
+        stack.push(new Pair<>(root,1));
+        int maxDepth = 0;
+        while(!stack.isEmpty()){
+            Pair<TreeNode,Integer> pair = stack.pop();
+            int cur_depth = pair.getValue();
+            TreeNode cur_node = pair.getKey();
+            maxDepth = Math.max(maxDepth,cur_depth);
+            if(cur_node.right != null)
+                stack.push(new Pair<TreeNode,Integer>(cur_node.right,cur_depth+1));
+            if(cur_node.left != null)
+                stack.push(new Pair<>(cur_node.left,cur_depth+1));
         }
-        return depth;
+        return maxDepth;
     }
 }
 // @lc code=end
