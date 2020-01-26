@@ -30,6 +30,7 @@ class Solution {
         return depth;            
     }
     private boolean recursivelyCheck(TreeNode root){
+        if(root == null) return true;
         if(Math.abs(map.get(root.left)-map.get(root.right)) > 1) return false;
         if(!recursivelyCheck(root.left)) return false;
         if(!recursivelyCheck(root.right)) return false;
