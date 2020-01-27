@@ -16,24 +16,17 @@
  */
 class Solution {
     public int pathSum(TreeNode root, int sum) {
-    int[] pathNodes = new int[1000];
-    return pathSum(root,sum,pathNodes,0);
+        if (root == null) return 0;
+        int ret = pathSumStartWithRoot(root, sum) + pathSum(root.left, sum) + pathSum(root.right, sum);
+        return ret;
     }
-
-    private int pathSum(TreeNode node, int sum, int[] pathNodes, int depth){
-        if(node == null)
-            return 0;
-        int n = 0;
-        pathNodes[depth] = node.val;
-        int temp = 0;
-        for(int i = depth; i >=0; i--){
-            temp += pathNodes[i];
-            if(temp == sum)
-                n++;
-        }
-        int n1 = pathSum(node.left,sum,pathNodes,depth+1);
-        int n2 = pathSum(node.right,sum,pathNodes,depth+1);
-        return n+n1+n2;
+    
+    private int pathSumStartWithRoot(TreeNode root, int sum) {
+        if (root == null) return 0;
+        int ret = 0;
+        if (root.val == sum) ret++;
+        ret += pathSumStartWithRoot(root.left, sum - root.val) + pathSumStartWithRoot(root.right, sum - root.val);
+        return ret;
     }
 }
 // @lc code=end
