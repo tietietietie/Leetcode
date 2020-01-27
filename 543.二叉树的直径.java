@@ -15,17 +15,21 @@
  * }
  */
 class Solution {
+    private int ans;
     public int diameterOfBinaryTree(TreeNode root) {
-        if(root == null)
-            return 0;
-        int d1 = depth(root.right) + depth(root.left);
-        int d2 = Math.max(diameterOfBinaryTree(root.left),diameterOfBinaryTree(root.right));
-        return Math.max(d1,d2);
+        ans = 0;
+        depth(root);
+        return ans;
     }
+    
     private int depth(TreeNode root){
-        if(root == null)
+        if(root == null){
             return 0;
-        return Math.max(depth(root.left),depth(root.right))+1;
+        }
+        int L = depth(root.left);
+        int R = depth(root.right);
+        ans = Math.max(ans,L+R);
+        return Math.max(L,R)+1;
     }
 }
 // @lc code=end
