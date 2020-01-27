@@ -15,33 +15,32 @@
  * }
  */
 class Solution {
-    //ans表示所有路径条数，sum为目标数，sums表示该节点到所有父节点的剩余路径
-    private int ans,sum;
-
     public int pathSum(TreeNode root, int sum) {
-    ans = 0;
-    this.sum = sum;
-    ArrayList<Integer> sums = new ArrayList<Integer>();
-    sums.add(sum);
-    recursivelyCount(root,sums);
-    return ans;
+        return pathSum(root, sum, new int[1000], 0);
     }
 
-    private void recursivelyCount(TreeNode node, ArrayList<Integer> sums){
-        if(node == null)
-            return;
-        //防止改变sums的值
-        ArrayList<Integer> Nsums = new ArrayList<Integer>();
-        Nsums = (ArrayList<Integer>)sums.clone();
-        for(int i = 0; i < Nsums.size(); i++){
-            if(Nsums.get(i) == node.val)
-                ans++;
-            Nsums.set(i,Nsums.get(i) - node.val);
+    public int pathSum(TreeNode root, int sum, int[] array/*保存路径*/, int p/*指向路径终点*/) {
+        if (root == null) {
+            return 0;
         }
-        Nsums.add(sum);
-        recursivelyCount(node.left,Nsums);
-        recursivelyCount(node.right,Nsums);
+        int tmp = root.val;
+        int n = root.val == sum ? 1 : 0;
+        for (int i = p - 1; i >= 0; i--) {
+            tmp += array[i];
+            if (tmp == sum) {
+                n++;
+            }
+        }
+        array[p] = root.val;
+        int n1 = pathSum(root.left, sum, array, p + 1);
+        int n2 = pathSum(root.right, sum, array, p + 1);
+        return n + n1 + n2;
     }
+
+// 作者：xiao-chao-wang-yi-lang
+// 链接：https://leetcode-cn.com/problems/path-sum-iii/solution/javajie-fa-shi-jian-100-kong-jian-93-by-xiao-chao-/
+// 来源：力扣（LeetCode）
+// 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 }
 // @lc code=end
 
