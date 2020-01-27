@@ -30,6 +30,7 @@ class Solution {
     private void recursivelyCount(TreeNode node, ArrayList<Integer> sums){
         if(node == null)
             return;
+        //防止改变sums的值
         ArrayList<Integer> Nsums = new ArrayList<Integer>();
         Nsums = (ArrayList<Integer>)sums.clone();
         for(int i = 0; i < Nsums.size(); i++){
