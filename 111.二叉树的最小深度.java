@@ -16,22 +16,11 @@
  */
 class Solution {
     public int minDepth(TreeNode root) {
-        //创建queue，进行BFS
-        LinkedList<TreeNode> queue = new LinkedList<>();
-        LinkedList<Integer> depths = new LinkedList<>(); 
-        queue.offer(root);
-        depths.offer(1);
-        while(!queue.isEmpty()){
-            TreeNode n = queue.poll();
-            int depth = depths.poll();
-            if(n == null) continue;
-            if(n.left == null && n.right == null) return depth;
-            queue.offer(n.left);
-            depths.offer(depth+1);
-            queue.offer(n.right);
-            depths.offer(depth+1);
-        }
-        return 0;      
+        if(root == null) return 0;
+        int d1 = minDepth(root.left);
+        int d2 = minDepth(root.right); 
+        if(d1 == 0 || d2 == 0) return d1+d2+1; 
+        return Math.min(d1,d2)+1;
     }
 }
 // @lc code=end
