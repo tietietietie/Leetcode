@@ -15,14 +15,19 @@
  * }
  */
 class Solution {
+    private int ans;
     public int sumOfLeftLeaves(TreeNode root) {
-        if(root == null) return 0;
-        int n = 0;
-        if(root.left == null)
-            return sumOfLeftLeaves(root.right);
-        else if(root.left.left == null && root.left.right == null)
-            return root.left.val + sumOfLeftLeaves(root.right);
-        return sumOfLeftLeaves(root.left) + sumOfLeftLeaves(root.right); 
+        ans = 0;
+        //根节点不是左叶子节点
+        addLeftLeaves(root,false);
+        return ans;
+    }
+
+    private void addLeftLeaves(TreeNode n, boolean isLeft){
+        if(n == null) return;
+        if(isLeft && n.left == null && n.right == null) ans += n.val;
+        addLeftLeaves(n.left,true);
+        addLeftLeaves(n.right,false);
     }
 }
 // @lc code=end
