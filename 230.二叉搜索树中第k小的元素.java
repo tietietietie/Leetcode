@@ -15,30 +15,22 @@
  * }
  */
 class Solution {
+    private int count;
+    private int ans;
     public int kthSmallest(TreeNode root, int k) {
-        HashMap<TreeNode,Integer> map = new HashMap<>();
-        dfs(root,map);
-        int ans = find(root,map,k);
+        count = 0;
+        inorder(root,k);
         return ans;
     }
 
-    private int dfs(TreeNode root, HashMap<TreeNode,Integer> map){
-        if(root == null) return 0;
-        int left = dfs(root.left,map);
-        int right = dfs(root.right,map);
-        map.put(root,left);
-        return left+right+1;
+    private void inorder(TreeNode root, int k){
+        if(root == null) return;
+        inorder(root.left,k);
+        count++;
+        if(count == k) ans = root.val;
+        else inorder(root.right,k);
+        return;
     }
-
-    private int find(TreeNode root,HashMap<TreeNode,Integer> map, int k){
-        int a = map.get(root);
-        if(a+1 == k)
-            return root.val;
-        else if(a+1 > k)
-            return find(root.left,map,k);
-        else
-            return find(root.right,map,k-a-1);
-    } 
 }
 // @lc code=end
 
