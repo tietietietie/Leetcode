@@ -15,20 +15,21 @@
  * }
  */
 class Solution {
-    private int temp;
     public TreeNode convertBST(TreeNode root) {
-        temp = 0;
-        inorder(root);
+        int sum = 0;
+        TreeNode cur = root;
+        Stack<TreeNode> stack = new Stack<>();
+        while(cur != null || !stack.isEmpty()){
+            while(cur != null){
+                stack.push(cur);
+                cur = cur.right;
+            }
+            cur = stack.pop();
+            sum += cur.val;
+            cur.val = sum;
+            cur = cur.left;
+        }
         return root;
-    }
-
-    private void inorder(TreeNode root){
-        if(root == null) return ;
-        inorder(root.right);
-        temp += root.val;
-        root.val = temp;
-        inorder(root.left);
-        return ;
     }
 }
 // @lc code=end
