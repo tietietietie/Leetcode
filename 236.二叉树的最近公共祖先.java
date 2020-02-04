@@ -16,28 +16,10 @@
  */
 class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        LinkedList<TreeNode> q1 = new LinkedList<>();
-        LinkedList<TreeNode> q2 = new LinkedList<>();
-        ancestors(root,p,q1);
-        ancestors(root,q,q2);
-        TreeNode ans = null;
-        //确定最深公共节点
-        while(q1.peek() == q2.peek()){
-            ans = q1.peek();
-            q1.poll();
-            q2.poll();                 
-        }
-        return ans;         
-    }
-    private boolean ancestors(TreeNode root, TreeNode node, LinkedList<TreeNode> q){
-        if(root == null) return false;
-        q.offer(root);
-        if(root == node) return true;
-        boolean exist = false;
-        if(root.left != null) exist = ancestors(root.left,node,q);
-        if(!exist && root.right != null) exist = ancestors(root.right,node,q);
-        if(!exist) q.pollLast();
-        return exist;
+        if (root == null || root == p || root == q) return root;
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        return left == null ? right : right == null ? left : root;
     }
 }
 // @lc code=end
