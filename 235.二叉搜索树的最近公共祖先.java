@@ -16,11 +16,22 @@
  */
 class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-        if(p.val < root.val && q.val < root.val) 
-            return lowestCommonAncestor(root.left,p,q);
-        if(p.val > root.val && q.val > root.val) 
-            return lowestCommonAncestor(root.right,p,q);
-        return root;
+        TreeNode cur = root;
+        int pval = p.val;
+        int qval = q.val;
+        //cur表示当前判断的节点
+        while(cur != null){
+            if(pval < cur.val && qval < cur.val){
+                cur = cur.left;
+                continue;
+            }
+            else if(pval > cur.val && qval > cur.val){
+                cur = cur.right;
+                continue;
+            }
+            return cur;
+        }
+        return null;
     }
 }
 // @lc code=end
