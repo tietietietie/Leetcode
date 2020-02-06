@@ -23,32 +23,35 @@
  * }
  */
 class Solution {
-    //定义一个数组
-    private List<Integer> values;
-    
-    //链表转数组
-    private void listToArray(ListNode head){
-        this.values = new ArrayList<Integer>();
+    //此处head表示当前遍历到的ListNode节点
+    private ListNode head;
+    //计算链表长度
+    private int getListLength(ListNode head){
+        int c = 0;
         while(head != null){
-            this.values.add(head.val);
+            c++;
             head = head.next;
         }
+        return c;
     }
 
-    //数组转BST
-    private TreeNode arrayToBST(int left, int right){
-        if(left > right) return null;
-        int mid = (left+right)/2;
-        TreeNode node = new TreeNode(this.values.get(mid));
-        node.left = arrayToBST(left,mid-1);
-        node.right = arrayToBST(mid+1,right);
+    //中序遍历创建平衡二叉树
+    private TreeNode inorder(int l, int r){
+        if(l > r) return null;
+        int mid = (l+r)/2;
+        TreeNode left = inorder(l,mid-1);
+        TreeNode node = new TreeNode(this.head.val);
+        this.head = this.head.next;
+        node.left = left;
+        TreeNode right = inorder(mid+1,r);
+        node.right = right;
         return node;
-    }
 
-    //主程序
+    }
     public TreeNode sortedListToBST(ListNode head) {
-        listToArray(head);
-        return arrayToBST(0,this.values.size()-1);
+        int len = getListLength(head);
+        this.head = head;
+        return inorder(0,len-1);
     }  
 }
 // @lc code=end
