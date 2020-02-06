@@ -15,26 +15,18 @@
  * }
  */
 class Solution {
-    //BST转有序数组
-    private void inorder(TreeNode root, ArrayList<Integer> array){
-        if(root == null) return ;  //不能return null??
-        inorder(root.left,array);
-        array.add(root.val);
-        inorder(root.right,array);
+    //利用DFS判断找没找到节点，如果没找到，则加入hashset
+    private boolean find(TreeNode node, int k, Set<Integer> set){
+        if(node == null) return false;
+        if(set.contains(k-node.val)) return true;
+        set.add(node.val);
+        return find(node.left,k,set) || find(node.right,k,set);
     }
 
+
     public boolean findTarget(TreeNode root, int k) {
-        ArrayList<Integer> array = new ArrayList<>();
-        inorder(root,array);
-        int i = 0;
-        int j = array.size()-1;
-        while(i < j){
-            int sum = array.get(i) + array.get(j);
-            if(sum == k) return true;
-            else if(sum < k) i++;
-            else j--;
-        }
-        return false;
+        Set<Integer> set = new HashSet<>();
+        return find(root,k,set);
     }
 }
 // @lc code=end
