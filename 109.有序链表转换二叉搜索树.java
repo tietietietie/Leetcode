@@ -23,29 +23,33 @@
  * }
  */
 class Solution {
-    //快慢指针确定中间节点
-    private ListNode findMiddle(ListNode head){
-        ListNode preSlow = null;
-        ListNode slow = head;
-        ListNode fast = head;
-        while(fast != null && fast.next != null){
-            preSlow = slow;
-            slow = slow.next;
-            fast = fast.next.next;
+    //定义一个数组
+    private List<Integer> values;
+    
+    //链表转数组
+    private void listToArray(ListNode head){
+        this.values = new ArrayList<Integer>();
+        while(head != null){
+            this.values.add(head.val);
+            head = head.next;
         }
-        //与左半链断开
-        preSlow.next = null;
-        return slow;
     }
-    public TreeNode sortedListToBST(ListNode head) {
-        if(head == null) return null;
-        if(head.next == null) return new TreeNode(head.val);
-        ListNode mid = findMiddle(head);
-        TreeNode node = new TreeNode(mid.val);
-        node.left = sortedListToBST(head);
-        node.right = sortedListToBST(mid.next);
+
+    //数组转BST
+    private TreeNode arrayToBST(int left, int right){
+        if(left > right) return null;
+        int mid = (left+right)/2;
+        TreeNode node = new TreeNode(this.values.get(mid));
+        node.left = arrayToBST(left,mid-1);
+        node.right = arrayToBST(mid+1,right);
         return node;
     }
+
+    //主程序
+    public TreeNode sortedListToBST(ListNode head) {
+        listToArray(head);
+        return arrayToBST(0,this.values.size()-1);
+    }  
 }
 // @lc code=end
 
