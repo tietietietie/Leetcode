@@ -21,9 +21,9 @@ class Solution {
     public int[] findMode(TreeNode root) {
         max = 0;
         count = 0;
-        TreeNode pre = null;
+        pre = null;
         modes = new ArrayList<>();
-        inorder(root,pre);
+        inorder(root);
         int size = modes.size();
         int[] ans = new int[size];
         for(int i = 0; i < size; i++){
@@ -32,26 +32,21 @@ class Solution {
         return ans;        
     }
 
-    private void inorder(TreeNode root, TreeNode pre){
+    private void inorder(TreeNode root){
         if(root == null) return;
-        inorder(root.left,pre);
-        if(pre != null){
-            if(pre.val == root.val) count++;
-            else if(count == max){
-                modes.add(pre.val);
-                count = 0;
-            }
-            else if(count > max){
-                max = count;
-                modes.clear();
-                modes.add(pre.val);
-                count = 0;
-                }
-            else
-                count = 0;
+        inorder(root.left);
+        if(pre != null && pre.val == root.val)
+            count++;
+        else count = 1;
+
+        if(count == max) modes.add(root.val);
+        if(count > max){
+            max = count;
+            modes.clear();
+            modes.add(root.val);
         }
         pre = root;
-        inorder(root.right,pre);
+        inorder(root.right);
         return;
     }
 }
