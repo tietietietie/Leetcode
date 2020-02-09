@@ -11,7 +11,7 @@ class Trie {
     private Node root;
 
     private static class Node{
-        private int val = 0;
+        private boolean isEnd = false;
         private Node[] next = new Node[R];
     }
     /** Initialize your data structure here. */
@@ -27,7 +27,7 @@ class Trie {
     private Node insert(Node node, String word, int d){
         if(node == null) node = new Node();
         if(d == word.length()) {
-            node.val = 1; 
+            node.isEnd = true; 
             return node;}
         char c = word.charAt(d);
         node.next[c-'a'] = insert(node.next[c-'a'],word,d+1);
@@ -36,25 +36,22 @@ class Trie {
     
     /** Returns if the word is in the trie. */
     public boolean search(String word) {
-        return search(root,word,0);                
+        Node x = search(root,word,0);
+        if(x == null) return false;
+        return x.isEnd;                
     }
 
-    private boolean search(Node node, String word, int d){
-        if(d == word.length() && node.val == 1) return true;
-        if(d == word.length() && node.val == 0) return false;
+    private Node search(Node node, String word, int d){
+        if(d == word.length()) return node;
         char c = word.charAt(d);
-        return node.next[c-'a'] == null?false:search(node.next[c-'a'],word,d+1);
+        return node.next[c-'a'] == null?null:search(node.next[c-'a'],word,d+1);
     }
     
     /** Returns if there is any word in the trie that starts with the given prefix. */
     public boolean startsWith(String prefix) {
-        return startWith(root,prefix,0);        
-    }
-
-    private boolean startWith(Node node, String word, int d){
-        if(d == word.length()) return true;
-        char c = word.charAt(d);
-        return node.next[c-'a'] == null?false:startWith(node.next[c-'a'],word,d+1);
+        Node x = search(root,prefix,0);
+        if(x == null) return false;
+        return true;        
     }
 }
 
