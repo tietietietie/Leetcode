@@ -37,7 +37,7 @@ class MapSum {
     public int sum(String prefix) {
         Node x = search(root,prefix,0);
         if(x == null) return 0;
-        this.sum = x.val;
+        this.sum = 0;
         sum(x);
         return this.sum;
     }
@@ -50,7 +50,10 @@ class MapSum {
     }
 
     private void sum(Node node){
-        
+        this.sum += node.val;
+        for(int i = 0; i < R; i++){
+            if(node.next[i] != null) sum(node.next[i]);
+        }
     }
 }
 
