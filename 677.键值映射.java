@@ -6,54 +6,54 @@
 
 // @lc code=start
 class MapSum {
-    private static int R = 256;
-    private Node root;
-    private int sum;
-    private class Node{
-        private int val;
-        private Node[] next = new Node[R];
+
+    private class Node {
+        Node[] child = new Node[26];
+        int value;
     }
 
-    /** Initialize your data structure here. */
+    private Node root = new Node();
+
     public MapSum() {
-        root = new Node();
+
     }
-    
+
     public void insert(String key, int val) {
-        insert(key,val,root,0);        
+        insert(key, root, val);
     }
 
-    private Node insert(String key, int val, Node node, int d){
-        if(node == null) node = new Node();
-        if(d == key.length()){
-            node.val = val;
-            return node;
+    private void insert(String key, Node node, int val) {
+        if (node == null) return;
+        if (key.length() == 0) {
+            node.value = val;
+            return;
         }
-        char c = key.charAt(d);
-        node.next[c] = insert(key,val,node.next[c],d+1);
-        return node; 
+        int index = indexForChar(key.charAt(0));
+        if (node.child[index] == null) {
+            node.child[index] = new Node();
+        }
+        insert(key.substring(1), node.child[index], val);
     }
-    
+
     public int sum(String prefix) {
-        Node x = search(root,prefix,0);
-        if(x == null) return 0;
-        this.sum = 0;
-        sum(x);
-        return this.sum;
+        return sum(prefix, root);
     }
 
-    private Node search(Node node,String prefix,int d){
-        if(node == null) return null;
-        if(d == prefix.length()) return node;
-        char c = prefix.charAt(d);
-        return search(node.next[c],prefix,d+1);
-    }
-
-    private void sum(Node node){
-        this.sum += node.val;
-        for(int i = 0; i < R; i++){
-            if(node.next[i] != null) sum(node.next[i]);
+    private int sum(String prefix, Node node) {
+        if (node == null) return 0;
+        if (prefix.length() != 0) {
+            int index = indexForChar(prefix.charAt(0));
+            return sum(prefix.substring(1), node.child[index]);
         }
+        int sum = node.value;
+        for (Node child : node.child) {
+            sum += sum(prefix, child);
+        }
+        return sum;
+    }
+
+    private int indexForChar(char c) {
+        return c - 'a';
     }
 }
 
