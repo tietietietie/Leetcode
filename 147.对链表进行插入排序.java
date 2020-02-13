@@ -16,33 +16,22 @@
 class Solution {
     public ListNode insertionSortList(ListNode head) {
         //设置哑节点
-        ListNode dummy = new ListNode(Integer.MIN_VALUE);
-        dummy.next = head;
-        ListNode cur1 = head;
-        ListNode pre = dummy;
-        while(cur1 != null){
-            ListNode next = cur1.next;
-            if(cur1.val >= pre.val){
-                pre = cur1;
-                cur1 = next;
-                continue;
+        ListNode helper = new ListNode(Integer.MIN_VALUE);
+        //cur表示待插入点，pre表示插入位置
+        ListNode cur = head;
+        ListNode pre = helper;
+        while(cur != null){
+            ListNode next = cur.next;
+            //插入点的next一定是大于等于cur.val，而且是第一个大于等于val的数
+            while(pre.next != null && pre.next.val < cur.val){
+                pre = pre.next;
             }
-            else{
-                ListNode cur2 = dummy;
-                while(cur2 != pre){
-                    if(cur2.val <= cur1.val && cur2.next.val > cur1.val){
-                        ListNode temp = cur2.next;
-                        cur2.next = cur1;
-                        cur1.next = temp;
-                        pre.next = next;
-                        cur1 = next;
-                        break;
-                    }
-                    cur2 = cur2.next;
-                }
-            }
+            cur.next = pre.next;
+            pre.next = cur;
+            pre = helper;
+            cur = next;
         }
-        return dummy.next;
+        return helper.next;
     }
 }
 // @lc code=end
