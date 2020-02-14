@@ -16,50 +16,33 @@
 class Solution {
 
     public ListNode sortList(ListNode head) {
-        return sort(head);
-    }
-
-    private ListNode sort(ListNode head){
         if(head == null || head.next == null) return head;
-        ListNode mid = findMid(head);
-        ListNode head2 = mid.next;
-        mid.next = null;
-        head = sort(head);
-        head2 = sort(head2);
-        return merge(head,head2);
-    }
-
-    private ListNode findMid(ListNode head){
+        //快慢指针法确定中间点位置，并隔断
         ListNode fast = head.next, slow = head;
         while(fast != null && fast.next != null){
             fast = fast.next.next;
             slow = slow.next;
         }
-        return slow;
-    }
-
-    private ListNode merge(ListNode head1, ListNode head2){
-        ListNode helper = new ListNode(0);
-        ListNode cur1 = head1, cur2 = head2, cur = helper;
-        while(cur1 != null && cur2 != null){
-            if(cur1.val < cur2.val){
-                cur.next = cur1;
-                cur1 = cur1.next;
-                cur = cur.next;
+        ListNode head2 = slow.next;
+        slow.next = null;
+        //先递归排序前后两链表
+        head = sortList(head);
+        head2 = sortList(head2);
+        //合并链表
+        ListNode helper = new ListNode(-1);
+        ListNode cur = helper;
+        while(head != null && head2 != null){
+            if(head.val < head2.val){
+                cur.next = head;
+                head = head.next;
+            }else{
+                cur.next = head2;
+                head2 = head2.next;
             }
-            else{
-                cur.next = cur2;
-                cur2 = cur2.next;
-                cur = cur.next;
-            }
+            cur = cur.next;
         }
-        if(cur1 == null){
-            cur.next = cur2;
-        }
-        if(cur2 == null){
-            cur.next = cur1;
-        }
-        return helper.next; 
+        cur.next = (head == null ? head2 : head);
+        return helper.next;
     }
 }
 // @lc code=end
