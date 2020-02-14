@@ -14,40 +14,34 @@
  * }
  */
 class Solution {
-    private ListNode dummy;
+
     public ListNode sortList(ListNode head) {
+        return sort(head);
+    }
+
+    private ListNode sort(ListNode head){
         if(head == null || head.next == null) return head;
-        dummy = new ListNode(0);
-        sort(head,null);
-        return dummy.next;
+        ListNode mid = findMid(head);
+        ListNode head2 = mid.next;
+        mid.next = null;
+        head = sort(head);
+        head2 = sort(head2);
+        return merge(head,head2);
     }
 
-    private void sort(ListNode head, ListNode tail){
-        if(head == tail || head.next == tail) return;
-        ListNode mid = findMid(head,tail);
-        sort(head,mid);
-        sort(mid,tail);
-        merge(head,mid,tail);
-    }
-
-    private ListNode findMid(ListNode head, ListNode tail){
-        ListNode fast = head, slow = head;
-        while(fast != tail && fast.next != tail){
+    private ListNode findMid(ListNode head){
+        ListNode fast = head.next, slow = head;
+        while(fast != null && fast.next != null){
             fast = fast.next.next;
             slow = slow.next;
         }
         return slow;
     }
 
-    private void merge(ListNode head, ListNode mid, ListNode tail){
+    private ListNode merge(ListNode head1, ListNode head2){
         ListNode helper = new ListNode(0);
-        ListNode cur1 = head, cur2 = mid, cur = helper;
-        while(cur1.next != mid){
-            cur1 = cur1.next;
-        }
-        cur1.next = tail;
-        cur1 = head;
-        while(cur1 != tail && cur2 != tail){
+        ListNode cur1 = head1, cur2 = head2, cur = helper;
+        while(cur1 != null && cur2 != null){
             if(cur1.val < cur2.val){
                 cur.next = cur1;
                 cur1 = cur1.next;
@@ -59,14 +53,13 @@ class Solution {
                 cur = cur.next;
             }
         }
-        if(cur1 == tail){
+        if(cur1 == null){
             cur.next = cur2;
         }
-
-        if(cur2 == tail){
+        if(cur2 == null){
             cur.next = cur1;
         }
-        dummy.next = helper.next;
+        return helper.next; 
     }
 }
 // @lc code=end
