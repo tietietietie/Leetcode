@@ -42,6 +42,11 @@ class Solution {
     private void merge(ListNode head, ListNode mid, ListNode tail){
         ListNode helper = new ListNode(0);
         ListNode cur1 = head, cur2 = mid, cur = helper;
+        while(cur1.next != mid){
+            cur1 = cur1.next;
+        }
+        cur1.next = tail;
+        cur1 = head;
         while(cur1 != tail && cur2 != tail){
             if(cur1.val < cur2.val){
                 cur.next = cur1;
