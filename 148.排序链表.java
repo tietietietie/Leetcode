@@ -14,7 +14,6 @@
  * }
  */
 class Solution {
-
     public ListNode sortList(ListNode head) {
         if(head == null || head.next == null) return head;
         //快慢指针法确定中间点位置，并隔断
@@ -41,6 +40,7 @@ class Solution {
             }
             cur = cur.next;
         }
+        //注意是cur.next，而不是cur
         cur.next = (head == null ? head2 : head);
         return helper.next;
     }
