@@ -15,9 +15,9 @@ class Solution {
         if(l == r) return heights[l];
         int mid = (l+r)/2;
         int curL = mid;
-        int curR = mid+1;
-        int minH = Math.min(heights[curL],heights[curR]);
-        int midArea = minH*2;
+        int curR = mid;
+        int minH = heights[mid];
+        int midArea = minH;
         while(curL >= l && curR <= r){
             minH = Math.min(minH, Math.min(heights[curL], heights[curR]));
             midArea = Math.max(midArea,minH*(curR-curL+1));
@@ -30,7 +30,7 @@ class Solution {
             else 
                 curR++;
         }
-        return Math.max(midArea,Math.max(caculationArea(heights,l,mid),caculationArea(heights,mid+1,r)));
+        return Math.max(midArea,Math.max(caculationArea(heights,l,mid-1),caculationArea(heights,mid+1,r)));
     }
 }
 // @lc code=end
