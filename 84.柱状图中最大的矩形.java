@@ -7,19 +7,18 @@
 // @lc code=start
 class Solution {
     public int largestRectangleArea(int[] heights) {
-        int length = heights.length;
-        if(length == 0) return 0;
-        int ans = 0;
-        Stack<Integer> stack = new Stack<>();
-        stack.push(-1);
-        for(int i = 0; i < length; i++){
-            while(stack.peek() != -1 && heights[stack.peek()] > heights[i])
-                ans = Math.max(ans,heights[stack.pop()]*(i - stack.peek() - 1));
-            stack.push(i);
+        return caculationArea(heights,0,heights.length -1);
+    }
+
+    private int caculationArea(int[] heights, int l, int r){
+        if(l > r) return 0;
+        if(l == r) return heights[l];
+        int min = l;
+        for(int i = l; i <= r; i++){
+            if(heights[i] < heights[min])
+                min = i;
         }
-        while(stack.peek() != -1)
-            ans = Math.max(ans,heights[stack.pop()]*(length - stack.peek() - 1));
-        return ans;
+        return Math.max(heights[min]*(r-l+1),Math.max(caculationArea(heights,l,min-1),caculationArea(heights,min+1,r)));
     }
 }
 // @lc code=end
