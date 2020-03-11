@@ -12,7 +12,6 @@ class Solution {
         while(cur < length && nums[cur] != 0)
             cur++;
         l = cur;
-        cur++;
         while(cur < length){
             if(nums[cur] == 0)
                 cur++;
