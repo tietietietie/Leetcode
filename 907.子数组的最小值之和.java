@@ -6,23 +6,28 @@
 
 // @lc code=start
 class Solution {
-    private int ans;
     public int sumSubarrayMins(int[] A) {
         int length = A.length;
-        ans = 0;
-        calculate(A,0,length-1);
+        Stack<Integer> prefix = new Stack<>();
+        Stack<Integer> suffix = new Stack<>();
+        int[] left = new int[length];
+        int[] right = new int[length];
+        int ans = 0;
+        for(int i = 0; i < length; i++){
+            while(!prefix.isEmpty() && A[prefix.peek()] > A[i])
+                prefix.pop();
+            left[i] = prefix.isEmpty()?-1:prefix.peek();
+            prefix.push(i);
+        }
+        for(int i = length-1; i >= 0; i--){
+            while(!suffix.isEmpty() && A[suffix.peek()] >= A[i])
+                suffix.pop();
+            right[i] = suffix.isEmpty()?length:suffix.peek();
+            suffix.push(i);
+        }
+        for(int i = 0; i < length; i++)
+            ans = (ans + (i-left[i])*(right[i]-i)*A[i])%1000000007;
         return ans;
-    }
-
-    private void calculate(int[] A, int l, int r){
-        if(l > r) return;
-        int min = l;
-        for(int i = l; i <= r; i++)
-            if(A[i] < A[min])
-                min = i;
-        ans = (ans + (min-l+1)*(r-min+1)*A[min])%1000000007;
-        calculate(A,l,min-1);
-        calculate(A,min+1,r);
     }
 }
 // @lc code=end
