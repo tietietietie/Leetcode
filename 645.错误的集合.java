@@ -7,18 +7,19 @@
 // @lc code=start
 class Solution {
     public int[] findErrorNums(int[] nums) {
-        int length = nums.length;
-        int[] map = new int[length+1];
-        for(int i : nums)
-            map[i]++;
-        int[] ans = new int[2];
-        for(int i = 1; i <= length; i++){
-            if(map[i] == 2)
-                ans[0] = i;
-            else if(map[i] == 0)
-                ans[1] = i;
+        int dup = -1, missing = -1;
+        for(int i : nums){
+            if(nums[Math.abs(i)-1] < 0)
+                dup = Math.abs(i);
+            else
+                nums[Math.abs(i)-1] *= -1;
         }
-        return ans;
+        for(int i = 0; i < nums.length; i++)
+            if(nums[i] > 0){
+                missing = i+1;
+                break;
+            }
+        return new int[]{dup,missing};
     }
 }
 // @lc code=end
