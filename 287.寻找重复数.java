@@ -7,17 +7,17 @@
 // @lc code=start
 class Solution {
     public int findDuplicate(int[] nums) {
-        int l = 1, r = nums.length-1;
-        while(l < r){
-            int mid = (l+r)/2;
-            int cnt = 0;
-            for(int i : nums)
-                if(i <= mid)
-                    cnt++;
-            if(cnt <= mid) l = mid+1;
-            else r = mid;
+        int slow = nums[0], fast = nums[nums[0]];
+        while(fast != slow){
+            slow = nums[slow];
+            fast = nums[nums[fast]];
         }
-        return l;
+        fast = 0;
+        while(fast != slow){
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+        return slow;
     }
 }
 // @lc code=end
