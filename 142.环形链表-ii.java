@@ -18,14 +18,19 @@
  */
 public class Solution {
     public ListNode detectCycle(ListNode head) {
-        if(head == null) return null;
-        Set<ListNode> set = new HashSet<>();
-        while(head != null){
-            if(set.contains(head)) return head;
-            else set.add(head);
-            head = head.next;
+        if(head == null || head.next == null) return null;
+        ListNode slow = head.next, fast = head.next.next;
+        while(fast != null && fast.next != null && fast != slow){
+            fast = fast.next.next;
+            slow = slow.next;
         }
-        return null;
+        if(fast == null || fast.next == null) return null;
+        fast = head;
+        while(fast != slow){
+            fast = fast.next;
+            slow = slow.next;
+        }
+        return slow;
     }
 }
 // @lc code=end
