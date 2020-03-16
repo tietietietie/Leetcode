@@ -7,33 +7,13 @@
 // @lc code=start
 class Solution {
     public int maxChunksToSorted(int[] arr) {
-        return splitChunk(arr,0,arr.length-1);
-    }
-
-    private int splitChunk(int[] arr, int l, int r){
-        if(l > r) return 0;
-        int count = 0;
-        while(l <= r && l == arr[l]){
-            l++;
-            count++;
+        int max = 0, ans = 0;
+        for(int i = 0; i < arr.length; i++){
+            max = Math.max(max,arr[i]);
+            if(max == i) ans++;
         }
-        while(l <=r  && r == arr[r]){
-            r--;
-            count++;
-        }
-        if(l > r) return count;        
-        int max = -1;
-        int idx = -1;
-        for(int i = l; i <=r; i++)
-            if(arr[i] > max){
-                max = arr[i];
-                idx = i;
-            }
-        if(max > r)
-            return -1;
-        int chunks1 = splitChunk(arr,l,idx-1);
-        return chunks1 == -1 ? count+1 : chunks1+count+1;      
-    }
+        return ans;
+    }      
 }
 // @lc code=end
 
