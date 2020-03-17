@@ -7,15 +7,15 @@
 // @lc code=start
 class Solution {
     public int[] dailyTemperatures(int[] T) {
-        int[] ans = new int[T.length];
         int length = T.length;
-        ans[length-1] = 0;
-        for(int i = length-2; i >= 0; i--){
-            int j = i+1;
-            while(T[i] >= T[j] && ans[j] != 0)
-                j += ans[j];
-            if(T[i] >= T[j]) ans[i] = 0;
-            else ans[i] = j-i;
+        int[] ans = new int[length];
+        Stack<Integer> stack = new Stack<>();
+        for(int i = length-1; i >= 0; i--){
+            int count = 0;
+            while(!stack.isEmpty() && T[stack.peek()] <= T[i])
+                stack.pop();
+            ans[i] = stack.isEmpty()?0:stack.peek()-i;
+            stack.push(i);
         }
         return ans;
     }
