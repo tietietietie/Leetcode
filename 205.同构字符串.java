@@ -9,21 +9,17 @@ class Solution {
     public boolean isIsomorphic(String s, String t) {
         if(s.length() != t.length()) return false;
         int length = s.length();
-        char[] sChars = s.toCharArray();
-        char[] tChars = t.toCharArray();
-        HashMap<Character,Character> map1 = new HashMap<>();
+        int[] map1 = new int[128];
+        int[] map2 = new int[128];
         for(int i = 0; i < length; i++){
-            if(map1.get(tChars[i]) == null)
-                map1.put(tChars[i],sChars[i]);
-            else if(map1.get(tChars[i]) != sChars[i])
+            char c1 = s.charAt(i);
+            char c2 = t.charAt(i);
+            if(map1[c1] != map2[c2])
                 return false;
-        }
-        HashMap<Character,Character> map2 = new HashMap<>();
-        for(int i = 0; i < length; i++){
-            if(map2.get(sChars[i]) == null)
-                map2.put(sChars[i],tChars[i]);
-            else if(map2.get(sChars[i]) != tChars[i])
-                return false;
+            else if(map1[c1] == 0){
+                map1[c1] = i+1;
+                map2[c2] = i+1;
+            }
         }
         return true;
     }
