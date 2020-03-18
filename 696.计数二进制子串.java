@@ -7,28 +7,24 @@
 // @lc code=start
 class Solution {
     public int countBinarySubstrings(String s) {
-        int count = 0;
         char[] chars = s.toCharArray();
         int length = chars.length;
-        for(int i = 0; i < length; i++){
-            int count0 = 0;
-            int count1 = 0;
-            int j = i;
-            while(j < length && chars[j] == chars[i]){
-                count0++;
-                j++;
-            }
-                
-            while(j < length && chars[j] != chars[i]){
-                j++;
-                count1++;
-                if(count1 == count0){
-                    count++;
-                    break;
-                }
+        int[] group = new int[length];
+        int ans = 0;
+        group[0] = 1;
+        int t = 0;
+        for(int i = 1; i < length; i++){
+            if(chars[i] == chars[i-1])
+                group[t]++;
+            else{
+                t++;
+                group[t] = 1;
             }
         }
-        return count;
+        for(int i = 1; i <= t; i++){
+            ans += Math.min(group[i],group[i-1]);
+        }
+        return ans;
     }
 }
 // @lc code=end
