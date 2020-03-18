@@ -7,18 +7,14 @@
 // @lc code=start
 class Solution {
     public int countSubstrings(String s) {
-        int length = s.length();
-        if(length == 0) return 0;
+        int n = s.length();
+        boolean[][] dp = new boolean[n][n];
         int ans = 0;
-        for(int center = 0; center <= 2*length-2; center++){
-            int left = center/2;
-            int right = left + center%2;
-            while(left >= 0 && right < length && s.charAt(left) == s.charAt(right)){
-                ans++;
-                left--;
-                right++;
+        for(int i = n-1; i >= 0; i--)
+            for(int j = i; j < n; j++){
+                dp[i][j] = s.charAt(i) == s.charAt(j) && (j-i <= 1 || dp[i+1][j-1]);
+                if(dp[i][j]) ans++;
             }
-        }
         return ans;
     }
 }
