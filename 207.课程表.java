@@ -15,24 +15,22 @@ class Solution {
         boolean[] globalMarked = new boolean[numCourses];
         boolean[] onStack = new boolean[numCourses];
         for(int i = 0; i < numCourses; i++)
-            if(hasCycle(digraph,i,globalMarked,onStack))
+            if(!globalMarked[i] && !dfs(digraph,i,globalMarked,onStack))
                 return false;
         return true;
     }
 
-    private boolean hasCycle(List<Integer>[] digraph, int i, boolean[] globalMarked, boolean[] onStack){
-        if(onStack[i])
-            return true;
-        if(globalMarked[i])
-            return false;
+    private boolean dfs(List<Integer>[] digraph, int i, boolean[] globalMarked, boolean[] onStack){
         onStack[i] = true;
         globalMarked[i] = true;
         for(int next : digraph[i]){
-            if(hasCycle(digraph,next,globalMarked,onStack))
-                return true;
+            if(onStack[next])
+                return false;
+            if(!dfs(digraph,next,globalMarked,onStack))
+                return false;
         }
         onStack[i] = false;
-        return false;
+        return true;
     }
 }
 // @lc code=end
