@@ -7,15 +7,7 @@
 // @lc code=start
 class Solution {
     public boolean isPowerOfFour(int num) {
-        if(num <= 0) return false;
-        int temp = num & (-num);
-        if(temp != num) return false;
-        int count = 0;
-        while(num != 1){
-            count++;
-            num = (num >> 1);
-        }
-        return count%2 == 0;
+        return (num > 0) && ((num & (num - 1)) == 0) && ((num & 0xaaaaaaaa) == 0);
     }
 }
 // @lc code=end
