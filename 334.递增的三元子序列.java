@@ -7,14 +7,20 @@
 // @lc code=start
 class Solution {
     public boolean increasingTriplet(int[] nums) {
-        int min = Integer.MAX_VALUE, mid = Integer.MAX_VALUE;
+        ArrayList<Integer> list = new ArrayList<>();
         int length = nums.length;
-        for(int i = 0; i < length; i++){
-            if(nums[i] <= min)
-                min = nums[i];
-            else if(nums[i] <= mid)
-                mid = nums[i];
+        if(length == 0) return false;
+        list.add(nums[0]);
+        for(int i = 1; i < length; i++){
+            int j = 0;
+            for(; j < list.size(); j++)
+                if(list.get(j) >= nums[i])
+                    break;
+            if(j < list.size())
+                list.set(j,nums[i]);
             else
+                list.add(nums[i]);  //set
+            if(list.size() == 3)
                 return true;
         }
         return false;
