@@ -7,15 +7,17 @@
 // @lc code=start
 class Solution {
     public boolean increasingTriplet(int[] nums) {
-        int i = 0, n = nums.length;
-        Stack<Integer> stack = new Stack<>();
-        while(i < n && stack.size() < 3){
-            while(!stack.isEmpty() && stack.peek() >= nums[i])
-                stack.pop();
-            stack.push(nums[i]);
-            i++;
+        int min = Integer.MAX_VALUE, mid = Integer.MAX_VALUE;
+        int length = nums.length;
+        for(int i = 0; i < length; i++){
+            if(nums[i] <= min)
+                min = nums[i];
+            else if(nums[i] <= mid)
+                mid = nums[i];
+            else
+                return true;
         }
-        return stack.size() == 3;
+        return false;
     }
 }
 // @lc code=end
