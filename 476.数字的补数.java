@@ -8,20 +8,10 @@
 class Solution {
     public int findComplement(int num) {
         if(num < 0) return -1;
-        int ans = 0;
-        int temp = num;
-        int digitNum = 0;
-        while(temp != 0){
-            digitNum++;
-            temp >>>= 1;
-        }
-        int flag = 1;
-        for(int i = 0; i < digitNum; i++){
-            if((flag & num) == 0)
-                ans += flag;
-            flag <<= 1;
-        }
-        return ans;
+        int mask = 1 << 30;
+        while((num & mask) == 0) mask >>= 1;
+        mask = (mask << 1) - 1;
+        return mask ^ num;
     }
 }
 // @lc code=end
