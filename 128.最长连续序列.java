@@ -7,23 +7,19 @@
 // @lc code=start
 class Solution {
     public int longestConsecutive(int[] nums) {
-        HashMap<Integer,Boolean> map = new HashMap<>();
+        HashSet<Integer> set = new HashSet<>();
         for(int num : nums)
-            if(map.get(num) == null)
-                map.put(num,true);
-        int ans = 0;
-        for(int num : map.keySet()){
-            if(map.get(num)){
-                int left = num-1, right = num+1;
-                while(map.get(left) != null){
-                    map.put(left,false);
-                    left--;
+            set.add(num);
+        int ans= 0;
+        for(int num : set){
+            if(!set.contains(num-1)){
+                int count = 0;
+                int temp = num;
+                while(set.contains(temp)){
+                    count++;
+                    temp++;
                 }
-                while(map.get(right) != null){
-                    map.put(right,false);
-                    right++;
-                }
-                ans = Math.max(right-left-1,ans);
+                ans = Math.max(ans,count);
             }
         }
         return ans;
