@@ -7,20 +7,18 @@
 // @lc code=start
 class Solution {
     public String reverseVowels(String s) {
-        HashSet<Character> set = new HashSet<>(){{add('a');add('e');add('i');add('o');add('u');
-        add('A');add('E');add('I');add('O');add('U');}};
+        Stack<Character> vowels = new Stack<>();
+        LinkedList<Integer> indexs = new LinkedList<>();
+        HashSet<Character> set = new HashSet<>()                                       {{add('a');add('e');add('i');add('o');add('u');add('A');add('E');add('I');add('O');add('U');}};
         char[] chars = s.toCharArray();
-        int l = 0, r = chars.length-1;
-        while(l < r){
-            while(l < r && !set.contains(chars[l]))
-                l++;
-            while(l < r && !set.contains(chars[r]))
-                r--;
-            char temp = chars[l];
-            chars[l] = chars[r];
-            chars[r] = temp;
-            r--;
-            l++;
+        for(int i = 0; i < chars.length; i++){
+            if(set.contains(chars[i])){
+                vowels.push(chars[i]);
+                indexs.offer(i);
+            }
+        }
+        while(!vowels.isEmpty()){
+            chars[indexs.poll()] = vowels.pop();
         }
         return String.valueOf(chars);
     }
