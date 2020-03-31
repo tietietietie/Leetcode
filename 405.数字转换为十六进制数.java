@@ -10,11 +10,13 @@ class Solution {
         StringBuilder sb = new StringBuilder();
         if(num == 0) return "0";
         int cmp = 15;
-        char[] map = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
         while(num != 0){
             int digit = num & cmp;
             num >>>= 4;
-            sb.append(map[digit]);
+            if(digit < 10)
+                sb.append(digit);
+            else
+                sb.append((char)(digit-10+'a'));
         }
         return sb.reverse().toString();
     }
