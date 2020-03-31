@@ -6,25 +6,10 @@
 
 // @lc code=start
 class Solution {
-    public String convertToBase7(int num) {
-        if(num == 0)
-            return "0";
-        StringBuilder sb = new StringBuilder();
-        boolean isNegative = false;
-        if(num < 0){
-            isNegative = true;
-            num = Math.abs(num);
-        }
-        while(num != 0){
-            sb.append(num % 7);
-            num /= 7;
-        }
-        //String ans = String.join("",chars);
-        //return String.valueOf(chars);
-        // int size = chars.size();
-        // String ans = new String((char[])chars.toArray(new char[size]));
-        String ans = sb.reverse().toString();
-        return isNegative ? "-" + ans : ans;
+    public String convertToBase7(int n) {
+        if(n < 0) return "-" + convertToBase7(-n);
+        if(n < 7) return String.valueOf(n);
+        return convertToBase7(n/7) + String.valueOf(n%7);
     }
 }
 // @lc code=end
