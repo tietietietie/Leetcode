@@ -23,7 +23,12 @@ class Solution {
         return select(nums,l,pivotIdx-1,k);
     }
 
+
     private int partition(int[] nums, int l, int r){
+        int mid = (l+r)/2;
+        int temp = nums[l];
+        nums[l] = nums[mid];
+        nums[mid] = temp;
         int pivotValue = nums[l];
         while(l < r){
             while(l < r && nums[r] >= pivotValue) r--;
