@@ -7,20 +7,18 @@
 // @lc code=start
 class Solution {
     public int majorityElement(int[] nums) {
-        HashMap<Integer,Integer> map = new HashMap<>();
-        int majority = nums[0];
-        for(int i : nums){
-            if(map.get(i) == null){
-                map.put(i,1);
-            }else{
-                map.put(i,map.get(i)+1);
-                if(map.get(i) > map.get(majority))
-                    majority = i;
+        int count = 1, majority = nums[0];
+        for(int i = 1; i < nums.length; i++){
+            if(count == 0){
+                count = 1;
+                majority = nums[i];
             }
-            if(map.get(majority) > nums.length/2)
-                return majority;
+            else if(nums[i] == majority)
+                count++;
+            else
+                count--;
         }
-        return -1;
+        return majority;
     }
 }
 // @lc code=end
