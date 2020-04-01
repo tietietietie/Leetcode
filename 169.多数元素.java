@@ -7,16 +7,14 @@
 // @lc code=start
 class Solution {
     public int majorityElement(int[] nums) {
-        int count = 1, majority = nums[0];
-        for(int i = 1; i < nums.length; i++){
-            if(count == 0){
-                count = 1;
-                majority = nums[i];
-            }
-            else if(nums[i] == majority)
-                count++;
-            else
-                count--;
+        int[] bit = new int[32];
+        for(int num : nums)
+            for(int i = 0; i < 32; i++)
+                bit[i] += (num>>>i) & 1;
+        int majority = 0;
+        for(int i = 0; i < 32; i++){
+            bit[i] = bit[i] > nums.length/2 ? 1 : 0;
+            majority += (bit[i]<<i);
         }
         return majority;
     }
