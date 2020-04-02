@@ -7,11 +7,12 @@
 // @lc code=start
 class Solution {
     public boolean isPerfectSquare(int num) {
-        if(num < 2) return true;
-        long x = num/2;
-        while(x*x > num)
-            x = (x + num/x)/2;
-        return x*x == num;
+        int subSum = 1;
+        while(num > 0){
+            num -= subSum;
+            subSum += 2;
+        }
+        return num == 0;
     }
 }
 // @lc code=end
