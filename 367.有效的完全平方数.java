@@ -8,18 +8,10 @@
 class Solution {
     public boolean isPerfectSquare(int num) {
         if(num < 2) return true;
-        int l = 0, r = num/2;
-        while(l <= r){
-            int mid = (l+r)/2;
-            long guess_square = (long)mid*mid;
-            if(guess_square > num)
-                r = mid-1;
-            else if(guess_square < num)
-                l = mid+1;
-            else
-                return true;
-        }
-        return false;
+        long x = num/2;
+        while(x*x > num)
+            x = (x + num/x)/2;
+        return x*x == num;
     }
 }
 // @lc code=end
