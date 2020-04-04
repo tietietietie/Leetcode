@@ -7,21 +7,16 @@
 // @lc code=start
 class Solution {
     public int eraseOverlapIntervals(int[][] intervals) {
-        int ans = 0;
-        Arrays.sort(intervals,(o1,o2) -> o1[0]-o2[0]);
-        int curStart = Integer.MIN_VALUE, curEnd = Integer.MIN_VALUE;
-        for(int[] interval : intervals){
-            if(interval[0] >= curEnd){
-                curStart = interval[0];
-                curEnd = interval[1];
-            }else if(interval[1] < curEnd){
-                curStart = interval[0];
-                curEnd = interval[1];
-                ans++;
-            }else
-                ans++;
-        }
-        return ans;
+        if(intervals.length == 0) return 0;
+        Arrays.sort(intervals,(o1,o2) -> o1[1]-o2[1]);
+        int count = 1;
+        int curEnd = intervals[0][1];
+        for(int i = 1; i < intervals.length; i++)
+            if(intervals[i][0] >= curEnd){
+                count++;
+                curEnd = intervals[i][1];
+            }  
+        return intervals.length-count;
     }
 }
 // @lc code=end
