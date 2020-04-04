@@ -7,16 +7,14 @@
 // @lc code=start
 class Solution {
     public int maxProfit(int[] prices) {
-        int[] futureMax = new int[prices.length];
-        int max = Integer.MIN_VALUE;
-        for(int i = prices.length-1; i >= 0; i--){
-            if(prices[i] > max)
-                max = prices[i];
-            futureMax[i] = max;
-        }
+        if(prices.length < 2) return 0; 
+        int preMin = prices[0];
         int ans = 0;
-        for(int i = 0; i < prices.length; i++)
-            ans = Math.max(ans,futureMax[i]-prices[i]);
+        for(int i = 1; i < prices.length; i++){
+            ans = Math.max(prices[i]-preMin,ans);
+            if(prices[i] < preMin)
+                preMin = prices[i];
+        }
         return ans;
     }
 }
