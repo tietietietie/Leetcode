@@ -14,15 +14,18 @@ class Solution {
             else
                 map.put(num,map.get(num)+1);
         }
-        PriorityQueue<Integer> pq = new PriorityQueue<>((o1,o2) -> map.get(o1)-map.get(o2));
+        ArrayList<Integer>[] buckets = new ArrayList[nums.length+1];
         for(int num : map.keySet()){
-            pq.offer(num);
-            if(pq.size() > k)
-                pq.poll();
+            if(buckets[map.get(num)] == null)
+                buckets[map.get(num)] = new ArrayList<>();
+                buckets[map.get(num)].add(num);
         }
         List<Integer> ans = new ArrayList<>();
-        while(!pq.isEmpty())
-            ans.add(pq.poll());
+        for(int i = buckets.length-1; i >= 1; i--){
+            if(buckets[i] == null) continue;
+            else if(ans.size() < k) ans.addAll(buckets[i]);
+            else break;
+        }
         return ans;
     }
 }
