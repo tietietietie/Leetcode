@@ -9,25 +9,20 @@ class Solution {
     public String frequencySort(String s) {
         HashMap<Character,Integer> map = new HashMap<>();
         char[] chars = s.toCharArray();
-        for(char c : chars){
-            if(map.get(c) == null)
-                map.put(c,1);
-            else
-                map.put(c,map.get(c)+1);
-        }
-        Pair<Character,Integer>[] pairs = new Pair[map.keySet().size()];
-        int i = 0;
+        for(char c : chars)
+            map.put(c,map.getOrDefault(c,0)+1);
+        List<Character>[] buckets = new ArrayList[s.length()+1];
         for(char c : map.keySet()){
-            pairs[i] = new Pair<>(c,map.get(c));
-            i++;
+            if(buckets[map.get(c)] == null)
+                buckets[map.get(c)] = new ArrayList<>();
+            buckets[map.get(c)].add(c);
         }
-        Arrays.sort(pairs,(o1,o2) -> o2.getValue()-o1.getValue());
         StringBuilder sb = new StringBuilder();
-        for(int j = 0; j < pairs.length; j++){
-            int length = pairs[j].getValue();
-            char c = pairs[j].getKey();
-            for(int k = 0; k < length; k++)
-                sb.append(c);
+        for(int i = buckets.length-1; i >= 1; i--){
+            if(buckets[i] == null) continue;
+            for(char c : buckets[i])
+                for(int j = 0; j < i; j++)
+                    sb.append(c);
         }
         return sb.toString();
     }
