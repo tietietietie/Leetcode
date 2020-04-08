@@ -14,18 +14,15 @@ class Solution {
             else
                 map.put(num,map.get(num)+1);
         }
-        PriorityQueue<Pair<Integer,Integer>> pq = new PriorityQueue<>((o1,o2) -> o1.getValue() - o2.getValue());
+        PriorityQueue<Integer> pq = new PriorityQueue<>((o1,o2) -> map.get(o1)-map.get(o2));
         for(int num : map.keySet()){
-            if(pq.size() < k)
-                pq.offer(new Pair<>(num,map.get(num)));
-            else if(pq.peek().getValue() < map.get(num)){
+            pq.offer(num);
+            if(pq.size() > k)
                 pq.poll();
-                pq.offer(new Pair<>(num,map.get(num)));
-            }
         }
         List<Integer> ans = new ArrayList<>();
         while(!pq.isEmpty())
-            ans.add(pq.poll().getKey());
+            ans.add(pq.poll());
         return ans;
     }
 }
