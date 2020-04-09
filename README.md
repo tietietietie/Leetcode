@@ -157,3 +157,158 @@ class Solution {
 }
 ```
 
+## 5.最长回文子串
+
+* 正确思路：中心扩展法
+* 注意：
+  * 可以将复杂度从n^2降低为n，但是比较复杂
+  * 不需要把回文substring出来，只需要求出左右端点下标，比较长度即可
+  * l~r：左闭右开，c1~c2：左开右开
+
+```java
+class Solution {
+    public int l = 0, r = 0;
+    public String longestPalindrome(String s) {
+        for(int i = 0; i < s.length(); i++){
+            longestPalindrome(s,i,i);
+            longestPalindrome(s,i,i+1);
+        }
+        return s.substring(l,r);
+    }
+
+    private void longestPalindrome(String s, int c1, int c2){
+        while(c1 >= 0 && c2 < s.length() && s.charAt(c1) == s.charAt(c2)){
+            c1--;
+            c2++;
+        }
+        if(r-l < c2-c1-1){
+            l = c1+1;
+            r = c2;
+        }
+    }
+}
+```
+
+## 11.承最多水的容器
+
+* 正确思路：双指针
+* 注意
+  * 默认最大容积为宽最长的容器，要使容积变大，必须在宽度变小的同时，增大最小边。
+  * 为什么不能移动最长边呢？因为移动最长边，并不能使容积变大
+
+```java
+class Solution {
+    public int maxArea(int[] height) {
+        int l = 0, r = height.length-1;
+        int maxArea = 0;
+        while(l < r){
+            maxArea = Math.max(maxArea,(r-l)*Math.min(height[l],height[r]));
+            if(height[l] < height[r]){
+                while(l < r && height[l+1] <= height[l])
+                    l++;
+                l++;
+            }else{
+                while(l < r && height[r-1] <= height[r])
+                    r--;
+                r--;
+            }
+        }
+        return maxArea;
+    }
+}
+```
+
+## 15.三数之和
+
+### Solution 1
+
+* 正确思路：排序+双指针
+* 注意
+  * 需要跳过重复情况，包括nums[i-1] == nums[i]，以及l,r有多个值。
+  * 最好情况也就是num
+
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> ans = new ArrayList<>();
+        for(int i = 0; i < nums.length-2 && nums[i] <= 0; i++){
+            if(i != 0 && nums[i-1] == nums[i]) continue;
+            int l = i+1, r = nums.length-1, sum = 0-nums[i];
+            while(l < r){
+                if(nums[l]+nums[r] == sum){
+                    ans.add(Arrays.asList(nums[i],nums[l],nums[r]));
+                    while(l<r && nums[l+1] == nums[l]) l++;
+                    while(l<r && nums[r-1] == nums[r]) r--;
+                    l++;
+                    r--;
+                }else if(nums[l]+nums[r] < sum)
+                    l++;
+                else
+                    r--;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 2
+
+* 正确思路：排序+hashmap
+* 注意
+  * 先排序，然后存储数字最后出现的index
+  * 每次需要对i,j排除重复元素（跳过相同值）
+
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> ans = new ArrayList<>();
+        HashMap<Integer,Integer> map = new HashMap<>();
+        for(int i = 0; i < nums.length; i++)
+            map.put(nums[i],i);
+        for(int i = 0; i < nums.length-2 && nums[i] <= 0; i++){
+            for(int j = i+1; j < nums.length-1; j++){
+                int target = 0 - nums[i] - nums[j];
+                if(map.containsKey(target) && map.get(target) > j){
+                    ans.add(Arrays.asList(nums[i],nums[j],target));
+                    j = map.get(nums[j]);
+                }
+            }
+            i = map.get(nums[i]);
+        }
+        return ans;
+    }
+}
+```
+
+## 16.最接近的三数之和
+
+* 正确思路：排序+双指针
+* 注意
+  * 可以优化重复数字的情况
+
+```java
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        int ans = nums[0]+nums[1]+nums[2];
+        for(int i = 0; i < nums.length-2; i++){
+            int l = i+1, r = nums.length-1;
+            while(l < r){
+                int sum = nums[i]+nums[l]+nums[r];
+                ans = Math.abs(sum-target) >= Math.abs(ans-target) ? ans : sum;
+                if(sum == target)
+                    return sum;
+                else if(sum > target)
+                    r--;
+                else
+                    l++;
+            }
+        }
+        return ans;
+    }
+}
+```
+
