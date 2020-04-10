@@ -7,15 +7,25 @@
 // @lc code=start
 class Solution {
     public int numSquares(int n) {
-        int[] dp = new int[n+1];
-        Arrays.fill(dp,Integer.MAX_VALUE);
-        dp[0] = 0;
-        for(int i = 1; i <= n; i++){
-            for(int j = 1; j*j <= i; j++){
-                dp[i] = Math.min(dp[i],1+dp[i-j*j]);
+        HashSet<Integer> squareNums = new HashSet<>();
+        for(int i = 1; i*i <= n; i++)
+            squareNums.add(i*i);
+        HashSet<Integer> curLevel = new HashSet<>();
+        curLevel.add(n);
+        int level = 0;
+        while(!curLevel.isEmpty()){
+            level++;
+            HashSet<Integer> nextLevel = new HashSet<>();
+            for(int remainder : curLevel){
+                if(squareNums.contains(remainder))
+                    return level;
+                for(int squareNum : squareNums)
+                    if(remainder > squareNum)
+                        nextLevel.add(remainder-squareNum);
             }
+            curLevel = nextLevel;
         }
-        return dp[n];
+        return -1;
     }
 }
 // @lc code=end
