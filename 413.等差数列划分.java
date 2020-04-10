@@ -10,19 +10,13 @@ class Solution {
         int n = A.length;
         if(n < 3) return 0;
         int[] dp = new int[n];
-        dp[2] = numberOfArithmeticSlices(A,2);
-        for(int i = 3; i < n; i++)
-            dp[i] = dp[i-1] + numberOfArithmeticSlices(A,i);
-        return dp[n-1];
-    }
-
-    private int numberOfArithmeticSlices(int[] A, int r){
-        int length = 0, diff = A[r] - A[r-1];
-        while(r >= 1 && A[r]-A[r-1] == diff){
-            length++;
-            r--;
-        }
-        return Math.max(0,length-1);
+        int sum = 0;
+        for(int i = 2; i < n; i++)
+            if(A[i]-A[i-1] == A[i-1]-A[i-2]){
+                dp[i] = dp[i-1]+1;
+                sum += dp[i];
+            }
+        return sum;
     }
 }
 // @lc code=end
