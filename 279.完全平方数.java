@@ -6,29 +6,25 @@
 
 // @lc code=start
 class Solution {
+    private boolean isSquare(int n){
+        int sq = (int)Math.sqrt(n);
+        return n == sq*sq;
+    }
     public int numSquares(int n) {
-        ArrayList<Integer> squareNums = new ArrayList<>();
-        for(int i = 1; i*i <= n; i++)
-            squareNums.add(i*i);
-        HashSet<Integer> curLevel = new HashSet<>();
-        curLevel.add(n);
-        int level = 0;
-        while(!curLevel.isEmpty()){
-            level++;
-            HashSet<Integer> nextLevel = new HashSet<>();
-            for(int remainder : curLevel){
-                for(int squareNum : squareNums){
-                    if(remainder == squareNum)
-                        return level;
-                    else if(remainder > squareNum)
-                        nextLevel.add(remainder - squareNum);
-                    else
-                        break;
-                }
-            }
-            curLevel = nextLevel;
-        }
-        return -1;
+        int temp = n;
+        while(temp%4 == 0)
+            temp /= 4;
+        if(temp%8 == 7)
+            return 4;
+        
+        if(isSquare(n))
+            return 1;
+        
+        for(int i = 1; i*i < n; i++)
+            if(isSquare(n-i*i))
+                return 2;
+        
+        return 3;
     }
 }
 // @lc code=end
