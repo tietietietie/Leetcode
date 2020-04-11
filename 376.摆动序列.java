@@ -8,30 +8,14 @@
 class Solution {
     public int wiggleMaxLength(int[] nums) {
         if(nums.length < 2) return nums.length;
-        int ans = 1;
-        int pre1 = nums[0];
-        int i = 1;
-        for(;i < nums.length; i++)
-            if(nums[i] != pre1)
-                break;
-        if(i == nums.length) return ans;
-        int pre2 = nums[i];
-        ans++;
-        for(int j = i+1; j < nums.length; j++){
-            if(nums[j] == pre2)
-                continue;
-            else if(nums[j] > pre2 && pre1 > pre2){
+        int preDiff = nums[1] - nums[0];
+        int ans = preDiff == 0 ? 1 : 2;
+        for(int i = 2; i < nums.length; i++){
+            int diff = nums[i] - nums[i-1];
+            if((preDiff >= 0 && diff < 0) || (preDiff <= 0 && diff > 0)){
                 ans++;
-                pre1 = pre2;
-                pre2 = nums[j];
-            }else if(nums[j] < pre2 && pre1 > pre2){
-                pre2 = nums[j];
-            }else if(nums[j] < pre2 && pre1 < pre2){
-                ans++;
-                pre1 = pre2;
-                pre2 = nums[j];
-            }else
-                pre2 = nums[j];
+                preDiff = diff;
+            }
         }
         return ans;
     }
