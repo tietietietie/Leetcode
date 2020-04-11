@@ -7,19 +7,17 @@
 // @lc code=start
 class Solution {
     public int lengthOfLIS(int[] nums) {
-        int[] tails = new int[nums.length];
-        int length = 0;
+        if(nums.length == 0) return 0;
+        int ans = 0;
+        int[] dp = new int[nums.length];
+        Arrays.fill(dp,1);
         for(int i = 0; i < nums.length; i++){
-            int l = 0, r = length;
-            while(l < r){
-                int mid = (l+r)/2;
-                if(tails[mid] < nums[i]) l = mid+1;
-                else r = mid;
-            }
-            tails[l] = nums[i];
-            if(l == length) length++;
+            for(int j = 0; j < i; j++)
+                if(nums[j] < nums[i])
+                    dp[i] = Math.max(dp[i],dp[j]+1);
+            ans = Math.max(ans,dp[i]);
         }
-        return length;
+        return ans;
     }
 }
 // @lc code=end
