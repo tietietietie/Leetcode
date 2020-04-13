@@ -7,16 +7,17 @@
 // @lc code=start
 class Solution {
     public int findTargetSumWays(int[] nums, int S) {
-        return dfs(nums,0,S);
-    }
-
-    private int dfs(int[] nums, int i, int target){
-        if(i == nums.length && target == 0) return 1;
-        if(i == nums.length) return 0;
-        int ans = 0;
-        ans += dfs(nums,i+1,target-nums[i]);
-        ans += dfs(nums,i+1,target+nums[i]);
-        return ans;
+        int sum = 0;
+        for(int num : nums)
+            sum += num;
+        if((sum+S)%2 != 0 || S > sum) return 0;
+        sum = (sum+S)/2;
+        int[] dp = new int[sum+1];
+        dp[0] = 1;
+        for(int i = 0; i < nums.length; i++)
+            for(int j = sum; j >= nums[i]; j--)
+                    dp[j] += dp[j-nums[i]];
+        return dp[sum];
     }
 }
 // @lc code=end
