@@ -6,21 +6,23 @@
 
 // @lc code=start
 class Solution {
-    public Boolean[] memo;
     public boolean wordBreak(String s, List<String> wordDict) {
-        memo = new Boolean[s.length()+1];
-        return wordBreak(s,new HashSet<String>(wordDict), 0);
-    }
-    private boolean wordBreak(String s, HashSet<String> set, int start){
-        if(start == s.length()){
-            return memo[s.length()] = true;
+        LinkedList<Integer> queue = new LinkedList<>();
+        boolean[] visited = new boolean[s.length()];
+        HashSet<String> set = new HashSet<>(wordDict);
+        queue.add(0);
+        while(!queue.isEmpty()){
+            int curIdx = queue.poll();
+            if(visited[curIdx] == false){
+                for(int end = curIdx+1; end <= s.length(); end++)
+                    if(set.contains(s.substring(curIdx,end))){
+                        if(end == s.length()) return true;
+                        else queue.offer(end);
+                    }
+                visited[curIdx] = true;
+            }
         }
-        if(memo[start] != null)
-            return memo[start];
-        for(int end = start+1; end <= s.length(); end++)
-            if(set.contains(s.substring(start,end)) && wordBreak(s,set,end))
-                return memo[start] = true;
-        return memo[start] = false;
+        return false;
     }
 }
 // @lc code=end
