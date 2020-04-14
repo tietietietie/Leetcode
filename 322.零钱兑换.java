@@ -6,15 +6,22 @@
 
 // @lc code=start
 class Solution {
+    private int ans;
     public int coinChange(int[] coins, int amount) {
-        int[] dp = new int[amount+1];
-        Arrays.fill(dp,amount+1);
-        dp[0] = 0;
-        for(int coin : coins)
-            for(int i = coin; i <= amount; i++){
-                dp[i] = Math.min(dp[i],dp[i-coin]+1);
-            }
-        return dp[amount] == amount+1 ? -1 : dp[amount];
+        ans = Integer.MAX_VALUE;
+        Arrays.sort(coins);
+        coinChange(coins, coins.length-1, 0, amount);
+        return ans == Integer.MAX_VALUE ? -1 : ans;
+    }
+    private void coinChange(int[] coins, int start, int count, int amount){
+        if(amount == 0){
+            ans = Math.min(count,ans);
+            return;
+        }
+        if(start == -1) return;
+        for(int i = amount/coins[start]; i >= 0 && count+i < ans; i--){
+            coinChange(coins,start-1,count+i,amount-i*coins[start]);
+        }
     }
 }
 // @lc code=end
