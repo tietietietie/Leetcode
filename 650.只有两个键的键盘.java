@@ -7,15 +7,16 @@
 // @lc code=start
 class Solution {
     public int minSteps(int n) {
-        int[] dp = new int[n+1];
-        dp[1] = 0;
-        for(int i = 2; i <= n; i++){
-            dp[i] = i;
-            for(int j = 2; j < i; j++)
-                if(i%j == 0)
-                    dp[i] = Math.min(dp[i],dp[j] + i/j);
+        if(n == 1) return 0;
+        int ans = 0, i = 2;
+        while(n != 1){
+            while(n%i == 0){
+                ans += i;
+                n /= i;
+            }
+            i++;
         }
-        return dp[n];
+        return ans;
     }
 }
 // @lc code=end
