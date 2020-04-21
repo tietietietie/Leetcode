@@ -7,18 +7,11 @@
 // @lc code=start
 class Solution {
     public int ladderLength(String beginWord, String endWord, List<String> wordList) {
-        String[] wordArr = wordList.toArray(new String[wordList.size()]);
-        boolean flag = true;
-        boolean[] visited = new boolean[wordArr.length];
-        for(int i = 0; i < wordArr.length; i++){
-            if(endWord.equals(wordArr[i])){
-                flag = false;
-            }
-            if(beginWord.equals(wordArr[i])){
-                visited[i] = true;
-            }
-        }
-        if(flag) return 0;
+        int m = beginWord.length();
+        HashSet<String> set = new HashSet<>(wordList);
+        if(!set.contains(endWord)) return 0;
+        if(set.contains(beginWord))
+            set.remove(beginWord);
         LinkedList<String> queue = new LinkedList<>();
         queue.offer(beginWord);
         int ans = 1;
@@ -27,25 +20,24 @@ class Solution {
             for(int i = 0; i < size; i++){
                 String curStr = queue.poll();
                 if(curStr.equals(endWord)) return ans;
-                for(int j = 0; j < wordArr.length; j++)
-                    if(!visited[j] && diffOneChar(curStr,wordArr[j])){
-                        queue.offer(wordArr[j]);
-                        visited[j] = true;
+                char[] strChars = curStr.toCharArray();
+                for(int j = 0; j < m; j++){
+                    char ch = strChars[j];
+                    for(char c = 'a'; c <= 'z'; c++){
+                        if(ch == c) continue;
+                        strChars[j] = c;
+                        String str = new String(strChars);
+                        if(set.contains(str)){
+                            queue.offer(str);
+                            set.remove(str);
+                        }
                     }
+                    strChars[j] = ch;
+                }
             }
             ans++;
         }
         return 0;
-    }
-
-    private boolean diffOneChar(String s1, String s2){
-        int len = s1.length(), diff = 0;
-        for(int i = 0; i < len; i++){
-            if(s1.charAt(i) != s2.charAt(i))
-                diff++;
-            if(diff == 2) return false;
-        }
-        return diff == 1;
     }
 }
 // @lc code=end
