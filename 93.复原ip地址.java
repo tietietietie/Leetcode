@@ -16,12 +16,11 @@ class Solution {
     }
 
     private void dfs(String s, int len, int curPos, int step, StringBuilder sb, ArrayList<String> ans){
-        if(step == 4 && curPos == len){
-            ans.add(sb.substring(0,sb.length()-1));
+        if(step == 4 || curPos == len){
+            if(step == 4 && curPos == len)
+                ans.add(sb.substring(0,sb.length()-1));
             return;
         }
-        if(step == 4 && curPos < len) return;
-        if(curPos == len) return;
         if(s.charAt(curPos) == '0'){
             sb.append("0.");
             dfs(s,len,curPos+1,step+1,sb,ans);
