@@ -218,7 +218,7 @@ class Solution {
 }
 ```
 
-## 15.三数之和
+## 15.三数和
 
 ### Solution 1
 
@@ -226,6 +226,7 @@ class Solution {
 * 注意
   * 需要跳过重复情况，包括nums[i-1] == nums[i]，以及l,r有多个值。
   * 最好情况也就是num
+* 时间复杂度：o(n*n)，空间复杂度：o(1)
 
 ```java
 class Solution {
@@ -307,6 +308,50 @@ class Solution {
                     l++;
             }
         }
+        return ans;
+    }
+}
+```
+
+## 18. 四数和
+
+* 排序，遍历，双指针
+* 时间复杂度：o(n^3)，空间复杂度o(1)
+* 注意
+  * 排除重复元素
+  * l~r的最大和与最小和与sum先进行比较，可以直接排除一些情况。
+
+```java
+class Solution {
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        List<List<Integer>> ans = new ArrayList<>();
+        for(int i = 0; i < n-3; i++)
+            for(int j = i+1; j < n-2; j++){
+                if(i != 0 && nums[i-1] == nums[i])
+                    continue;
+                if(j != i+1 && nums[j-1] == nums[j])
+                    continue;
+                int sum = target - nums[i] - nums[j];
+                if(nums[j+1]+nums[j+2] > sum || nums[n-1]+nums[n-2] < sum)
+                    continue;
+                int l = j+1, r = n-1;
+                while(l < r){
+                    if(nums[l]+nums[r] == sum){
+                        ans.add(Arrays.asList(nums[i],nums[j],nums[l],nums[r]));
+                        l++;
+                        r--;
+                        while(l < r && nums[l] == nums[l-1])
+                            l++;
+                        while(l < r && nums[r] == nums[r+1])
+                            r--;
+                    }else if(nums[l]+nums[r] < sum)
+                        l++;
+                    else 
+                        r--;
+                }
+            }
         return ans;
     }
 }
