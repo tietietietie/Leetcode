@@ -357,3 +357,22 @@ class Solution {
 }
 ```
 
+## 26. 删除有序数组重复元素
+
+* 快慢指针：慢指针左侧：无重复元素的数组，快指针：当前判断的元素
+* 时间复杂度o(n)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        int s = nums.length == 0 ? 0 : 1;
+        for(int num : nums)
+            if(num > nums[s-1])
+                nums[s++] = num;
+        return s;
+    }
+}
+```
+
+
+
