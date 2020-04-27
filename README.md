@@ -374,5 +374,20 @@ class Solution {
 }
 ```
 
+## 27.移除元素
 
+* 快慢指针：慢指针左侧：无重复元素的数组，快指针：当前判断的元素
+* 时间复杂度o(n)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        int s = 0;
+        for(int num : nums)
+            if(num != val)
+                nums[s++] = num;
+        return s;
+    }
+}
+```
 
