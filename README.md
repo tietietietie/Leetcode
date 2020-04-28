@@ -391,3 +391,120 @@ class Solution {
 }
 ```
 
+
+
+## 31. 下一个排列
+
+* 字典序算法：
+  * 从右到左找到第一个降序对，取左侧下标a
+  * 从右到左找到第一个大于nums[a]的数，记录下标b
+  * 交换a,b，并使a+1~n-1升序（反转即可，因为原始数组倒序）
+  * 特殊情况：如果找不到a，说明原始数组已经是完全降序（最大字典序排列），根据题目要求反转数组即可）
+* 时间复杂度：o(n)，空间复杂度o(1)
+
+```java
+class Solution {
+    public void nextPermutation(int[] nums) {
+        int a = -1, b = -1, n = nums.length;
+        for(int i = n-1; i >= 1; i--)
+            if(nums[i-1] < nums[i]){
+                a = i-1;
+                break;
+            }
+        if(a == -1){
+            reverse(nums,0,n-1);
+            return;
+        }
+        for(int i = n-1; i > a; i--)
+            if(nums[i] > nums[a]){
+                b = i;
+                break;
+            }
+        swap(nums,a,b);
+        reverse(nums,a+1,n-1);
+        return;
+    }
+    
+    private void swap(int[] nums, int a, int b){
+        int temp = nums[a];
+        nums[a] = nums[b];
+        nums[b] = temp;
+    }
+    
+    private void reverse(int[] nums, int l, int r){
+        while(l < r){
+            swap(nums,l,r);
+            l++;
+            r--;
+        }
+    }
+}
+```
+
+
+
+## 33.查询旋转有序数组
+
+### Solution 1
+
+* 二分法找到旋转点pivot，然后在两个升序数组（0~pivot-1)和（pivot~n-1）中查找target。
+* 注意
+  * 考虑特殊情况：空集
+  * 二分法循环能够退出证明：在保证l<r的情况下，mid始终小于r，从而区间总是不断缩小的，并且能保证pivot始终在区间能，最终退出时，l == r == pivot。
+  * 根据target和nums[n-1]的关系，能够确定target在哪个升序数组。
+* 时间复杂度：o(logn)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        if(nums == null || nums.length == 0) return -1;
+        int l = 0, r = nums.length-1, n = nums.length;
+        while(l < r){
+            int mid = (l+r)/2;
+            if(nums[mid] <= nums[n-1]) r = mid;
+            else l = mid+1;
+        }
+        int pivot = l;
+        if(target <= nums[n-1])
+            return binarySearch(nums,pivot,n-1,target);
+        return binarySearch(nums,0,pivot-1,target);
+    }
+    
+    private int binarySearch(int[] nums, int l, int r, int target){
+        while(l <= r){
+            int mid = (l+r)/2;
+            if(nums[mid] == target) return mid;
+            else if(nums[mid] > target) r = mid-1;
+            else l = mid+1;
+        }
+        return -1;
+    }
+}
+```
+
+### Solution 2
+
+* 二分法：判断mid和target是否在同一个递增数组，如果在，则按照常规二分处理，如果在两个不同的数组，则判断target在左侧数组还是右侧数组，按照此来进行二分。
+* 时间复杂度：o(n)，空间复杂度o(1)。
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        if(nums == null || nums.length == 0) return -1;
+        int l = 0, r = nums.length-1, n = nums.length;
+        while(l < r){
+            int mid = (l+r)/2;
+            if((nums[mid] - nums[n-1]) * (target - nums[n-1]) > 0){
+                if(nums[mid] < target) l = mid+1;
+                else r = mid;
+            }else if(target > nums[n-1])
+                r = mid;
+            else
+                l = mid+1;
+        }
+        if(nums[l] == target) return l;
+        return -1;
+    }
+}
+```
+
