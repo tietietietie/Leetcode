@@ -508,3 +508,90 @@ class Solution {
 }
 ```
 
+## 35.搜索插入位置
+
+* 二分法，循环退出时，l为大于target的第一个数，r为小target的第一个数。
+* 时间复杂度：O(logn)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        int l = 0, r = nums.length-1;
+        while(l <= r){
+            int mid = (l+r)/2;
+            if(nums[mid] == target) return mid;
+            else if(nums[mid] > target) r = mid-1;
+            else l = mid+1;
+        }
+        return l;
+    }
+}
+```
+
+## 39.组合总和
+
+* 回溯法：排序数组，由于是组合问题和无限背包问题，需要设置start节点，start的子节点只能在start~n-1中选择，选择并递归后，记得撤销选择。
+* 时间复杂度：o(n^target)，空间复杂度：o(target)
+
+```java
+class Solution {
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> ans = new ArrayList<>();
+        if(candidates == null || candidates.length == 0) return ans;
+        List<Integer> path = new ArrayList<>();
+        Arrays.sort(candidates);
+        dfs(candidates,0,target,path,ans);
+        return ans;
+    }
+    private void dfs(int[] candidates, int start, int resident, List<Integer> path, List<List<Integer>> ans){
+        if(resident == 0){
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+        for(int i = start; i < candidates.length; i++){
+            if(candidates[i] > resident) break;
+            else{
+                path.add(candidates[i]);
+                dfs(candidates,i,resident-candidates[i],path,ans);
+                path.remove(path.size()-1);
+            }
+        }
+    }
+}
+```
+
+## 40.组合总和Ⅱ
+
+* 回溯法：
+  * 重复值问题：路径选择时，重复的数值只能只能选一次
+  * 有限背包问题：下一层的路径选择只能从 i+1~n-1
+* 时间复杂度：min(2^n,n^target)，空间复杂度：o(target)
+
+```java
+class Solution {
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        List<List<Integer>> ans = new ArrayList<>();
+        if(candidates == null || candidates.length == 0) return ans;
+        List<Integer> path = new ArrayList<>();
+        Arrays.sort(candidates);
+        dfs(candidates,0,target,path,ans);
+        return ans;
+    }
+    private void dfs(int[] candidates, int start, int resident, List<Integer> path, List<List<Integer>> ans){
+        if(resident == 0){
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+        for(int i = start; i < candidates.length; i++){
+            if(candidates[i] > resident) break;
+            else if(i != start && candidates[i] == candidates[i-1]) continue;
+            else{
+                path.add(candidates[i]);
+                dfs(candidates,i+1,resident-candidates[i],path,ans);
+                path.remove(path.size()-1);
+            }
+        }
+    }
+}
+```
+
