@@ -595,3 +595,148 @@ class Solution {
 }
 ```
 
+## 41.缺失的第一个正数
+
+* 元素nums[index]的正负号作为该该数组是否存在index的标志，首先，将数组中的非正数全部设置为n+1，对于nums[index]大于n的元素不需要考虑，小于等于n的元素，将对应index的元素值设置为负数，最后遍历整个数组，如果nums[index]处的元素为正，说明index+1没有出现过，返回第一个正数下标。
+* 注意，当数组全部为负数，说明1~n的正数全部存在，返回n+1.
+* 时间复杂度：o(n)，空间复杂度：o(1)。
+
+```java
+class Solution {
+    public int firstMissingPositive(int[] nums) {
+        int n = nums.length;
+        if(n == 0) return 1;
+        for(int i = 0; i < n; i++)
+            if(nums[i] <= 0)
+                nums[i] = n+1;
+        for(int i = 0; i < n; i++){
+            int index = Math.abs(nums[i])-1;
+            if(index >= n) continue;
+            if(nums[index] > 0)
+                nums[index] = -1 * nums[index];
+        }
+        for(int i = 0; i < n; i++)
+            if(nums[i] > 0)
+                return i+1;
+        return n+1;
+    }
+}
+```
+
+## 19.删除链表的倒数第N个节点
+
+* 快慢指针：设置dummy节点，快指针先移动n个节点，随后快慢指针同时移动，直到快指针到达链表末尾
+* 时间复杂度：o(n)，空间复杂度o(1)。
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        if(head == null) return null;
+        ListNode dummy = new ListNode();
+        dummy.next = head;
+        ListNode slow = dummy, fast = dummy;
+        while(n != 0){
+            fast = fast.next;
+            n--;
+        }
+        while(fast.next != null){
+            fast = fast.next;
+            slow = slow.next;
+        }
+        slow.next = slow.next.next;
+        return dummy.next;
+    }
+}
+```
+
+## 21.合并两排序链表
+
+* 递归：遍历问题经常会使用到递归，每次比较当前头节点l1.val和l2.val，选择较小值作为这两条链表合并后的头节点，并对头节点的下一节点递归。
+* 时间复杂度：o(n)，空间复杂度：o(max(len1,len2))
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if(l1 == null) return l2;
+        if(l2 == null) return l1;
+        if(l1.val <= l2.val){
+            l1.next = mergeTwoLists(l1.next,l2);
+            return l1;
+        }
+        l2.next = mergeTwoLists(l1,l2.next);
+        return l2;
+    }
+}
+```
+
+## 22.合并K个排序链表
+
+### Solution 1
+
+* 优先队列，能快速找到当前k个链表最小头节点。
+* 时间复杂度：nlogk，空间复杂度：o(k)
+
+```java
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        if(lists == null || lists.length == 0) return null;
+        PriorityQueue<ListNode> pq = new PriorityQueue<>((o1,o2) -> o1.val-o2.val);
+        for(ListNode node : lists)
+            if(node != null)
+                pq.offer(node);
+        ListNode dummy = new ListNode();
+        ListNode curNode = dummy;
+        while(!pq.isEmpty()){
+            curNode.next = pq.poll();
+            curNode = curNode.next;
+            if(curNode.next != null)
+                pq.offer(curNode.next);
+        }
+        return dummy.next;
+    }
+}
+```
+
+### Solution 2
+
+* 分治法：合并k条链表，可以链表两两合并，得到k/2条链表，k/2条链表再两两合并...最终得到一条链表
+* 时间复杂度：nlogk，空间复杂度o(k)
+
+```java
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        if(lists.length == 0) return null;
+        return mergeKLists(lists,0,lists.length-1);
+    }
+    
+    private ListNode mergeKLists(ListNode[] lists, int l, int r){
+        if(l == r) return lists[l];
+        int mid = (l+r)/2;
+        ListNode l1 = mergeKLists(lists,l,mid);
+        ListNode l2 = mergeKLists(lists,mid+1,r);
+        return mergeTwoLists(l1,l2);
+    }
+    
+    private ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if(l1 == null) return l2;
+        if(l2 == null) return l1;
+        if(l1.val <= l2.val){
+            l1.next = mergeTwoLists(l1.next,l2);
+            return l1;
+        }
+        l2.next = mergeTwoLists(l1,l2.next);
+        return l2;
+    }
+}
+```
+
