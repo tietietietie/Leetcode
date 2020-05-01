@@ -1,5 +1,7 @@
 # Leetcode笔记
 
+[TOC]
+
 ## 1.两数之和
 
 * BF：找出所有数据对
@@ -679,7 +681,7 @@ class Solution {
 }
 ```
 
-## 22.合并K个排序链表
+## 23.合并K个排序链表
 
 ### Solution 1
 
@@ -736,6 +738,94 @@ class Solution {
         }
         l2.next = mergeTwoLists(l1,l2.next);
         return l2;
+    }
+}
+```
+
+## 24.两两交换链表节点
+
+* 递归：当前节点指向下两个节点地递归返回链表，当前节点地下一个节点指向当前节点。
+* 时间复杂度：o(n)，空间复杂度：o(n)
+
+```java
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        if(head == null || head.next == null) return head;
+        ListNode n = head.next;
+        head.next = swapPairs(head.next.next);
+        n.next = head;
+        return n;
+    }
+}
+```
+
+## 25.K个一组旋转链表
+
+### Solution 1
+
+* 递归：旋转前k个节点，然后将末尾节点指向剩余的旋转后的节点。
+  * 注意这里用的旋转方法，使得旋转后的末尾节点指向了null，不过幸好curNode保存了剩余节点，利用递归更新
+  * pre:已完成旋转的头节点，，cur待旋转节点，next，下一个待旋转节点
+* 时间复杂度o(n)，空间复杂度：o(n/k)
+
+```java
+class Solution {
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode curNode = head;
+        for(int i = 0; i < k; i++){
+            if(curNode == null) return head;
+            curNode = curNode.next;
+        }
+        ListNode newHead = reverse(head,k);
+        head.next = reverseKGroup(curNode,k);
+        return newHead;
+    }
+    
+    private ListNode reverse(ListNode head, int k){
+        ListNode cur = head;
+        ListNode pre = null;
+        ListNode next = null;
+        while(k != 0){
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+            k--;
+        }
+        return pre;
+    }
+}
+```
+
+### Solution 2
+
+* 迭代：使用三个指针pre,start,next，可以实现在链表中旋转k个节点
+  * pre表示start位置之前，不用旋转（或者已经旋转了）的节点，start表示未旋转前的起始节点，next表示start后面，还没被旋转的第一个节点。
+  * 首先，保存next后面的第一个节点（用start.next指向），然后将next插入到pre后面，此时next旋转完成，指向新的待旋转节点（start.next）
+* 时间复杂度：o(n)，空间复杂度：o(1)
+* 此方法可以旋转链表中的任意一小节的节点（指定旋转长度和旋转起始位置）
+
+```java
+class Solution {
+    public ListNode reverseKGroup(ListNode head, int k) {
+        int len = 0;
+        for(ListNode cur = head; cur != null; cur = cur.next) len++;
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode pre = dummy;
+        while(len >= k){
+            ListNode start = pre.next;
+            ListNode nex = start.next;
+            for(int i = 0; i < k-1; i++){
+                start.next = nex.next;
+                nex.next = pre.next;
+                pre.next = nex;
+                nex = start.next;
+            }
+            pre = start;
+            len -= k;
+        }
+        return dummy.next;
     }
 }
 ```
