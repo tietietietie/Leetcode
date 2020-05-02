@@ -830,3 +830,124 @@ class Solution {
 }
 ```
 
+## 61.旋转链表
+
+* 在指定位置旋转链表
+  * 确定链表尾节点和链表长度
+  * 计算旋转点位置并确定旋转点
+  * 利用dummy节点/链表尾节点/旋转点，进行链表旋转
+* 时间复杂度：o(n)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+        if(head == null || head.next == null) return head;
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode rotateNode = dummy, tail = dummy;
+        //确定尾节点和链表长度
+        int len = 0;
+        while(tail.next != null){
+            tail = tail.next;
+            len++;
+        }
+        //确定旋转节点
+        k = len - k%len;
+        for(int i = 0; i < k; i++)
+            rotateNode = rotateNode.next;
+        //进行旋转
+        tail.next = dummy.next;
+        dummy.next = rotateNode.next;
+        rotateNode.next = null;
+        return dummy.next;
+    }
+}
+```
+
+## 82.删除链表重复元素Ⅱ
+
+### Solution1
+
+* 迭代：pre表示已经删除重复元素的尾节点，cur表示待判断节点，当cur为重复元素时，把cur及重复元素删除，更新cur，当cur不是重复元素时，更新pre和cur。
+* 时间复杂度：o(n)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        if(head == null || head.next == null) return head;
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode pre = dummy, cur = head;
+        while(cur != null && cur.next != null){
+            if(cur.next.val == cur.val){
+                while(cur.next != null && cur.val == cur.next.val)
+                    cur = cur.next;
+                cur = cur.next;
+                pre.next = cur;
+            }else{
+                pre = cur;
+                cur = cur.next;
+            }
+        }
+        return dummy.next;
+    }
+}
+```
+
+### Solution 2
+
+* 递归：判断当前头节点是否为重复元素，是则删除重复元素，并判断删除后的下一元素，否则保留当前元素，判断下一元素
+* 时间复杂度：O(n)，空间复杂度：o(n)
+
+```java
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        if(head == null) return null;
+        if(head.next != null && head.next.val == head.val){
+            while(head.next != null && head.next.val == head.val)
+                head = head.next;
+            return deleteDuplicates(head.next);
+        }
+        head.next = deleteDuplicates(head.next);
+        return head;
+    }
+}
+```
+
+## 83.删除链表重复元素
+
+* 递归：如果当前链表头部有重复元素，则删除到只剩最后一个重复元素，不断递归。
+* 时间复杂度：o(n)，空间复杂度:O(n)
+
+```java
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        if(head == null) return null;
+        while(head.next != null && head.val == head.next.val)
+            head = head.next;
+        head.next = deleteDuplicates(head.next);
+        return head;
+    }
+}
+```
+
+## 160.两链表交叉节点
+
+* 指针相遇：当指针a的路径为a+c+b，指针b的路径为b+c+a时，指针最终相遇相交点
+* 注意：此题中到指针为null，则移动至另一链表的头节点，要把null当作节点来看，不能移动两步。
+
+* 时间复杂度：O(len1+len2)，空间复杂度：O(1)
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode curA = headA, curB = headB;
+        while(curA != curB){
+            curA = curA == null ? headB : curA.next;
+            curB = curB == null ? headA : curB.next;
+        }
+        return curA;
+    }
+}
+```
+
