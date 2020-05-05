@@ -7,35 +7,58 @@
 // @lc code=start
 class Solution {
     public List<List<Integer>> getSkyline(int[][] buildings) {
-        List<int[]> heights = new ArrayList<>();
-        for(int[] building : buildings){
-            heights.add(new int[]{building[0],-building[2]});
-            heights.add(new int[]{building[0],building[1]});
+        if(buildings.length == 0){
+            return  new ArrayList<>();
         }
-        Collections.sort(heights, (o1,o2) -> o1[0] == o2[0] ? o1[1] - o2[1] : o1[0] - o2[0]);
-        TreeMap<Integer,Integer> heightMap = new TreeMap<>();
-        List<List<Integer>> ans = new ArrayList<>();
-        heightMap.put(0,1);
-        int preHeight = 0;
-        for(int[] height : heights){
-            if(height[1] < 0){
-                Integer cnt  = heightMap.get(-height[1]);
-                cnt = cnt == null ? 1 : cnt+1;
-                heightMap.put(-height[1],cnt);
+        return merge(buildings, 0, buildings.length - 1);
+    }
+    
+    private List<List<Integer>> merge(int[][] buildings, int start, int end) {
+        if(start > end) return new ArrayList<>();
+        if(start == end){
+            List<List<Integer>> skyline = new ArrayList<>();
+            skyline.add(Arrays.asList(buildings[start][0],buildings[start][2]));
+            skyline.add(Arrays.asList(buildings[start][1],0));
+            return skyline;
+        }
+        int mid = (start + end) / 2;
+        List<List<Integer>> leftSkyline  = merge(buildings,start,mid);
+        List<List<Integer>> rightSkyline = merge(buildings,mid+1,end);
+        List<List<Integer>> curSkyline = new ArrayList<>();
+        int leftHeight = 0, rightHeight = 0, curHeight = 0, i = 0, j = 0;
+        while(i < leftSkyline.size() || j < rightSkyline.size()){
+            if(i == leftSkyline.size()){
+                curSkyline.add(rightSkyline.get(j));
+                j++;
+                continue;
+            }
+            if(j == rightSkyline.size()){
+                curSkyline.add(leftSkyline.get(i));
+                i++;
+                continue;
+            }
+            int leftX  = leftSkyline.get(i).get(0);
+            int rightX = rightSkyline.get(j).get(0);
+            int curX = leftX < rightX ? leftX : rightX;
+            if(leftX < rightX){
+                leftHeight = leftSkyline.get(i).get(1);
+                i++;
+            }else if(leftX > rightX){
+                rightHeight = rightSkyline.get(j).get(1);
+                j++;
             }else{
-                Integer cnt = heightMap.get(height[1]);
-                if(cnt == 1)
-                    heightMap.remove(height[1]);
-                else
-                    heightMap.put(height[1],cnt-1);
+                leftHeight = leftSkyline.get(i).get(1);
+                rightHeight = rightSkyline.get(j).get(1);
+                i++;
+                j++;
             }
-            int curHeight = heightMap.firstKey();
-            if(curHeight != preHeight){
-                ans.add(Arrays.asList(height[0],curHeight));
-                preHeight = curHeight;
+            int maxHeight = Math.max(leftHeight,rightHeight);
+            if(maxHeight != curHeight){
+                curSkyline.add(Arrays.asList(curX,maxHeight));
+                curHeight = maxHeight;
             }
         }
-        return ans;
+        return curSkyline;
     }
 }
 // @lc code=end
