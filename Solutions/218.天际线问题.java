@@ -25,7 +25,7 @@ class Solution {
         List<List<Integer>> leftSkyline  = merge(buildings,start,mid);
         List<List<Integer>> rightSkyline = merge(buildings,mid+1,end);
         List<List<Integer>> curSkyline = new ArrayList<>();
-        int leftHeight = 0, rightHeight = 0, curHeight = 0, i = 0, j = 0;
+        int leftHeight = 0, rightHeight = 0, preHeight = 0, i = 0, j = 0;
         while(i < leftSkyline.size() || j < rightSkyline.size()){
             if(i == leftSkyline.size()){
                 curSkyline.add(rightSkyline.get(j));
@@ -52,10 +52,10 @@ class Solution {
                 i++;
                 j++;
             }
-            int maxHeight = Math.max(leftHeight,rightHeight);
-            if(maxHeight != curHeight){
-                curSkyline.add(Arrays.asList(curX,maxHeight));
-                curHeight = maxHeight;
+            int curHeight = Math.max(leftHeight,rightHeight);
+            if(curHeight != preHeight){
+                curSkyline.add(Arrays.asList(curX,curHeight));
+                preHeight = curHeight;
             }
         }
         return curSkyline;
