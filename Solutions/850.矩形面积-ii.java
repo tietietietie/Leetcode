@@ -7,41 +7,36 @@
 // @lc code=start
 class Solution {
     public int rectangleArea(int[][] rectangles) {
-        int OPEN = 1, CLOSE = 0;
-        int[][] events = new int[2 * rectangles.length][];
-        int i = 0;
+        HashSet<Integer> xSet = new HashSet<>();
+        HashSet<Integer> ySet = new HashSet<>();
         for(int[] rectangle : rectangles){
-            events[i++] = new int[]{rectangle[1],OPEN,rectangle[0],rectangle[2]};
-            events[i++] = new int[]{rectangle[3],CLOSE,rectangle[0],rectangle[2]};
+            xSet.add(rectangle[0]);
+            xSet.add(rectangle[2]);
+            ySet.add(rectangle[1]);
+            ySet.add(rectangle[3]);
         }
-        Arrays.sort(events, (o1,o2) -> o1[0] - o2[0]);
+        Integer[] imapx = (Integer[])xSet.toArray(new Integer[0]);
+        Integer[] imapy = (Integer[])ySet.toArray(new Integer[0]);
+        Arrays.sort(imapx);
+        Arrays.sort(imapy);
+        HashMap<Integer,Integer> xmapi = new HashMap<>();
+        HashMap<Integer,Integer> ymapi = new HashMap<>();
+        for(int i = 0; i < imapx.length; i++)
+            xmapi.put(imapx[i],i);
+        for(int i = 0; i < imapy.length; i++)
+            ymapi.put(imapy[i],i);
+        boolean[][] grid = new boolean[imapx.length][imapy.length];
+        for(int[] rectangle : rectangles)
+            for(int i = xmapi.get(rectangle[0]); i < xmapi.get(rectangle[2]); i++)
+                for(int j = ymapi.get(rectangle[1]); j < ymapi.get(rectangle[3]); j++)
+                    grid[i][j] = true;
         long ans = 0;
-        int cur_y = events[0][0];
-        ArrayList<int[]> active = new ArrayList<>();
-        for(int[] event : events){
-            int y = event[0], flag = event[1], x1 = event[2], x2 = event[3];
-            long query = 0;
-            int cur_x = -1;
-            for(int[] interval : active){
-                cur_x  = Math.max(cur_x, interval[0]);
-                query += Math.max(interval[1]-cur_x,0);
-                cur_x = Math.max(cur_x,interval[1]);
-            }
-            ans += query * (y-cur_y);
-            if(flag == OPEN){
-                active.add(new int[]{x1,x2});
-                Collections.sort(active, (o1,o2) -> o1[0] - o2[0]);
-            }else{
-                for(int j = 0; j < active.size(); j++)
-                    if(active.get(j)[0] == x1 && active.get(j)[1] == x2){
-                        active.remove(j);
-                        break;
-                    }
-            }
-            cur_y = y;
-        }
+        for(int i = 0; i < imapx.length; i++)
+            for(int j = 0; j < imapy.length; j++)
+                if(grid[i][j])
+                    ans += (long)(imapx[i+1] - imapx[i]) * (imapy[j+1] - imapy[j]);
         ans %= 1000000007;
-        return (int)ans;
+        return (int) ans;
     }
 }
 // @lc code=end
