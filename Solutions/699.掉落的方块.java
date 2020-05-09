@@ -17,43 +17,57 @@ class Solution {
         HashMap<Integer,Integer> xmapi = new HashMap<>();
         for(int i = 0; i < imapx.length; i++)
             xmapi.put(imapx[i],i);
-        Node root = new Node(0,imapx.length-1,0);
+        Tree tree = new Tree(imapx.length);
         List<Integer> ans = new ArrayList<>();
+        int maxHeight = 0;
         for(int[] position : positions){
             int x1 = xmapi.get(position[0]), x2 = xmapi.get(position[0]+position[1]), height = position[1];
-            root.update(x1,x2,height);
-            ans.add(root.maxHeight);
+            int h = tree.query(x1,x2) + height;
+            tree.update(x1,x2,h);
+            maxHeight = Math.max(h,maxHeight);
+            ans.add(maxHeight);
         }
         return ans;
     }
 
-    private class Node{
-        private int start;
-        private int end;
-        private Node left;
-        private Node right;
-        public int maxHeight;
+    private class Tree{
+        public int[] tree;
+        private int n;
         
-        public Node(int start, int end, int height){
-            this.start = start;
-            this.end = end;
-            left = null;
-            right = null;
-            maxHeight = height;
+        public Tree(int n){
+            this.n = n;
+            tree = new int[4 * n];
         }
 
-        private void update(int l, int r, int height){
-            if(l >= r) return;
-            if(start == l && end == r)
-                maxHeight += height;
-            else{
+        public void update(int l, int r, int height){
+            update(tree,0,0,n-1,l,r,height);
+        }
+
+        private void update(int[] tree, int idx, int start, int end, int l, int r, int height){
+            if(start >= end || start >= r || end <= l) return;
+            tree[idx] = Math.max(tree[idx],height);
+            if(start != end-1){
                 int mid = (start+end) / 2;
-                if(left  == null) left  = new Node(start,mid,maxHeight);
-                if(right == null) right = new Node(mid,end,maxHeight);
-                left.update(l,Math.min(mid,r),height);
-                right.update(Math.max(mid,l),r,height);
-                maxHeight = Math.max(left.maxHeight,right.maxHeight);
+                int leftNode  = 2*idx + 1;
+                int rightNode = 2*idx + 2;
+                update(tree,leftNode,start,mid,l,r,height);
+                update(tree,rightNode,mid,end,l,r,height);
             }
+        }
+
+        public int query(int l, int r){
+            return query(tree,0,0,n-1,l,r);
+        }
+
+        private int query(int[] tree, int idx, int start, int end, int l, int r){
+            if(start >= end || start >= r || end <= l) return 0;
+            if(start >= l && end <= r) return tree[idx];
+            int mid = (start+end) / 2;
+            int leftNode  = 2*idx + 1;
+            int rightNode = 2*idx + 2;
+            int leftHeight  = query(tree,leftNode,start,mid,l,r);
+            int rightHeight = query(tree,rightNode,mid,end,l,r);
+            return Math.max(leftHeight,rightHeight);
         }
     }
 }
