@@ -951,3 +951,43 @@ public class Solution {
 }
 ```
 
+## 206.反转链表
+
+### Solution 1
+
+* 迭代，pre指向已经反转好的链表头节点，next指向下一个需要反转的节点，cur指向当前正在反转的节点
+* 时间复杂度：O(n)，空间复杂度：O(1)
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode cur = head, pre = null, next = null;
+        while(cur != null){
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+}
+```
+
+### Solution 2
+
+* 递归，每次递归返回已经递归函数的头节点，由于递归完head.next后，head.next为反转链表的尾节点，将head添加到head.next后面，然后将此head的next设置为null，作为新的尾节点。
+* 时间复杂度：O(n)，空间复杂度：O(n)
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if(head == null || head.next == null)
+            return head;
+        ListNode newHead = reverseList(head.next);
+        head.next.next = head;
+        head.next = null;
+        return newHead;
+    }
+}
+```
+
