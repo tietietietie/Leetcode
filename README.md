@@ -866,7 +866,7 @@ class Solution {
 
 ## 82.删除链表重复元素Ⅱ
 
-### Solution1
+### Solution 1
 
 * 迭代：pre表示已经删除重复元素的尾节点，cur表示待判断节点，当cur为重复元素时，把cur及重复元素删除，更新cur，当cur不是重复元素时，更新pre和cur。
 * 时间复杂度：o(n)，空间复杂度：o(1)
@@ -987,6 +987,87 @@ class Solution {
         head.next.next = head;
         head.next = null;
         return newHead;
+    }
+}
+```
+
+## 445.两数相加（二）
+
+### Solution 1
+
+* 反转链表，遇到null用0节点代替。
+* 由尾到头构建链表
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        if(l1 == null) return l2;
+        if(l2 == null) return l1;
+        l1 = reverseList(l1);
+        l2 = reverseList(l2);
+        ListNode head = null;
+        int carry = 0;
+        while(l1 != null || l2 != null || carry != 0){
+            int a = l1 == null ? 0 : l1.val;
+            int b = l2 == null ? 0 : l2.val;
+            int value = (a+b+carry) % 10;
+            carry = (a+b+carry) / 10;
+            ListNode newHead = new ListNode(value);
+            newHead.next = head;
+            head = newHead;
+            if(l1 != null) l1 = l1.next;
+            if(l2 != null) l2 = l2.next;
+        }
+        return head;
+    }
+    
+    private ListNode reverseList(ListNode head){
+        ListNode pre = null, cur = head, next = null;
+        while(cur != null){
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+}
+```
+
+### Soluton 2
+
+* 将l1和l2中的所有数入栈，栈顶元素为低位元素，栈中元素取完，用0代替
+* 由尾向头构建链表
+* 时间复杂度：O(n)，空间复杂度:O(n)
+
+```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        if(l1 == null) return l2;
+        if(l2 == null) return l1;
+        Stack<Integer> digits1 = new Stack<>();
+        Stack<Integer> digits2 = new Stack<>();
+        while(l1 != null){
+            digits1.push(l1.val);
+            l1 = l1.next;
+        }
+        while(l2 != null){
+            digits2.push(l2.val);
+            l2 = l2.next;
+        }
+        ListNode head = null;
+        int carry = 0;
+        while(!digits1.isEmpty() || !digits2.isEmpty() || carry != 0){
+            int a = digits1.isEmpty() ? 0 : digits1.pop();
+            int b = digits2.isEmpty() ? 0 : digits2.pop();
+            int val = (a + b + carry) % 10;
+            carry = (a + b + carry) / 10;
+            ListNode newHead = new ListNode(val);
+            newHead.next = head;
+            head = newHead;
+        }
+        return head;
     }
 }
 ```
