@@ -1072,3 +1072,65 @@ class Solution {
 }
 ```
 
+## 234.判断链表是否为回文
+
+### Solution 1
+
+* 折半+反转
+* 时间复杂度：o(n)，空间复杂度：o(1)
+
+```java
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        if(head == null || head.next == null) return true;
+        ListNode slow = head, fast = head;
+        while(fast.next != null && fast.next.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        ListNode l2 = slow.next;
+        l2 = reverseList(l2);
+        while(l2 != null && head.val == l2.val){
+            head = head.next;
+            l2 = l2.next;
+        }
+        return l2 == null;
+    }
+    
+    private ListNode reverseList(ListNode head){
+        ListNode pre = null, cur = head, next = null;
+        while(cur != null){
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+}
+```
+
+### Solution 2
+
+* 递归，其中frontNode存储与当前节点对称的节点
+* 时间复杂度：O(n)，空间复杂度：O(n)
+
+```java
+class Solution {
+    private ListNode frontNode;
+    
+    public boolean isPalindrome(ListNode head) {
+        frontNode = head;
+        return recursivelyCheck(head);
+    }
+    
+    private boolean recursivelyCheck(ListNode curNode){
+        if(curNode == null) return true;
+        if(!recursivelyCheck(curNode.next)) return false;
+        if(curNode.val != frontNode.val) return false;
+        frontNode = frontNode.next;
+        return true;
+    }
+}
+```
+
