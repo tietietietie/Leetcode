@@ -1237,3 +1237,25 @@ class Solution {
 }
 ```
 
+## 110.判断平衡二叉树
+
+* DFS
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        int ans = dfs(root);
+        return ans == -1 ? false : true;
+    }
+    
+    private int dfs(TreeNode root){
+        if(root == null) return 0;
+        int leftHeight  = dfs(root.left);
+        int rightHeight = dfs(root.right);
+        if(leftHeight == -1 || rightHeight == -1 || Math.abs(leftHeight-rightHeight) > 1) return -1;
+        return Math.max(leftHeight,rightHeight)+1;
+    }
+}
+```
+
