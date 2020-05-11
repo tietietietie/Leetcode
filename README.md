@@ -1282,3 +1282,23 @@ class Solution {
 }
 ```
 
+## 226.反转二叉树
+
+* 递归
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if(root == null) return null;
+        TreeNode leftNode  = invertTree(root.left);
+        TreeNode rightNode = invertTree(root.right);
+        root.left = rightNode;
+        root.right = leftNode;
+        return root;
+    }
+}
+```
+
+也可以用stack版DFS，以及BFS实现
+
