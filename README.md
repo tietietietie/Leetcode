@@ -1191,3 +1191,49 @@ class Solution {
 }
 ```
 
+## 104.二叉树深度
+
+### Solution 1
+
+* DFS
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        return dfs(root);
+    }
+    private int dfs(TreeNode root){
+        if(root == null) return 0;
+        int leftDepth  = dfs(root.left);
+        int rightDepth = dfs(root.right);
+        return Math.max(leftDepth,rightDepth) + 1;
+    }
+}
+```
+
+### Solution 2
+
+* BFS
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        int depth = 0;
+        if(root != null) queue.offer(root);
+        while(!queue.isEmpty()){
+            depth++;
+            int size = queue.size();
+            for(int i = 0; i < size; i++){
+                TreeNode cur = queue.poll();
+                if(cur.left  != null) queue.offer(cur.left);
+                if(cur.right != null) queue.offer(cur.right);
+            }
+        }
+        return depth;
+    }
+}
+```
+
