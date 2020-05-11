@@ -1259,3 +1259,26 @@ class Solution {
 }
 ```
 
+## 543.二叉树的直径
+
+* DFS/最大高度：一某一节点node为根的最长路径为leftHeight+rightHeight，由于任何一条路径有且仅有一个根节点，遍历每个节点，找出以它为根的最长路径，比较。
+* 时间复杂度O(n)，空间复杂度O(N)
+
+```java
+class Solution {
+    private int ans;
+    public int diameterOfBinaryTree(TreeNode root) {
+        ans = 0;
+        dfs(root);
+        return ans;
+    }
+    private int dfs(TreeNode root){
+        if(root == null) return 0;
+        int leftHeight  = dfs(root.left);
+        int rightHeight = dfs(root.right);
+        ans = Math.max(leftHeight+rightHeight,ans);
+        return Math.max(leftHeight,rightHeight)+1;
+    }
+}
+```
+
