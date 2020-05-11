@@ -1134,3 +1134,60 @@ class Solution {
 }
 ```
 
+## 725.将链表分割成k等份
+
+* 计算出每份长度，遍历后切割.
+* 时间复杂度：O(n+k)，因为K很大，需要循环很多次创建null。空间复杂度：O(k)
+
+```java
+class Solution {
+    public ListNode[] splitListToParts(ListNode root, int k) {
+        ListNode cur = root;
+        int len = 0;
+        while(cur != null){
+            len++;
+            cur = cur.next;
+        }
+        int base = len/k, remainder = len%k;
+        cur = root;
+        ListNode[] ans = new ListNode[k];
+        for(int i = 0; i < k; i++){
+            int count = i < remainder ? base+1 : base;
+            if(count == 0) ans[i] = null;
+            else{
+                ans[i] = cur;
+                for(int j = 0; j < count-1; j++)
+                    cur = cur.next;
+                ListNode temp = cur.next;
+                cur.next = null;
+                cur = temp;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+## 218.奇偶链表
+
+* 由于oddCur.next为evenCur，所以执行oddCur.next = oddCur.next.next时，不会出现指针丢失
+* 时间复杂度O(n)，空间复杂度O(1)·
+
+```java
+class Solution {
+    public ListNode oddEvenList(ListNode head) {
+        if(head == null || head.next == null) return head;
+        ListNode evenHead = head.next;
+        ListNode oddCur = head, evenCur = evenHead;
+        while(evenCur != null && evenCur.next != null){
+            oddCur.next = oddCur.next.next;
+            oddCur = oddCur.next;
+            evenCur.next = evenCur.next.next;
+            evenCur = evenCur.next;
+        }
+        oddCur.next = evenHead;
+        return head;
+    }
+}
+```
+
