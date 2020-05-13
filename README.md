@@ -1302,3 +1302,23 @@ class Solution {
 
 也可以用stack版DFS，以及BFS实现
 
+## 617.合并二叉树
+
+* 递归，如果为空树，则返回另一棵树
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
+        if(t1 == null && t2 == null) return null;
+        if(t1 == null) t1 = new TreeNode(0);
+        if(t2 == null) t2 = new TreeNode(0);
+        TreeNode t = new TreeNode(t1.val + t2.val);
+        t.left  = mergeTrees(t1.left,t2.left);
+        t.right = mergeTrees(t1.right,t2.right);
+        return t;
+    }
+}
+```
+
+## 
