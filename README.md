@@ -1321,4 +1321,19 @@ class Solution {
 }
 ```
 
-## 
+## 112.路径和
+
+* 递归，判断当前子树是否为叶子节点，不过不是，判断左右子树是否有路径和为目标值
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public boolean hasPathSum(TreeNode root, int sum) {
+        if(root == null) return false;
+        if(root.left == null && root.right == null) return sum == root.val;
+        return hasPathSum(root.left,sum-root.val) || hasPathSum(root.right,sum-root.val);
+    }
+}
+```
+
+## 437.
