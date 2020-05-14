@@ -1529,3 +1529,21 @@ class Solution {
 }
 ```
 
+## 404.左叶子之和
+
+* DFS
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int sumOfLeftLeaves(TreeNode root) {
+        if(root == null) return 0;
+        int ans = 0;
+        if(root.left != null && root.left.left == null && root.left.right == null) ans += root.left.val;
+        ans += sumOfLeftLeaves(root.left);
+        ans += sumOfLeftLeaves(root.right);
+        return ans;
+    }
+}
+```
+
