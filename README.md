@@ -1484,3 +1484,48 @@ class Solution {
 }
 ```
 
+## 111.最浅深度
+
+### Solution 1
+
+* DFS
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int minDepth(TreeNode root) {
+        if(root == null) return 0;
+        int leftMin  = minDepth(root.left);
+        int rightMin = minDepth(root.right);
+        return (leftMin == 0 || rightMin == 0) ? leftMin + rightMin + 1 : Math.min(leftMin,rightMin) + 1;
+    }
+}
+```
+
+### Soluton 2
+
+* BFS
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int minDepth(TreeNode root) {
+        if(root == null) return 0;
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        int depth = 0;
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            for(int i = 0; i < size; i++){
+                TreeNode cur = queue.poll();
+                if(cur.left == null && cur.right == null) return depth+1;
+                if(cur.left  != null) queue.offer(cur.left);
+                if(cur.right != null) queue.offer(cur.right);
+            }
+            depth++;
+        }
+        return -1;
+    }
+}
+```
+
