@@ -1461,3 +1461,26 @@ class Solution {
 }
 ```
 
+## 572.子树
+
+* 递归，当前t是否为s的子树，包括1）t是以s为根的子树。2）t是s的左子树的子树。3）t是s的右子树的子树
+* 时间复杂度O(n^2),空间复杂度O(n)
+* 不要看错题目，情况1为，t和s完全相同
+
+```java
+class Solution {
+    public boolean isSubtree(TreeNode s, TreeNode t) {
+        if(t == null) return true;
+        if(s == null) return false;
+        return isSubtreeFrom(s,t) || isSubtree(s.left,t) || isSubtree(s.right,t);
+    }
+    
+    private boolean isSubtreeFrom(TreeNode s, TreeNode t){
+        if(t == null && s == null) return true;
+        if(s == null || t == null) return false;
+        if(s.val != t.val) return false;
+        return isSubtreeFrom(s.left,t.left) && isSubtreeFrom(s.right,t.right);
+    }
+}
+```
+
