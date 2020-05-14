@@ -1336,4 +1336,79 @@ class Solution {
 }
 ```
 
-## 437.
+## 437.路径和Ⅲ
+
+### Solution 1
+
+* 回溯，path保存路径，求当前节点和为sum的路径数量
+* 时间复杂度O(n^2)，空间复杂度O(n)
+
+```java
+class Solution {
+    private int ans;
+    public int pathSum(TreeNode root, int sum) {
+        int[] path = new int[1000];
+        ans = 0;
+        dfs(root,path,0,sum);
+        return ans;
+    }
+    private void dfs(TreeNode root, int[] path, int level, int sum){
+        if(root == null) return;
+        path[level] = root.val;
+        int curSum = 0;
+        for(int i = level; i >= 0; i--){
+            curSum += path[i];
+            if(curSum == sum) ans++;
+        }
+        dfs(root.left,path,level+1,sum);
+        dfs(root.right,path,level+1,sum);
+    }
+}
+```
+
+### Solution 2
+
+* 递归，当前树的路径和，等于从根节点出发的路径和+左子树路径和+右子树路径和
+* 时间复杂度O(n^2)，空间复杂度O(n)
+* 时间复杂度相同，为什么时间差这么多。
+
+```java
+class Solution {
+    public int pathSum(TreeNode root, int sum) {
+        if(root == null) return 0;
+        return pathFrom(root,sum) + pathSum(root.left,sum) + pathSum(root.right,sum);
+    }
+    
+    private int pathFrom(TreeNode root, int sum){
+        if(root == null) return 0;
+        return (root.val == sum ? 1 : 0) + pathFrom(root.left,sum-root.val) + pathFrom(root.right,sum-root.val);
+    }
+}
+```
+
+### Solution 3
+
+* 递归/前缀和，判断以当前节点结尾的路径和数量，已经左右子树的路径和数量
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int pathSum(TreeNode root, int sum) {
+        HashMap<Integer,Integer> preSums = new HashMap<>();
+        preSums.put(0,1);
+        return dfs(root,preSums,0,sum);
+    }
+    
+    private int dfs(TreeNode root, HashMap<Integer,Integer> preSums, int curSum, int target){
+        if(root == null) return 0;
+        curSum += root.val;
+        int ans = preSums.getOrDefault(curSum-target,0);
+        preSums.put(curSum,preSums.getOrDefault(curSum,0)+1);
+        ans += dfs(root.left, preSums,curSum,target);
+        ans += dfs(root.right,preSums,curSum,target);
+        preSums.put(curSum,preSums.get(curSum)-1);
+        return ans;
+    }
+}
+```
+
