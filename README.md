@@ -1412,3 +1412,52 @@ class Solution {
 }
 ```
 
+## 101.镜像树
+
+### Solution 1
+
+* 递归，判断两树根节点值，以及树1的左子树和树2的右子树对称，树1的右子树和树2的左子树对称
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return isMirror(root,root);
+    }
+    
+    private boolean isMirror(TreeNode root1, TreeNode root2){
+        if(root1 == null && root2 == null) return true;
+        if(root1 == null || root2 == null) return false;
+        return (root1.val == root2.val) && isMirror(root1.left,root2.right) && isMirror(root1.right,root2.left);
+    }
+}
+```
+
+### Solution 2
+
+* stack，将镜像的两棵树依次入栈，每次出栈两棵树，判断是否镜像
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        if(root == null) return true;
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+        stack.push(root);
+        while(!stack.isEmpty()){
+            TreeNode root1 = stack.pop();
+            TreeNode root2 = stack.pop();
+            if(root1 == null && root2 == null) continue;
+            if(root1 == null || root2 == null) return false;
+            if(root1.val != root2.val) return false;
+            stack.push(root1.left);
+            stack.push(root2.right);
+            stack.push(root1.right);
+            stack.push(root2.left);
+        }
+        return true;
+    }
+}
+```
+
