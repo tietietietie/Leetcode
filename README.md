@@ -1547,3 +1547,30 @@ class Solution {
 }
 ```
 
+## 687.最长等值路径
+
+* DFS，返回值为以当前节点起始的最大等值深度，显然当前节点为根的最长等值路径，为左子树的返回值加上右子树的返回值（当左右节点的值等于当前节点）
+* 时间复杂度：O(N)，空间复杂度O(N)
+
+```java
+class Solution {
+    private int ans;
+    public int longestUnivaluePath(TreeNode root) {
+        ans = 0;
+        longestUnivalueDepthFrom(root);
+        return ans;
+    }
+    
+    private int longestUnivalueDepthFrom(TreeNode root){
+        if(root == null) return 0;
+        int leftDepth = 0, rightDepth = 0;
+        leftDepth = longestUnivalueDepthFrom(root.left);
+        rightDepth = longestUnivalueDepthFrom(root.right);
+        if(root.left != null && root.left.val != root.val) leftDepth = 0;
+        if(root.right != null && root.right.val != root.val) rightDepth = 0;
+        ans = Math.max(ans,leftDepth+rightDepth);
+        return Math.max(leftDepth,rightDepth)+1;
+    }
+}
+```
+
