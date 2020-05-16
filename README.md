@@ -1622,3 +1622,62 @@ class Solution {
 ```
 
 ## 213.打家劫舍Ⅱ
+
+* 与前一题的状态转移方程相同，初始情况较复杂
+  * 第一栋房子不打劫，则从第二栋房子开始选择打劫与不打劫
+  * 第一栋房子打劫，则第二栋一定不能打劫，从第三栋房子开始选择打劫与不打劫，返回最后一栋房子不被打劫的最大值
+* 时间复杂度O(n)，空间复杂度O(1)
+
+```java
+class Solution {
+    public int rob(int[] nums) {
+        if(nums.length == 0) return 0;
+        if(nums.length == 1) return nums[0];
+        if(nums.length == 2) return Math.max(nums[0], nums[1]);
+        int pre0 = nums[2], pre1 = 0;
+        for(int i = 3; i < nums.length; i++){
+            int cur0 = pre1 + nums[i];
+            int cur1 = Math.max(pre0, pre1);
+            pre0 = cur0;
+            pre1 = cur1;
+        }
+        int ans1 = pre1 + nums[0];
+        pre0 = nums[1]; 
+        pre1 = 0;
+        for(int i = 2; i < nums.length; i++){
+            int cur0 = pre1 + nums[i];
+            int cur1 = Math.max(pre0, pre1);
+            pre0 = cur0;
+            pre1 = cur1;
+        }
+        int ans2 = Math.max(pre0, pre1);
+        return Math.max(ans1, ans2);
+    }
+}
+```
+
+* 也可以这样想：首尾的状态有如下两种，因为首尾元素不能同时被打劫，所以必须有一个元素不能被打劫
+  * 首元素不被打劫
+  * 尾元素不被打劫
+
+```java
+class Solution {
+    public int rob(int[] nums) {
+        if(nums.length == 0) return 0;
+        if(nums.length == 1) return nums[0];
+        return Math.max(rob(nums,0,nums.length-2), rob(nums,1,nums.length-1));
+    }
+    
+    private int rob(int[] nums, int l, int r){
+        int pre0 = nums[l], pre1 = 0;
+        for(int i = l+1; i <= r; i++){
+            int cur0 = pre1 + nums[i];
+            int cur1 = Math.max(pre0, pre1);
+            pre0 = cur0;
+            pre1 = cur1;
+        }
+        return Math.max(pre0, pre1);
+    }
+}
+```
+
