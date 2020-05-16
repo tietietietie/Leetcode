@@ -1681,3 +1681,26 @@ class Solution {
 }
 ```
 
+## 337.打家劫舍Ⅲ
+
+* DFS，返回值，ans[0]，表示不打劫根节点的最大财富，ans[1]，表示打劫根节点的最大财富
+* 时间复杂度O(N)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int rob(TreeNode root) {
+        int[] ans = dfs(root);
+        return Math.max(ans[0], ans[1]);
+    }
+    
+    private int[] dfs(TreeNode root){
+        if(root == null) return new int[]{0, 0};
+        int[] leftAns  = dfs(root.left);
+        int[] rightAns = dfs(root.right);
+        int ans0 = leftAns[1] + rightAns[1] + root.val;
+        int ans1 = Math.max(leftAns[0], leftAns[1]) + Math.max(rightAns[0], rightAns[1]);
+        return new int[]{ans0, ans1};
+    }
+}
+```
+
