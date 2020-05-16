@@ -1574,3 +1574,29 @@ class Solution {
 }
 ```
 
+## 124.最长路径和
+
+* DFS，返回值为以当前节点起始的最大值路径。
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    private int ans;
+    public int maxPathSum(TreeNode root) {
+        ans = Integer.MIN_VALUE;
+        dfs(root);
+        return ans;
+    }
+    
+    private int dfs(TreeNode root){
+        if(root == null) return 0;
+        int leftSum  = dfs(root.left);
+        int rightSum = dfs(root.right);
+        leftSum  = leftSum  > 0 ? leftSum  : 0;
+        rightSum = rightSum > 0 ? rightSum : 0;
+        ans = Math.max(ans, leftSum + rightSum + root.val);
+        return Math.max(leftSum, rightSum) + root.val;
+    }
+}
+```
+
