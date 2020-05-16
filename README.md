@@ -1600,3 +1600,25 @@ class Solution {
 }
 ```
 
+## 198.打家劫舍Ⅰ
+
+* dp\[i]\[0]:表示第i个房子选择打劫，能获得的最大财富，dp\[i]\[1]:表示第i的房子选择不打劫，能获得的最大财富
+* 时间复杂度：O(n)，空间复杂度：O(1)
+
+```java
+class Solution {
+    public int rob(int[] nums) {
+        if(nums.length == 0) return 0;
+        int pre0 = nums[0], pre1 = 0;
+        for(int i = 1; i < nums.length; i++){
+            int cur0 = pre1 + nums[i];
+            int cur1 = Math.max(pre0, pre1);
+            pre0 = cur0;
+            pre1 = cur1;
+        }
+        return Math.max(pre0, pre1);
+    }
+}
+```
+
+## 213.打家劫舍Ⅱ
