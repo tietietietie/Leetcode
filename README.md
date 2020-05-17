@@ -1704,3 +1704,24 @@ class Solution {
 }
 ```
 
+## 671.二叉树第二小元素
+
+* DFS，返回值，当前子树的第二小元素
+  * 如果叶子节点为null，则不存在第二小元素，返回-1
+  * 如果叶子节点非null，分为两种情况
+    * 左右叶子与根节点的值相等，此时在左右子树接着寻找第二小元素
+    * 左右叶子与根节点的值不等，一定有一个子树的节点值等于根节点，在那棵子树上找第二小元素
+  * 总结：在等于root.val的子树上找第二小元素，不等于root.val的元素一定是大于他的元素，作为替补保存即可。
+* 时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int findSecondMinimumValue(TreeNode root) {
+        if(root.left == null) return -1;
+        int l = root.left.val  == root.val ? findSecondMinimumValue(root.left)  : root.left.val;
+        int r = root.right.val == root.val ? findSecondMinimumValue(root.right) : root.right.val;
+        return (l == -1 || r == -1) ? Math.max(l,r) : Math.min(l,r);
+    }
+}
+```
+
