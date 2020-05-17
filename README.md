@@ -1752,3 +1752,24 @@ class Solution {
 }
 ```
 
+## 513.二叉树的最左下节点
+
+* BFS，从右到左遍历，最后遍历的节点即为左下角节点。
+* 时间复杂度O(n)，空间复杂度O(m)
+
+```java
+class Solution {
+    public int findBottomLeftValue(TreeNode root) {
+        TreeNode cur = null;
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while(!queue.isEmpty()){
+            cur = queue.poll();
+            if(cur.right != null) queue.offer(cur.right);
+            if(cur.left  != null) queue.offer(cur.left);
+        }
+        return cur.val;
+    }
+}
+```
+
