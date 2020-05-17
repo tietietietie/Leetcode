@@ -1773,3 +1773,81 @@ class Solution {
 }
 ```
 
+## 94.二叉树中序遍历
+
+### Solution 1
+
+* DFS，inorder
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        inorder(root,ans);
+        return ans;
+    }
+    
+    private void inorder(TreeNode root, List<Integer> ans){
+        if(root == null) return;
+        inorder(root.left,ans);
+        ans.add(root.val);
+        inorder(root.right,ans);
+    }
+}
+```
+
+### Solution 2
+
+* stack，在当前树入栈后，其所有的左子树都得入栈，最后栈顶得到当前树的最左节点
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode cur = root;
+        while(cur != null || !stack.isEmpty()){
+            while(cur != null){
+                stack.push(cur);
+                cur = cur.left;
+            }
+            cur = stack.pop();
+            ans.add(cur.val);
+            cur = cur.right;
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 3
+
+* 找当前节点cur前驱节点pre，将pre的下一节点连在cur，cur往前一步移动，知道没有前驱节点
+* 不要成环，每此移动完cur，需要将cur.left变为null
+* O(n)/O(1)
+
+```java
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        TreeNode cur = root;
+        while(cur != null){
+            if(cur.left == null){
+                ans.add(cur.val);
+                cur = cur.right;
+                continue;
+            }
+            TreeNode pre = cur.left;
+            while(pre.right != null)
+                pre = pre.right;
+            pre.right = cur;
+            cur = cur.left;
+            pre.right.left = null;
+        }
+        return ans;
+    }
+}
+```
+
