@@ -2058,3 +2058,61 @@ class Solution {
 }
 ```
 
+## 230.BST的第k小元素
+
+### Solution 1
+
+* inorder
+* O(n)/O(n)
+
+```java
+class Solution {
+    private int count;
+    public int kthSmallest(TreeNode root, int k) {
+        count = 0;
+        return inorder(root,k);
+    }
+    
+    private int inorder(TreeNode root, int k){
+        if(root == null) return -1;
+        int left = inorder(root.left,k);
+        if(left != -1) return left;
+        count++;
+        if(count == k) return root.val;
+        else return inorder(root.right, k);
+    }
+}
+```
+
+### Solution 2
+
+* 记录每个节点的子节点个数
+* 创建新树:O(n)，插入/删除：O(h)，查找O(h)
+
+```java
+class Solution {
+    public int kthSmallest(TreeNode root, int k) {
+        TreeNode countRoot = buildCountTree(root);
+        return kthSmallest(root,countRoot,k);
+    }
+    
+    private TreeNode buildCountTree(TreeNode root){
+        if(root == null) return null;
+        TreeNode countNode = new TreeNode();
+        countNode.left  = buildCountTree(root.left);
+        countNode.right = buildCountTree(root.right);
+        countNode.val = 1 + (countNode.left == null ? 0 : countNode.left.val)
+            + (countNode.right == null ? 0 : countNode.right.val);
+        return countNode;
+    }
+    
+    private int kthSmallest(TreeNode root, TreeNode count, int k){
+        int curPos = count.left == null ? 1 : count.left.val + 1;
+        if(curPos >  k) return kthSmallest(root.left,count.left,k);
+        else if(curPos < k) return kthSmallest(root.right,count.right,k-curPos);
+        return root.val;
+    }
+
+}
+```
+
