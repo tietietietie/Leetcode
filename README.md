@@ -1953,6 +1953,7 @@ class Solution {
 ### Solution 2
 
 * stack，根节点入栈后添加一个null节点，用来标识，如果此时stack.peek()为null，表明到达了一个根节点，可以pop，否则，需要先遍历左右子树。
+* Stack的难点在于，位于stack.peek()的元素该不该pop呢，如果左右子树已经完成遍历，可以pop，否则，得先将左右子树遍历完成
 * O(n)/O(n)
 
 ```java
@@ -1982,6 +1983,7 @@ class Solution {
 ### Solution 3
 
 * stack，用pre来标记上一次访问的节点，如果上次访问的节点刚好是右节点，说明此节点的右子树已经访问，pop，否则需要先访问右子树。
+* stack.peek()的右子树是否遍历完成？出栈 ： 右子树入栈
 * O(n)/O(n)
 
 ```java
@@ -2031,6 +2033,27 @@ class Solution {
         }
         Collections.reverse(ans);
         return ans;
+    }
+}
+```
+
+## 699.修剪BST
+
+* 递归，根据BST的性质进行修剪
+* O(n)/O(n)
+
+```java
+class Solution {
+    public TreeNode trimBST(TreeNode root, int L, int R) {
+        if(root == null) return null;
+        if(root.val > R){
+            return trimBST(root.left,L,R);
+        }else if(root.val < L){
+            return trimBST(root.right,L,R);
+        }
+        root.left  = trimBST(root.left,L,R);
+        root.right = trimBST(root.right,L,R);
+        return root;
     }
 }
 ```
