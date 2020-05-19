@@ -1926,3 +1926,112 @@ class Solution {
 }
 ```
 
+## 145.二叉树后序遍历
+
+### Solution 1
+
+* DFS
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        postorder(root,ans);
+        return ans;
+    }
+    
+    private void postorder(TreeNode root, List<Integer> ans){
+        if(root == null) return;
+        postorder(root.left, ans);
+        postorder(root.right, ans);
+        ans.add(root.val);
+    }
+}
+```
+
+### Solution 2
+
+* stack，根节点入栈后添加一个null节点，用来标识，如果此时stack.peek()为null，表明到达了一个根节点，可以pop，否则，需要先遍历左右子树。
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        if(root == null) return ans;
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+        while(!stack.isEmpty()){
+            TreeNode cur = stack.peek();
+            if(cur == null){
+                stack.pop();
+                ans.add(stack.peek().val);
+                stack.pop();
+                continue;
+            }
+            stack.push(null);
+            if(cur.right != null) stack.push(cur.right);
+            if(cur.left != null) stack.push(cur.left);
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 3
+
+* stack，用pre来标记上一次访问的节点，如果上次访问的节点刚好是右节点，说明此节点的右子树已经访问，pop，否则需要先访问右子树。
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode cur = root;
+        TreeNode pre = null;
+        while(cur != null || !stack.isEmpty()){
+            while(cur != null){
+                stack.push(cur);
+                cur = cur.left;
+            }
+            cur = stack.peek();
+            if(cur.right == null || cur.right == pre){
+                stack.pop();
+                ans.add(cur.val);
+                pre = cur;
+                cur = null;
+            }else{
+                cur = cur.right;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 4
+
+* stack，按照中 ---> 右 --->左的顺序遍历，然后反转
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        if(root == null) return ans;
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+        while(!stack.isEmpty()){
+            root = stack.pop();
+            ans.add(root.val);
+            if(root.left  != null) stack.push(root.left);
+            if(root.right != null) stack.push(root.right);
+        }
+        Collections.reverse(ans);
+        return ans;
+    }
+}
+```
+
