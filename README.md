@@ -1851,3 +1851,78 @@ class Solution {
 }
 ```
 
+## 144.二叉树前序遍历
+
+### Solution 1
+
+* DFS
+* O(n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        preorder(root,ans);
+        return ans;
+    }
+    
+    private void preorder(TreeNode root, List<Integer> ans){
+        if(root == null) return;
+        ans.add(root.val);
+        preorder(root.left,ans);
+        preorder(root.right,ans);
+    }
+}
+```
+
+### Solution 2
+
+* stack,注意入栈顺序，右子树先入栈，左子树后入栈
+* O(N)/O(N)
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+        if(root == null) return ans;
+        stack.push(root);
+        while(!stack.isEmpty()){
+            TreeNode cur = stack.pop();
+            ans.add(cur.val);
+            if(cur.right != null) stack.push(cur.right);
+            if(cur.left  != null) stack.push(cur.left);
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 3
+
+* Morris解法，找到cur.right的前驱节点。(注意防止成环)
+* O(n)/O(1)
+
+```java
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> ans = new ArrayList<>();
+        TreeNode cur = root;
+        while(cur != null){
+            ans.add(cur.val);
+            if(cur.left == null){
+                cur = cur.right;
+            }else{
+                TreeNode pre = cur.left;
+                while(pre.right != null)
+                    pre = pre.right;
+                pre.right = cur.right;
+                cur.right = null;
+                cur = cur.left;
+            }
+        }
+        return ans;
+    }
+}
+```
+
