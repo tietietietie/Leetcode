@@ -2137,3 +2137,18 @@ class Solution {
 }
 ```
 
+## 235.BST最近公共祖先
+
+* 性质：两节点的最近公共祖先node，满足：两节点出现在node的左右子树（或者node == p || node == q)
+* O(h)/O(1)
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        while((root.val - p.val) * (root.val - q.val) > 0)
+            root = root.val > q.val ? root.left : root.right;
+        return root;
+    }
+}
+```
+
