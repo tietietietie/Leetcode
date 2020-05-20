@@ -2139,7 +2139,7 @@ class Solution {
 
 ## 235.BST最近公共祖先
 
-* 性质：两节点的最近公共祖先node，满足：两节点出现在node的左右子树（或者node == p || node == q)
+* 性质：两节点的最近公共祖先node，满足：唯一一个两节点出现在node的左右子树（或者node == p || node == q)
 * O(h)/O(1)
 
 ```java
@@ -2148,6 +2148,24 @@ class Solution {
         while((root.val - p.val) * (root.val - q.val) > 0)
             root = root.val > q.val ? root.left : root.right;
         return root;
+    }
+}
+```
+
+## 236.二叉树的最近公共祖先
+
+* 如果某节点的左子树能找到p,q中的一个，右节点能找到p,q中的一个，则此节点为LCA
+* 如果左子树返回了非null，而右子树为Null,则说明LCA一定是左子树的返回值
+* O(n)/O(n)
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if(root == null || root == p || root == q) return root;
+        TreeNode left  = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        if(left != null && right != null) return root;
+        return left == null ? right : left;
     }
 }
 ```
