@@ -2087,7 +2087,7 @@ class Solution {
 ### Solution 2
 
 * 记录每个节点的子节点个数
-* 创建新树:O(n)，插入/删除：O(h)，查找O(h)
+* 创建新树:O(n)，插入/删除：O(h)，查找O(h)，h为二叉树的高度
 
 ```java
 class Solution {
@@ -2112,7 +2112,28 @@ class Solution {
         else if(curPos < k) return kthSmallest(root.right,count.right,k-curPos);
         return root.val;
     }
+}
+```
 
+## 538.BST转换为累加树
+
+* 不使用全局变量，中序遍历，其中curSum存储着当前已经遍历的比root.val大的元素，返回值表示当前整棵树遍历完后的累加值。
+* O(n)/O(n)
+
+```java
+class Solution {
+    public TreeNode convertBST(TreeNode root) {
+        inorder(root,0);
+        return root;
+    }
+
+    private int inorder(TreeNode root, int curSum){
+        if(root == null) return curSum;
+        int rightSum = inorder(root.right, curSum);
+        root.val += rightSum;
+        int leftSum = inorder(root.left, root.val);
+        return leftSum;
+    }
 }
 ```
 
