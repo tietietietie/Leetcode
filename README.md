@@ -2392,3 +2392,30 @@ public class DFA{
 }
 ```
 
+## 530.BST最小绝对差
+
+* inorder
+* O(N)/O(N)
+
+```java
+class Solution {
+    int ans;
+    TreeNode pre;
+    public int getMinimumDifference(TreeNode root) {
+        ans = Integer.MAX_VALUE;
+        pre = null;
+        inorder(root);
+        return ans;
+    }
+    
+    private void inorder(TreeNode root){
+        if(root == null) return;
+        inorder(root.left);
+        if(pre != null) ans = Math.min(ans, root.val - pre.val);
+        pre = root;
+        inorder(root.right);
+    }
+}
+```
+
+> 可以使用int[]{pre, ans}来封装全局变量，在递归中传递
