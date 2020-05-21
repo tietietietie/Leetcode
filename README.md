@@ -1,4 +1,4 @@
-# Leetcode笔记
+# **Leetcode**笔记
 
 [TOC]
 
@@ -2273,6 +2273,121 @@ class Solution {
         else if(hs.contains(root.val))return true;
         hs.add(k-root.val);
         return findTarget(root.left,k)||findTarget(root.right,k);
+    }
+}
+```
+
+## 8.atoi
+
+### Solution 1
+
+* 翻译题目，考虑如下情况
+  * 去除前面空格
+  * 判断是否正负开头
+  * 转换为整数
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int myAtoi(String str) {
+        if(str.equals("")) return 0;
+        char[] chars = str.toCharArray();
+        int start = 0;
+        while(start < chars.length && chars[start] == ' ')
+            start++;
+        if(start == chars.length)
+            return 0;
+        if(chars[start] == '-')
+            return convertToInteger(chars, start+1, true);
+        if(chars[start] == '+')
+            return convertToInteger(chars, start+1, false);
+        return convertToInteger(chars, start, false);
+        
+    }
+
+    private int convertToInteger(char[] chars, int start, boolean isNagtive){
+        long ans = 0;
+        while(start < chars.length && chars[start] >= '0' && chars[start] <= '9'){
+            int digit = chars[start] - '0';
+            ans = ans * 10 + digit;
+            start++;
+            if(isNagtive && -ans < Integer.MIN_VALUE)
+                return Integer.MIN_VALUE;
+            if(!isNagtive && ans > Integer.MAX_VALUE)
+                return Integer.MAX_VALUE;
+        }
+        return isNagtive ? (int)-ans : (int)ans;
+    }
+}
+```
+
+### Solution 2
+
+* DFA，状态转换如下：
+
+|        | start | number | sign | end  |
+| ------ | ----- | ------ | ---- | ---- |
+| start  | start | number | sign | end  |
+| number | end   | number | end  | end  |
+| sign   | end   | number | end  | end  |
+| end    | end   | end    | end  | end  |
+
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int myAtoi(String str) {
+        DFA dfa = new DFA();
+        char[] chars = str.toCharArray();
+        for(char c : chars){
+            dfa.jump(c);
+        }
+        return dfa.positive ? dfa.ans : -dfa.ans;
+    }
+}
+
+public class DFA{
+    int ans;
+    boolean positive;
+    int curState;
+    int[][] map;
+    public DFA(){
+        ans = 0;
+        map = new int[4][];
+        curState = 0;
+        positive = true;
+        map[0] = new int[]{0,1,2,3};
+        map[1] = new int[]{3,1,3,3};
+        map[2] = new int[]{3,1,3,3};
+        map[3] = new int[]{3,3,3,3};
+    }
+
+    /*
+        "start":0
+        "number":1
+        "sign":2
+        "end":3
+    */
+    private int getCol(char c){
+        if(c == ' ') return 0;
+        if(c >= '0' && c <= '9') return 1;
+        if(c == '+' || c == '-') return 2;
+        return 3;
+    }
+
+    public void jump(char c){
+        curState = map[curState][getCol(c)];
+        if(curState == 1){
+            int digit = c - '0';
+            if(ans > Integer.MAX_VALUE/10 || (ans == Integer.MAX_VALUE/10 && digit > 7)){
+                ans = positive ?  Integer.MAX_VALUE : Integer.MIN_VALUE;
+                curState = 3;
+            }  
+            else
+                ans = ans * 10 + digit;   
+        }
+        if(curState == 2)
+            positive = c == '+' ? true : false;
     }
 }
 ```
