@@ -2229,3 +2229,51 @@ class Solution {
 }
 ```
 
+## 635.两数之和（BST）
+
+### Solution 1
+
+* 有序数组 + 左右指针
+* O(n)/O(n)
+
+```java
+class Solution {
+    public boolean findTarget(TreeNode root, int k) {
+        ArrayList<Integer> sorted = new ArrayList<>();
+        inorder(root, sorted);
+        int l = 0, r = sorted.size()-1;
+        while(l < r){
+            int sum = sorted.get(l) + sorted.get(r);
+            if(sum == k) return true;
+            else if(sum < k) l++;
+            else r--;
+        }
+        return false;
+    }
+    
+    private void inorder(TreeNode root, ArrayList<Integer> sorted){
+        if(root == null) return;
+        inorder(root.left, sorted);
+        sorted.add(root.val);
+        inorder(root.right, sorted);
+    }
+}
+```
+
+### Solution 2
+
+* Hashset
+* O(n)/O(n)
+
+```java
+class Solution {
+    HashSet hs=new HashSet();
+    public boolean findTarget(TreeNode root, int k) {
+        if(root==null) return false;
+        else if(hs.contains(root.val))return true;
+        hs.add(k-root.val);
+        return findTarget(root.left,k)||findTarget(root.right,k);
+    }
+}
+```
+
