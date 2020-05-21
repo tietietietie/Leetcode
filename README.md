@@ -2173,7 +2173,7 @@ class Solution {
 ## 108.有序数组转BST
 
 * 递归
-* O(n)/O(n)
+* O(n)/O(logn)
 
 ```java
 class Solution {
@@ -2195,4 +2195,37 @@ class Solution {
 
 >也可以用迭代法，看[这里](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/)
 
-## 109.
+## 109.有序链表转BST
+
+* 递归
+* O(n)/O(logn)
+
+```java
+class Solution {
+    private ListNode node;
+    public TreeNode sortedListToBST(ListNode head) {
+        int size = 0;
+        ListNode cur = head;
+        while(cur != null){
+            size++;
+            cur = cur.next;
+        }
+        int l = 0, r = size-1;
+        node = head;
+        return inorder(l,r);
+    }
+    
+    private TreeNode inorder(int l, int r){
+        if(l > r) return null;
+        int mid = (l + r) / 2;
+        TreeNode left = inorder(l, mid-1);
+        TreeNode root  = new TreeNode(node.val);
+        node = node.next;
+        TreeNode right = inorder(mid+1, r);
+        root.left  = left;
+        root.right = right;
+        return root;
+    }
+}
+```
+
