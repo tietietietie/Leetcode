@@ -2170,3 +2170,29 @@ class Solution {
 }
 ```
 
+## 108.有序数组转BST
+
+* 递归
+* O(n)/O(n)
+
+```java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        int l = 0, r = nums.length-1;
+        return sortedArrayToBST(nums, l, r);
+    }
+    
+    private TreeNode sortedArrayToBST(int[] nums, int l, int r){
+        if(l > r) return null;
+        int mid = (l + r) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left  = sortedArrayToBST(nums, l, mid-1);
+        root.right = sortedArrayToBST(nums, mid+1, r);
+        return root;
+    }
+}
+```
+
+>也可以用迭代法，看[这里](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/)
+
+## 109.
