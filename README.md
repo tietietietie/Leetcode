@@ -2419,3 +2419,44 @@ class Solution {
 ```
 
 > 可以使用int[]{pre, ans}来封装全局变量，在递归中传递
+
+## 501.BST众数
+
+* inorder, curCount：当前数出现的次数，maxCount：已遍历数的最多次数， preNode：前一节点
+* 注意：不能用list.toArray(new int[size])来转成数组。
+* O(n)/o(n)
+
+```java
+class Solution {
+    int maxCount, curCount;
+    TreeNode preNode;
+    public int[] findMode(TreeNode root) {
+        curCount = 0;
+        maxCount = 0;
+        ArrayList<Integer> ans = new ArrayList<>();
+        inorder(root, ans);
+        int[] ansArr = new int[ans.size()];
+        for(int i = 0; i < ans.size(); i++)
+            ansArr[i] = ans.get(i);
+        return ansArr;
+    }
+    
+    private void inorder(TreeNode root, ArrayList<Integer> ans){
+        if(root == null) return;
+        inorder(root.left, ans);
+        if(preNode != null && preNode.val == root.val)
+            curCount++;
+        else
+            curCount = 1;
+        if(curCount == maxCount) ans.add(root.val);
+        else if(curCount > maxCount){
+            maxCount = curCount;
+            ans.clear();
+            ans.add(root.val);
+        }
+        preNode = root;
+        inorder(root.right, ans);
+    }
+}
+```
+
