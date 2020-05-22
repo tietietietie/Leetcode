@@ -2524,3 +2524,32 @@ class Trie {
 }
 ```
 
+## 1373.寻找键值和最大的BST
+
+* postorder，判断root的两子树是否为BST，如果是，可以判断root是否为BST，以及他的最大值/最小值/键值和
+* O(n)/O(h)
+
+```java
+class Solution {
+    int ans;
+    public int maxSumBST(TreeNode root) {
+        ans = 0;
+        postorder(root);
+        return ans;
+    }
+    // res[]{isBST, max, min, sum}
+    private int[] postorder(TreeNode root){
+        if(root == null) return new int[]{1, Integer.MIN_VALUE, Integer.MAX_VALUE, 0};
+        int[] res1 = postorder(root.left);
+        int[] res2 = postorder(root.right);
+        if(res1[0] == 0 || res2[0] == 0 || res1[1] > root.val || res2[2] < root.val) 
+            return new int[]{0, 0, 0, 0};
+        int sum = root.val + res1[3] + res2[3];
+        int max = root.right == null ? root.val : res2[1];
+        int min = root.left  == null ? root.val : res1[2];
+        ans = Math.max(ans, sum);
+        return new int[]{1,max, min, sum};
+    }
+}
+```
+
