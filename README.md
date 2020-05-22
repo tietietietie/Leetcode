@@ -2460,3 +2460,67 @@ class Solution {
 }
 ```
 
+## 208.实现trie
+
+* 多叉树的实现
+* 查找效率取决于单词长度
+
+```java
+class Trie {
+    TrieNode root;
+    /** Initialize your data structure here. */
+    public Trie() {
+        root = new TrieNode();
+    }
+    
+    /** Inserts a word into the trie. */
+    public void insert(String word) {
+        insert(word, root, 0);
+    }
+    
+    private void insert(String word, TrieNode root, int idx){
+        if(idx >= word.length()) return;
+        char c = word.charAt(idx);
+        if(root.children[c-'a'] == null)
+            root.children[c-'a'] = new TrieNode();
+        if(idx == word.length()-1) root.children[c-'a'].isEnd = true;
+        insert(word, root.children[c-'a'], idx+1);
+    }
+    
+    /** Returns if the word is in the trie. */
+    public boolean search(String word) {
+        return search(word, root, 0);
+    }
+    
+    private boolean search(String word, TrieNode node, int idx){
+        if(idx == word.length() || node == null) return false;
+        char c = word.charAt(idx);
+        if(node.children[c-'a'] == null) return false;
+        if(idx == word.length()-1 && node.children[c-'a'].isEnd) return true;
+        return search(word, node.children[c-'a'], idx+1);
+    }
+    
+    /** Returns if there is any word in the trie that starts with the given prefix. */
+    public boolean startsWith(String prefix) {
+        return startsWith(prefix, root, 0);
+    }
+    
+    private boolean startsWith(String prefix, TrieNode node, int idx){
+        if(node == null) return false;
+        char c = prefix.charAt(idx);
+        if(node.children[c-'a'] == null) return false;
+        if(idx == prefix.length()-1) return true;
+        return startsWith(prefix, node.children[c-'a'], idx+1);
+    }
+    
+    private class TrieNode{
+        boolean isEnd;
+        TrieNode[] children;
+        public TrieNode(){
+            isEnd = false;
+            children = new TrieNode[26];
+        }
+    }
+}
+```
+
