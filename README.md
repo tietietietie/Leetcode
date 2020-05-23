@@ -2553,3 +2553,141 @@ class Solution {
 }
 ```
 
+## 剑指04.二维数据查找
+
+* 右上角开始查找，每次排除一行/一列
+* O(m+n)/O(1
+
+```java
+class Solution {
+    public boolean findNumberIn2DArray(int[][] matrix, int target) {
+        int n = matrix.length;
+        if(n == 0) return false;
+        int m = matrix[0].length;
+        if(m == 0) return false;
+        int i = 0, j = m-1;
+        while(i < n && j >= 0){
+            if(matrix[i][j] == target)
+                return true;
+            else if(matrix[i][j] > target)
+                j--;
+            else
+                i++;
+        }
+        return false;
+    }
+}
+```
+
+## 剑指07.重构二叉树
+
+* 递归，其中l，r表示当前二叉树的前序遍历结果，visited表示当前中序遍历数组已经有多少个节点被访问，利用visited和根节点在Inorder[]中的下标，可以得到左右子树的长度，从而得到下一递归的参数
+* O(n)/O(n)
+
+```java
+class Solution {
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < inorder.length; i++)
+            map.put(inorder[i], i);
+        return buildTree(preorder, 0, preorder.length-1, 0, map);
+    }
+    
+    private TreeNode buildTree(int[] preorder, int l, int r, int visited, HashMap<Integer, Integer> map){
+        if(l > r) return null;
+        TreeNode root = new TreeNode(preorder[l]);
+        int idx = map.get(preorder[l]);
+        root.left  = buildTree(preorder, l+1, l+idx-visited, visited, map);
+        root.right = buildTree(preorder, l+idx-visited+1, r, 1+idx, map);
+        return root;
+    }
+}
+```
+
+## 76.最小覆盖子串
+
+### Solution 1
+
+* hashmap + 滑动窗口
+  * 滑动窗口：[l,r)，l,r从空子串开始，r向右移动，知道找到满足条件的子串，接着l向右移动，得到满足条件的最小子串。
+  * check()函数，用于判断当前子串是否满足条件，tFreq,sFreq保存字符出现次数。
+* O(128 * n)/O(1)
+
+```java
+class Solution {
+    public String minWindow(String s, String t) {
+        int[] sFreq = new int[128];
+        int[] tFreq = new int[128];
+        int l = 0, r = 0, ansl = -1, ansr = -1, sLen = s.length();
+        int minLen = sLen + 1;
+        for(int i = 0; i < t.length(); i++)
+            tFreq[t.charAt(i)]++;
+        while(r < sLen){
+            char c = s.charAt(r);
+            sFreq[c]++;
+            r++;
+            while(check(sFreq, tFreq)){
+                if(r - l < minLen){
+                    ansl = l;
+                    ansr = r;
+                    minLen = r-l;
+                }
+                char leftChar = s.charAt(l);
+                sFreq[leftChar]--;
+                l++;
+            }
+        }
+        if(minLen == sLen+1) return "";
+        return s.substring(ansl, ansr);
+    }
+    
+    private boolean check(int[] sFreq, int[] tFreq){
+        for(int i = 0; i < 128; i++)
+            if(sFreq[i] < tFreq[i])
+                return false;
+        return true;
+    }
+}
+```
+
+### Solution 2
+
+* hashmap + 滑动窗口
+* distance：表示当前子串还差几个目标字符，才能达到要求，tFreq[c]表示当前子串还差多少个目标字符，显然，当r出现了目标字符，且该目标字符还差时，就可以减小distance，当刚好不差目标字符，但是l右移排除了一个目标字符，distance++。
+* 非目标字符不会对distance产生影响，因为非目标字符的tFreq永远不会大于0。
+* O(n)/O(1)
+
+```java
+class Solution {
+    public String minWindow(String s, String t) {
+        int[] tFreq = new int[128];
+        int l = 0, r = 0, ansl = -1, ansr = -1, sLen = s.length();
+        int minLen = sLen + 1;
+        int distance = t.length();
+        for(int i = 0; i < t.length(); i++)
+            tFreq[t.charAt(i)]++;
+        while(r < sLen){
+            char c = s.charAt(r);
+            if(tFreq[c] > 0)
+                distance--;
+            tFreq[c]--;
+            r++;
+            while(distance == 0){
+                if(r-l < minLen){
+                    ansl = l;
+                    ansr = r;
+                    minLen = r-l;
+                }
+                char leftChar = s.charAt(l);
+                if(tFreq[leftChar] == 0)
+                    distance++;
+                tFreq[leftChar]++;
+                l++;
+            }
+        }
+        if(minLen == sLen+1) return "";
+        return s.substring(ansl, ansr);
+    }
+}
+```
+
