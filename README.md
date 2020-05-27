@@ -2691,3 +2691,99 @@ class Solution {
 }
 ```
 
+## 85.最大矩形
+
+### Solution 1
+
+* 单调栈
+* O(mn)/o(n)
+
+```java
+class Solution {
+    public int maximalRectangle(char[][] matrix) {
+        int m = matrix.length;
+        if(m == 0) return 0;
+        int n = matrix[0].length;
+        if(n == 0) return 0;
+        int ans = 0;
+        int[] heights = new int[n];
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                if(matrix[i][j] == '1')
+                    heights[j]++;
+                else
+                    heights[j] = 0;
+            }
+            ans = Math.max(ans, maxArea(heights));
+        }
+        return ans;
+    }
+    
+    private int maxArea(int[] heights){
+        int n = heights.length;
+        int maxArea = 0;
+        Stack<Integer> stack = new Stack<>();
+        stack.push(-1);
+        for(int i = 0; i < n; i++){
+            while(stack.peek() != -1 && heights[stack.peek()] > heights[i]){
+                maxArea = Math.max(maxArea, heights[stack.pop()] * (i - stack.peek() -1));
+            }
+            stack.push(i);
+        }
+        while(stack.peek() != -1)
+            maxArea = Math.max(maxArea, heights[stack.pop()] * (n - stack.peek() -1));
+        return maxArea;
+    }
+}
+```
+
+### Solution 2
+
+* DP，求每一个高度i的左边第一个小于它的元素位置，以及右边第一个小于它元素的位置。
+* O(mn)/o(n)
+
+```java
+class Solution {
+    public int maximalRectangle(char[][] matrix) {
+        int m = matrix.length;
+        if(m == 0) return 0;
+        int n = matrix[0].length;
+        if(n == 0) return 0;
+        int ans = 0;
+        int[] heights = new int[n];
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                if(matrix[i][j] == '1')
+                    heights[j]++;
+                else
+                    heights[j] = 0;
+            }
+            ans = Math.max(ans, maxArea(heights));
+        }
+        return ans;
+    }
+    
+    private int maxArea(int[] heights){
+        int n = heights.length;
+        int[] leftMin  = new int[n];
+        int[] rightMin = new int[n];
+        int maxArea = 0;
+        for(int i = 0; i < n; i++){
+            int j = i-1;
+            while(j != -1 && heights[j] >= heights[i])
+                j = leftMin[j];
+            leftMin[i] = j;
+        }
+        for(int i = n-1; i >= 0; i--){
+            int j = i+1;
+            while(j != n && heights[j] >= heights[i])
+                j = rightMin[j];
+            rightMin[i] = j;
+        }
+        for(int i = 0; i < n; i++)
+            maxArea = Math.max(maxArea, heights[i] * (rightMin[i] - leftMin[i] - 1));
+        return maxArea;
+    }
+}
+```
+
