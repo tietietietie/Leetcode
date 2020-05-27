@@ -2787,3 +2787,32 @@ class Solution {
 }
 ```
 
+## 974.和可被K整除的子数组
+
+* 前缀和，同余定理
+  * 已知前缀和prefix[i]，和prefix[j]，则区间和[j, i+1]可以表示为prefix[j] - prefix[i]
+  * 如果两个数x, y mod z的余数相等，则 (x - y) mod z == 0，即(x - y)可以被z整除
+  * 特殊情况，余数可能为负数，如 12 % 5 = 2, -3 % 5 = -3, 需要将负数转换为正数
+  * 保留余数可以用数组(能用数组就不要用Map)
+  * 如果prefix[i]能够被K整除，则应该也算入次数，此时需初始化cnt[0] = 1。
+* O(n)/O(k)
+
+```java
+class Solution {
+    public int subarraysDivByK(int[] A, int K) {
+        int[] cnt = new int[K];
+        int sum = 0;
+        int ans = 0;
+        cnt[0] = 1;
+        for(int i = 0; i < A.length; i++){
+            sum += A[i];
+            int module = (sum % K + K) % K;
+            cnt[module]++;
+        }
+        for(int i = 0; i < K; i++)
+            ans += cnt[i] * (cnt[i] -1) / 2;
+        return ans;
+    }
+}
+```
+
