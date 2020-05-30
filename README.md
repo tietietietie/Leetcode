@@ -2816,3 +2816,301 @@ class Solution {
 }
 ```
 
+## 146.LCU缓存机制
+
+* 双向链表 + hashmap
+  * 双向链表：其中每个节点可以访问前一节点，后一节点，还保存着(key, value)。并提供删除节点，头部添加，尾部删除操作。
+  * hashmap，其中key为key,而value为代表这个（key,value)的node
+* O(1)/O(capacity)
+
+```java
+class LRUCache {
+    HashMap<Integer, Node> map;
+    DoubleList list;
+    int capacity;
+
+    public LRUCache(int capacity) {
+        map = new HashMap<>();
+        list = new DoubleList();
+        this.capacity = capacity;
+    }
+    
+    public int get(int key) {
+        Node node = map.get(key);
+        if(node == null) return -1;
+        list.remove(node);
+        list.addFirst(node);
+        return node.val;
+    }
+    
+    public void put(int key, int value) {
+        Node node = new Node(key, value);
+        if(map.get(key) != null){
+            Node preNode = map.get(key);
+            list.remove(preNode);
+            list.addFirst(node);
+            map.put(key, node);
+            return;
+        }
+        if(list.size == capacity)
+            map.remove(list.removeLast().key);
+        map.put(key, node);
+        list.addFirst(node);
+    }
+}
+
+class Node {
+    int key;
+    int val;
+    Node pre;
+    Node next;
+    public Node(int key, int val){
+        this.key = key;
+        this.val = val;
+    }
+}
+
+class DoubleList {
+    Node head;
+    Node tail;
+    int size;
+    
+    public DoubleList() {
+        head = new Node(0, 0);
+        tail = new Node(0, 0);
+        head.next = tail;
+        tail.pre  = head;
+        size = 0;
+    }
+    
+    public void addFirst(Node node){
+        Node temp = head.next;
+        head.next = node;
+        node.pre  = head;
+        node.next = temp;
+        temp.pre  = node;
+        size++;
+    }
+    
+    public void remove(Node node){
+        node.pre.next = node.next;
+        node.next.pre = node.pre;
+        size--;
+    }
+    
+    public Node removeLast(){
+        Node node = tail.pre;
+        this.remove(node);
+        return node;
+    }
+}
+```
+
+## 394.字符串解码
+
+* stack\<String\>，需要将正数K转换为字符串，需要将char类型转换为字符串，需要使用StringBuilder的insert方法在头部插入。
+* O(n)/O(n)
+
+```java
+class Solution {
+    public String decodeString(String s) {
+        Stack<String> stack = new Stack<>();
+        char[] chars = s.toCharArray();
+        for(int i = 0; i < chars.length; i++){
+            if(chars[i] >= '0' && chars[i] <= '9'){
+                StringBuilder sb = new StringBuilder();
+                while(chars[i] >= '0' && chars[i] <= '9'){
+                    sb.append(chars[i]);
+                    i++;
+                }
+                stack.push(sb.toString());
+            }
+            if(chars[i] != ']')
+                stack.push(String.valueOf(chars[i]));
+            else{
+                StringBuilder sb = new StringBuilder();
+                while(!stack.peek().equals("["))
+                    sb.insert(0, stack.pop());
+                stack.pop();
+                int count = Integer.parseInt(stack.pop());
+                String temp = sb.toString();
+                for(int j = 0; j < count-1; j++)
+                    sb.append(temp);
+                stack.push(sb.toString());
+            }
+        }
+        StringBuilder ans = new StringBuilder();
+        while(!stack.isEmpty())
+            ans.insert(0, stack.pop());
+        return ans.toString();
+    }
+}
+```
+
+## 剑指37.序列化二叉树
+
+* BFS，序列化时，需要将空节点入队，反序列化时，需要按序列化一样使用queue
+* O(n)/O(n)
+
+```java
+public class Codec {
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        StringBuilder sb = new StringBuilder();
+        if(root == null) return "";
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while(!queue.isEmpty()){
+            TreeNode node = queue.poll();
+            if(node != null){
+                sb.append(node.val + ",");
+                queue.offer(node.left);
+                queue.offer(node.right);
+            }else{
+                sb.append("null,");
+            }
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        if(data.equals("")) return null;
+        String[] vals = data.split(",");
+        TreeNode root = new TreeNode(Integer.parseInt(vals[0]));
+        LinkedList<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        int idx = 1;
+        while(!queue.isEmpty()){
+            TreeNode node = queue.poll();
+            if(!vals[idx].equals("null")){
+                node.left = new TreeNode(Integer.parseInt(vals[idx]));
+                queue.offer(node.left);
+            }
+            idx++;
+            if(!vals[idx].equals("null")){
+                node.right = new TreeNode(Integer.parseInt(vals[idx]));
+                queue.offer(node.right);
+            }
+            idx++;
+        }
+        return root;
+    }
+}
+```
+
+## 707.设计链表
+
+* 双向链表，size保存链表长度
+* 可以根据插入/删除的位置index与head/tail的距离，选择从头遍历或者从尾遍历
+* get/insert/delete:O(n)，addAtHead/addAtTail:O(1)
+
+```java
+class MyLinkedList {
+    int size;
+    Node head;
+    Node tail;
+
+    /** Initialize your data structure here. */
+    public MyLinkedList() {
+        this.size = 0;
+        this.head = new Node(0);
+        this.tail = new Node(0);
+        head.next = tail;
+        tail.pre  = head;
+    }
+    
+    /** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
+    public int get(int index) {
+        if(index < 0 || index >= size) return -1;
+        Node node = this.find(index);
+        return node.val;
+    }
+    
+    /** Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list. */
+    public void addAtHead(int val) {
+        Node node = new Node(val);
+        Node nNode = head.next;
+        head.next = node;
+        node.pre  = head;
+        node.next = nNode;
+        nNode.pre  = node;
+        size++;
+    }
+    
+    /** Append a node of value val to the last element of the linked list. */
+    public void addAtTail(int val) {
+        Node node = new Node(val);
+        Node pNode = tail.pre;
+        pNode.next = node;
+        node.pre = pNode;
+        node.next = tail;
+        tail.pre = node;
+        size++;
+    }
+    
+    /** Add a node of value val before the index-th node in the linked list. If index equals to the length of linked list, the node will be appended to the end of linked list. If index is greater than the length, the node will not be inserted. */
+    public void addAtIndex(int index, int val) {
+        if(index < 0) {
+            this.addAtHead(val);
+            return;
+        }
+        if(index == size) {
+            this.addAtTail(val);
+            return;
+        }
+        if(index < size){
+            Node node = this.find(index);
+            Node nNode = new Node(val);
+            Node pNode = node.pre;
+            pNode.next = nNode;
+            nNode.pre = pNode;
+            nNode.next = node;
+            node.pre = nNode;
+            size++;
+        }
+    }
+    
+    /** Delete the index-th node in the linked list, if the index is valid. */
+    public void deleteAtIndex(int index) {
+        if(index >= 0 && index < size){
+            Node node = this.find(index);
+            node.pre.next = node.next;
+            node.next.pre = node.pre;
+            size--;
+        }
+    }
+    
+    private Node find(int index){
+        if(index+1 < size - index){
+            Node node = head;
+            int cnt = -1;
+            while(cnt != index){
+                node = node.next;
+                cnt++;
+            }
+            return node;
+        }
+        Node node = tail;
+        int cnt = size;
+        while(cnt != index){
+            node = node.pre;
+            cnt--;
+        }
+        return node;
+    }
+}
+//双向链表节点
+class Node {
+    int val;
+    Node pre;
+    Node next;
+    
+    public Node(int val) {
+        this.val = val;
+    }
+}
+```
+
