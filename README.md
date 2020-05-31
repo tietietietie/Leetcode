@@ -3114,3 +3114,43 @@ class Node {
 }
 ```
 
+## 1371.每个元音包含偶数次的最长字符串
+
+* 前缀和+hashmap+状态压缩
+  * state:表示从0~i中，每个元音的奇偶性
+  * map:表示某一state第一次出现的位置
+  * state == 0 第一次出现的位置为-1，所以map[0] = 0
+  * 以i结尾的最长字符串为 i + 1 - map[state]
+* O(n)/O(1)
+
+```java
+class Solution {
+    public int findTheLongestSubstring(String s) {
+        int state = 0, ans = 0;
+        int[] map = new int[32];
+        Arrays.fill(map, -1);
+        map[0] = 0;
+        for(int i = 0; i < s.length(); i++){
+            char c = s.charAt(i);
+            if(c == 'a') {
+                state ^= 1 << 0;
+            }else if(c == 'e'){
+                state ^= 1 << 1;
+            }else if(c == 'i'){
+                state ^= 1 << 2;
+            }else if(c == 'o'){
+                state ^= 1 << 3;
+            }else if(c == 'u'){
+                state ^= 1 << 4;
+            }
+            if(map[state] >= 0){
+                ans = Math.max(ans, i - map[state] + 1);
+            }else{
+                map[state] = i+1;
+            }
+        }
+        return ans;
+    }
+}
+```
+
