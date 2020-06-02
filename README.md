@@ -3195,3 +3195,50 @@ class Solution {
 }
 ```
 
+## 120.三角形最小路径和
+
+* 自顶向下dp
+* O(n^2)/O(1)
+
+```java
+class Solution {
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int height = triangle.size();
+        if(height == 0) return 0;
+        if(height == 1) return triangle.get(0).get(0);
+        List<Integer> preLevel = triangle.get(0);
+        for(int i = 1; i < height; i++){
+            List<Integer> curLevel = triangle.get(i);
+            curLevel.set(0, curLevel.get(0) + preLevel.get(0));
+            curLevel.set(i, curLevel.get(i) + preLevel.get(i-1));
+            for(int j = 1; j < i; j++){
+                int preMin = Math.min(preLevel.get(j-1), preLevel.get(j));
+                curLevel.set(j, curLevel.get(j) + preMin);
+            }
+            preLevel = curLevel;
+        }
+        int ans = Integer.MAX_VALUE;
+        for(int i = 0; i < height; i++)
+            ans = Math.min(ans, preLevel.get(i));
+        return ans;
+    }
+}
+```
+
+* 自底向上
+* O(n^2)/O(1)
+
+```java
+class Solution {
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int height = triangle.size();
+        if(height == 0) return 0;
+        for(int i = height -2; i >= 0; i--)
+            for(int j = 0; j <= i; j++)
+                triangle.get(i).set(j, triangle.get(i).get(j)
+                                    + Math.min(triangle.get(i+1).get(j), triangle.get(i+1).get(j+1)));
+        return triangle.get(0).get(0);
+    }
+}
+```
+
