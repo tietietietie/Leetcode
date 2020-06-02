@@ -3154,3 +3154,44 @@ class Solution {
 }
 ```
 
+## 1011.在D天内送达包裹的能力
+
+* 二分法：运送包裹的能力在max~sum之间，其中max为weights[i]的最大值，sum为weights[i]的和
+* 计算days，需要~O(n)的时间，当days > D是，需要增大mid，当days <= D时，需要减小mid，并且保证mid取最小的符合条件的值
+* O(nlog(sum-max))/O(1)
+
+```java
+class Solution {
+    public int shipWithinDays(int[] weights, int D) {
+        int max = 0, ans = 0;
+        for(int weight : weights){
+            max = Math.max(max, weight);
+            ans += weight;
+        }
+        int l = max, r = ans;
+        while(l < r){
+            int mid = (l + r) / 2;
+            int days = shipWithinWeight(weights, mid);
+            if(days <= D)
+                r = mid;
+            else
+                l = mid+1;
+        }
+        return l;
+    }
+    
+    private int shipWithinWeight(int[] weights, int cur){
+        int days = 0, curSum = 0;
+        for(int weight : weights){
+            curSum += weight;
+            if(curSum > cur){
+                curSum = weight;
+                days++;
+            }
+        }
+        if(curSum != 0) days++;
+        return days;
+    }
+}
+```
+
