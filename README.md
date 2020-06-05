@@ -3242,3 +3242,55 @@ class Solution {
 }
 ```
 
+## 837.新21点
+
+* 问题描述，当手中点数>=K后，不在摸牌，求手中点数<=N的概率
+* DP，自底向上
+  * x：当前手中点数， dp[x]，手中点数为x时，获胜的概率， dp[0]，手中点数为0时获胜的概率
+  * 初始条件：x >= K && x <= min(N, K-1+W)时，获胜的概率为1，即dp[x] = 1。
+  * 状态转移方程：dp[x] = (dp[x+1] + dp[x+2] + ... + dp[x+W]) / W。与dp[x+1]的表达式相减，可以用O(1)的时间得到dp[x]，dp[x] = dp[x+1] + (dp[x+1] - dp[x+W+1]) / W。由于dp[x+W+1]不能超过 K+W-1，所以x必须 <= k-2，所以需要先求出dp[K-1].
+  * 初始条件：dp[K-1] = (dp[K] + dp[K+1] + ... + dp[K+W-1]) / W，由于之前初始化条件，可以得到dp[K-1] = min(N-K+1, W) / W。
+* O(K, W)/O(K+W)
+
+```java
+class Solution {
+    public double new21Game(int N, int K, int W) {
+        if(K == 0) return 1.0;
+        double[] dp = new double[K+W];
+        for(int i = K; i <= N && i <= K+W-1; i++)
+            dp[i] = 1.0;
+        dp[K-1] = 1.0 * (double)Math.min(N-K+1, W) / W;
+        for(int i = K-2; i >= 0; i--)
+            dp[i] = dp[i+1] + (dp[i+1] - dp[i+W+1]) / W;
+        return dp[0];
+    }
+}
+```
+
+## 611.有效三角形的个数
+
+* 固定最大边target，找有序数组两数和大于target的对数(双指针)
+* O(n^2)/O(logn)
+
+```java
+class Solution {
+    public int triangleNumber(int[] nums) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int ans = 0;
+        for(int c = n-1; c >= 0; c--){
+            int l = 0, r = c-1;
+            while(l < r){
+                if(nums[l] + nums[r] > nums[c]){
+                    ans += r-l;
+                    r--;
+                }else{
+                    l++;
+                }
+            }
+        }
+        return ans;
+    }
+}
+```
+
