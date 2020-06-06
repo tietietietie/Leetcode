@@ -3294,3 +3294,61 @@ class Solution {
 }
 ```
 
+## 174.地下城游戏
+
+* dp\[i]\[j]表示骑士从点(i,j)出发到终点所需Hp值，状态转移方程：dp\[i][j] = max(1, min(dp\[i+1][j] , dp\[i][j+1]) - dungeon\[i][j])
+* 初始条件：dp\[m][n-1] = dp\[m-1][n] = 1. 初始化dp全部为最大值，可以简化初始化条件。
+* O(mn)/O(mn)
+
+```java
+class Solution {
+    public int calculateMinimumHP(int[][] dungeon) {
+        int m = dungeon.length;
+        int n = dungeon[0].length;
+        int[][] dp = new int[m+1][n+1];
+        
+        for(int i = 0; i <= m; i++)
+            Arrays.fill(dp[i], Integer.MAX_VALUE);
+        dp[m][n-1] = 1;
+        dp[m-1][n] = 1;
+        
+        for(int i = m-1; i >= 0; i--)
+            for(int j = n-1; j >= 0; j--)
+                dp[i][j] = Math.max(1, Math.min(dp[i+1][j], dp[i][j+1]) - dungeon[i][j]);
+        return dp[0][0];
+    }
+}
+```
+
+## 147.链表插入排序
+
+* dummy：哑节点，tail：已排好序链表的尾节点（把curNode插入到dummy ~ tail时，必须用到tail）, curNode：待插入节点，pre：插入位置（只有插入点在dummy ~ tail.pre时有效）
+* O(n^2)/O(1)
+
+```java
+class Solution {
+    public ListNode insertionSortList(ListNode head) {
+        if(head == null) return null;
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode curNode = head.next;
+        ListNode tail = head;
+        while(curNode != null){
+            if(tail.val <= curNode.val){
+                curNode = curNode.next;
+                tail = tail.next;
+            }else{
+                ListNode pre = dummy;
+                while(pre.next.val < curNode.val)
+                    pre = pre.next;
+                tail.next = curNode.next;
+                curNode.next = pre.next;
+                pre.next = curNode;
+                curNode = tail.next;
+            }
+        }
+        return dummy.next;
+    }
+}
+```
+
