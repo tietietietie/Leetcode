@@ -3352,3 +3352,223 @@ class Solution {
 }
 ```
 
+## 126.单词接龙Ⅱ
+
+* BFS/无向图/邻接表
+* O(n^2m)/O(n^2)
+
+```java
+class Solution {
+    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+        HashSet<String> wordSet = new HashSet<>();
+        for(String word : wordList)
+            wordSet.add(word);
+        wordSet.add(beginWord);
+        if(!wordSet.contains(endWord)) return new ArrayList<>();
+        
+        HashMap<String, ArrayList<String>> map = new HashMap<>();
+        buildGraph(wordSet, map);
+        
+        List<List<String>> ans = new ArrayList<>();
+        LinkedList<ArrayList<String>> queue = new LinkedList<>();
+        HashSet<String> visited = new HashSet<>();
+        boolean isFound = false;
+        ArrayList<String> temp = new ArrayList<>();
+        temp.add(beginWord);
+        queue.offer(temp);
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            HashSet<String> subVisited = new HashSet<>();
+            for(int i = 0; i < size; i++){
+                ArrayList<String> curPath = queue.poll();
+                String curNode = curPath.get(curPath.size() - 1);
+                ArrayList<String> neighbors = map.get(curNode);
+                for(String neighbor : neighbors) {
+                    if(!visited.contains(neighbor)){
+                        if(neighbor.equals(endWord)){
+                            curPath.add(endWord);
+                            ans.add(new ArrayList<String>(curPath));
+                            curPath.remove(curPath.size() - 1);
+                            isFound = true;
+                        }else{
+                            curPath.add(neighbor);
+                            queue.offer(new ArrayList<>(curPath));
+                            curPath.remove(curPath.size() - 1);
+                        }
+                        subVisited.add(neighbor);
+                    }
+                }
+            }
+            visited.addAll(subVisited);
+            if(isFound) break;
+        }
+        return ans;
+    }
+    
+    private void buildGraph(HashSet<String> wordSet, HashMap<String, ArrayList<String>> map){
+        for(String word : wordSet){
+            char[] chs = word.toCharArray();
+            ArrayList<String> edges = new ArrayList<>();
+            for(int i = 0; i < chs.length; i++)
+                for(char j = 'a'; j <= 'z'; j++){
+                    char c = chs[i];
+                    chs[i] = j;
+                    String temp = String.valueOf(chs);
+                    if(!temp.equals(word) && wordSet.contains(temp))
+                        edges.add(temp);
+                    chs[i] = c;
+                }
+            map.put(word, edges);
+        }
+    }
+}
+```
+
+## 10046.把数组翻译成字符串
+
+* 递归略
+* DP：dp[i],表示前i位数组能够转换的字符串个数，显然dp[i] = dp[i-1] 或者 dp[i] = dp[i-1] + dp[i-2];
+* O(n)/O(n)，空间可优化，略
+
+```java
+class Solution {
+    public int translateNum(int num) {
+        String s = String.valueOf(num);
+        char[] digits = s.toCharArray();
+        
+        int[] dp = new int[digits.length + 1];
+        dp[0] = 1;
+        dp[1] = 1;
+        
+        for(int i = 2; i <= digits.length; i++){
+            int temp = (digits[i-2] - '0') * 10 + digits[i-1] - '0';
+            if(temp >= 10 && temp <= 25)
+                dp[i] = dp[i-1] + dp[i-2];
+            else
+                dp[i] = dp[i-1];
+        }
+        return dp[digits.length];
+    }
+}
+```
+
+## 9.回文数
+
+* 只需要反转一半的数字进行比较
+* O(n)/O(1)
+
+```java
+class Solution {
+    public boolean isPalindrome(int x) {
+        if(x < 0 || (x != 0 && x % 10 == 0)) return false;
+        int y = 0;
+        while(x > y){
+            y = y * 10 + x % 10;
+            x = x / 10;
+        }
+        return x == y || x == y/10;
+    }
+}
+```
+
+## 1210.穿过迷宫的最小次数
+
+### Solution1
+
+* BFS,定义Int[]{i, j, state}， i，j为蛇尾坐标，state表示水平或者垂直
+
+* 每个节点（i,j,state)可能有三种路径（右移，下移，旋转）根据是否有障碍，入队。
+* step表示BFS层数，当到达（n-1, n-2, 0)这个节点，找到最短路径
+* visited统一访问过的节点，避免重复访问
+* O(n^2)/O(n^2)
+
+```java
+class Solution {
+    public int minimumMoves(int[][] grid) {
+        int n = grid.length;
+        int[] start = new int[]{0 ,0, 0};
+        LinkedList<int[]> queue = new LinkedList<>();
+        HashSet<String> visited = new HashSet<>();
+        queue.offer(start);
+        int step = 0;
+        
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            while(size > 0){
+                int[] cur = queue.poll();
+                int i = cur[0], j = cur[1], state = cur[2];
+                if(i == n-1 && j == n-2 && state == 0) 
+                    return step;
+                String s = i + "" + j + "" + state;
+                if(!visited.contains(s)){
+                    visited.add(s);
+                    if(state == 0){
+                        if(i < n-1 && grid[i+1][j] == 0 && grid[i+1][j+1] == 0){
+                            queue.offer(new int[]{i+1, j, 0});
+                            queue.offer(new int[]{i, j, 1});
+                        }
+                        if(j < n-2 && grid[i][j+2] == 0)
+                            queue.offer(new int[]{i, j+1, 0});
+                    }else {
+                        if(j < n-1 && grid[i][j+1] == 0 && grid[i+1][j+1] == 0){
+                            queue.offer(new int[]{i, j+1, 1});
+                            queue.offer(new int[]{i, j, 0});
+                        }
+                        if(i < n-2 && grid[i+2][j] == 0)
+                            queue.offer(new int[]{i+1, j, 1});
+                    }
+                }
+                size--;
+            }
+            step++;
+        }
+        return -1;
+    }
+}
+```
+
+### Solution2
+
+* DP
+  * 状态转移方程：dp\[i]\[j]\[0] = min(dp\[i-1]\[j]\[0], dp\[i]\[j-1]\[0], dp\[i]\[j]\[1]),  dp\[i]\[j]\[1] = min(dp\[i-1]\[j]\[1], dp\[i]\[j-1]\[1], dp\[i]\[j]\[0])
+  * 初始化条件：全部初始化为M = Integer.MAX_VALUE - 100000， 大于M的位置表示不可到达，显示dp\[0]\[1]\[0] = dp\[1]\[0]\[0] = -1。
+  * 状态转移时，必须判断dp\[i]\[j]\[0]是否可能存在。
+* O(n^2)/O(n^2)
+
+```java
+class Solution {
+    public int minimumMoves(int[][] grid) {
+        int n = grid.length;
+        int M = Integer.MAX_VALUE - 100000;
+        int[][][] dp = new int[n+1][n+1][2];
+        
+        for(int i = 0; i <= n; i++)
+            for(int j = 0; j <= n; j++){
+                dp[i][j][0] = M;
+                dp[i][j][1] = M;
+            }
+        dp[0][1][0] = -1;
+        dp[1][0][0] = -1;
+        
+        for(int i = 1; i <= n; i++)
+            for(int j = 1; j <= n; j++){
+                boolean v = false;
+                boolean h = false;
+                if(j < n && grid[i-1][j-1] == 0 && grid[i-1][j] == 0){
+                    dp[i][j][0] = Math.min(dp[i-1][j][0], dp[i][j-1][0]) + 1;
+                    h = true;
+                }
+                if(i < n && grid[i-1][j-1] == 0 && grid[i][j-1] == 0){
+                    dp[i][j][1] = Math.min(dp[i-1][j][1], dp[i][j-1][1]) + 1;
+                    v = true;
+                }
+                if(h && i < n && grid[i][j] == 0)
+                    dp[i][j][0] = Math.min(dp[i][j][1]+1, dp[i][j][0]);
+                if(v && j < n && grid[i][j] == 0)
+                    dp[i][j][1] = Math.min(dp[i][j][0]+1, dp[i][j][1]);
+            }
+        return dp[n][n-1][0] >= M ? -1 : dp[n][n-1][0];
+    }
+}
+```
+
