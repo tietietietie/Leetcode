@@ -3602,3 +3602,135 @@ class Solution {
 }
 ```
 
+## 43.字符串乘法
+
+* 竖式乘法
+  * 如何进位？从低位开始，得到p1,p2，其中p2的值一定<10，而p1的值可以大于10，由于是从大到小更新digits，最终只有最高位的值可以>10
+* O(nm)/O(m+n)
+
+```java
+class Solution {
+    public String multiply(String num1, String num2) {
+        if(num1.equals("0") || num2.equals("0")) return "0";
+        int len1 = num1.length(), len2 = num2.length();
+        int[] digits = new int[len1 + len2];
+        for(int i = len1-1; i >= 0; i--)
+            for(int j = len2-1; j >= 0; j--){
+                char c1 = num1.charAt(i), c2 = num2.charAt(j);
+                int temp = (c1 - '0') * (c2 - '0');
+                int p1 = i+j, p2 = i+j+1;
+                temp += digits[p2];
+                digits[p2] = temp % 10;
+                digits[p1] += temp / 10;
+            }
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        if(digits[0] == 0) i++;
+        while(i < len1+len2){
+            sb.append(digits[i]);
+            i++;
+        }
+        return sb.toString();
+    }
+}
+```
+
+## 790.[多米诺和托米诺平铺](https://leetcode-cn.com/problems/domino-and-tromino-tiling/)
+
+* dp：状态转移方程如下
+
+![image-20200616142044643](README.assets/image-20200616142044643.png)
+
+* 初始状态为(0),每循环一次，会铺满一列，循环N次后，最终会把前N个格子铺满，而此时答案为dp[0]
+* O(n)/O(1)
+
+```java
+class Solution {
+    public int numTilings(int N) {
+        int MOD = 1000000007;
+        long[] dp = new long[]{1, 0, 0, 0};
+        for(int i = 0; i < N; i++){
+            long[] ndp = new long[4];
+            ndp[0] = (dp[0] + dp[3]) % MOD;
+            ndp[1] = (dp[0] + dp[2]) % MOD;
+            ndp[2] = (dp[0] + dp[1]) % MOD;
+            ndp[3] = (dp[0] + dp[1] + dp[2]) % MOD;
+            dp = ndp;
+        }
+        return (int)dp[0];
+    }
+}
+```
+
+## 1014. 最佳观光组合
+
+* A[j] - j + A[i] + [i] 其中 i < j，对于给定的j，求A[i] + i的最大值
+* O(n)/O(1)
+
+```java
+class Solution {
+    public int maxScoreSightseeingPair(int[] A) {
+        int n = A.length;
+        int max = A[0];
+        int ans = 0;
+        for(int j = 1; j < n; j++) {
+            max = Math.max(max, A[j-1] + j - 1);
+            ans = Math.max(ans, max + A[j] - j);
+        }
+        return ans;
+    }
+}
+```
+
+## 962.最大宽度坡
+
+### Solution1
+
+* 单调栈，已知i的情况下，求最远的j
+  * 构建单调递减栈时，可以保证栈内所有元素为左边界候选
+  * 贪心思想：从右到左，能找到栈内元素i的最远j
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int maxWidthRamp(int[] A) {
+        Stack<Integer> stack = new Stack<>();
+        stack.push(0);
+        int n = A.length;
+        int ans = 0;
+        for(int i = 1; i < n; i++)
+            if(A[i] < A[stack.peek()])
+                stack.push(i);
+        for(int i = n-1; i >= 0; i--)
+            while(!stack.isEmpty() && A[i] >= A[stack.peek()]){
+                ans = Math.max(ans, i - stack.pop());
+            }
+        return ans;
+    }
+}
+```
+
+### Solution 2
+
+* 排序，将index数组按照对用的A[i]值排序
+  * 注意自定义比较器时，数组必须是Integer，因为自定义比较器必须是泛型
+* O(nlogn)/O(n)
+
+```java
+class Solution {
+    public int maxWidthRamp(int[] A) {
+        int n = A.length;
+        Integer[] B = new Integer[n];
+        for(int i = 0; i < n; i++)
+            B[i] = i;
+        Arrays.sort(B, (o1, o2) -> (Integer)A[o1] - (Integer)A[o2]);
+        int ans = 0, min = B[0];
+        for(int j = 1; j < n; j++){
+            min = Math.min(min, B[j-1]);
+            ans = Math.max(ans, B[j] - min);
+        }
+        return ans;
+    }
+}
+```
+
