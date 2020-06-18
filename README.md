@@ -3734,3 +3734,69 @@ class Solution {
 }
 ```
 
+## [1028. 从先序遍历还原二叉树](https://leetcode-cn.com/problems/recover-a-tree-from-preorder-traversal/)
+
+### Solution1
+
+* DFS，其中cur表示当前遍历到S的位置，cur始终是指向curD深度的节点值的第一个字符，curD表示当前cur指向节点的深度，depth表示当前递归节点的深度，显然，当curD <= depth，不能继续向下递归，而需要找到curD的父节点（第一个，因为是dfs）
+* O(n)/O(n)
+
+```java
+class Solution {
+    int cur=0,curD=0;
+    public TreeNode recoverFromPreorder(String S) {
+        char[] nodes = S.toCharArray();
+        return dfs(0,nodes);
+    }
+    public TreeNode dfs(int depth, char[] nodes){
+        int val = 0;
+        for(;cur<nodes.length&&nodes[cur]!='-';cur++)
+            val=val*10+nodes[cur]-'0';
+        curD = 0;
+        for(;cur<nodes.length&&nodes[cur]=='-';cur++,curD++);
+        TreeNode r = new TreeNode(val);
+        if(curD>depth)r.left = dfs(curD,nodes);
+        if(curD>depth)r.right = dfs(curD,nodes);
+        return r;
+    }
+}
+```
+
+### Solution 2
+
+* 递归，使用stack改写方法1
+* O(n)/O(n)
+
+```java
+class Solution {
+    public TreeNode recoverFromPreorder(String S) {
+        Stack<TreeNode> path = new Stack<TreeNode>();
+        int pointer = 0;
+        while(pointer < S.length()){
+            int curDepth = 0;
+            while(pointer < S.length() && S.charAt(pointer) == '-'){
+                curDepth++;
+                pointer++;
+            }
+            int val = 0;
+            while(pointer < S.length() && S.charAt(pointer) != '-'){
+                val = val * 10 + (S.charAt(pointer) - '0');
+                pointer++;
+            }
+            TreeNode curNode = new TreeNode(val);
+            if(curDepth == path.size() && !path.isEmpty())
+                path.peek().left = curNode;
+            else if(path.size() > curDepth){
+                while(path.size() > curDepth)
+                    path.pop();
+                path.peek().right = curNode;
+            }
+            path.push(curNode);
+        }
+        while(path.size() > 1)
+            path.pop();
+        return path.peek();
+    }
+}
+```
+
