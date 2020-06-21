@@ -3800,3 +3800,31 @@ class Solution {
 }
 ```
 
+## [42. 接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)
+
+* 单调栈（单调递减），能够快速找到栈顶元素的右边第一个大于它的值和左边第一个大于它的值
+* ![water.gif](README.assets/7d5ff9af88634d417d7925e8987b7db92d3a26766bd9078215ab63df424fa745-water.gif)
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int trap(int[] height) {
+        int n = height.length, cur = 0, ans = 0;
+        Stack<Integer> stack = new Stack<>();
+        while(cur < n) {
+            while(!stack.isEmpty() && height[stack.peek()] < height[cur]) {
+                int temp = stack.pop();
+                if(stack.isEmpty()) continue;
+                int min = Math.min(height[stack.peek()], height[cur]);
+                int distance = cur - stack.peek() - 1;
+                ans += (min - height[temp]) * distance;
+            }
+            stack.push(cur);
+            cur++;
+        }
+        return ans;
+    }
+}
+```
+
+s
