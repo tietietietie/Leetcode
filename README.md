@@ -3827,4 +3827,76 @@ class Solution {
 }
 ```
 
-s
+## [ 16.18. 模式匹配](https://leetcode-cn.com/problems/pattern-matching-lcci/)
+
+* 枚举a和b的长度，其中a，b的长度满足二元一次方程组：c_a * l_a + c_b * l_b = l_v，其中c_a, c_b, l_v都是已知量，l_a的取值范围为[0, l_v/c_a]，l_a和l_b均为整数
+* 特殊情况：
+  * 当c_a为0，则l_a可以取任意值，解决办法：令c_a始终为出现较多的那个值，从而保证在非空pattern时，c_a不可能为0
+  * pattern为空，value为空的情况单独考虑
+  * 当c_b为0，则令l_b为0即可。
+  * pattern和value一一对应，还得判断a和b的字符串是否一样
+* O(l_v / c_a * (l_v + lp)) = O(l_v / l_p * (l_v + l_p)) = O(l_v * l_v) / O(l_v)
+
+```java
+class Solution {
+    public boolean patternMatching(String pattern, String value) {
+        int count_a = 0, count_b = 0;
+        for(int i = 0; i < pattern.length(); i++) {
+            if(pattern.charAt(i) == 'a')
+                count_a++;
+            else
+                count_b++;
+        }
+        
+        if(count_a < count_b) {
+            int temp = count_a;
+            count_a = count_b;
+            count_b = temp;
+            char[] ca = pattern.toCharArray();
+            for(int i = 0; i < ca.length; i++) 
+                ca[i] = ca[i] == 'a' ? 'b' : 'a';
+            pattern = new String(ca);
+        }
+
+        if(pattern.equals(""))
+            return value.equals("");
+        if(value.equals(""))
+            return count_b == 0;
+        
+        int maxLen = value.length() / count_a;
+        for(int len_a = 0; len_a <= maxLen; len_a++) {
+            int len_b = 0;
+            if(count_b != 0) {
+                int resident = (value.length() - count_a * len_a) % count_b;
+                if(resident != 0) continue;
+                len_b = (value.length() - count_a * len_a) / count_b;
+            }
+            String a = "", b = "";
+            int p1 = 0, p2 = 0;
+            while(p1 < pattern.length()) {
+                if(pattern.charAt(p1) == 'a') {
+                    if(a.length() == 0) {
+                        a = value.substring(p2, p2+len_a);
+                    } else if (!a.equals(value.substring(p2, p2+len_a))){
+                        break;
+                    }
+                    p1++;
+                    p2 += len_a;
+                } else if(pattern.charAt(p1) == 'b') {
+                    if(b.length() == 0) {
+                        b = value.substring(p2, p2+len_b);
+                    } else if (!b.equals(value.substring(p2, p2+len_b))){
+                        break;
+                    }
+                    p1++;
+                    p2 += len_b;
+                }
+            }
+            if(p1 == pattern.length() && p2 == value.length() && !a.equals(b))
+                return true;
+        }
+        return false;
+    }
+}
+```
+
