@@ -3900,3 +3900,150 @@ class Solution {
 }
 ```
 
+## [140. 单词拆分 II](https://leetcode-cn.com/problems/word-break-ii/)
+
+### Soluton 1
+
+* DFS + memo
+* O(n^3)/O(n^2)
+
+```java
+class Solution {
+    public List<String> wordBreak(String s, List<String> wordDict) {
+        HashSet<String> set = new HashSet<>();
+        for(String word : wordDict)
+            set.add(word);
+        HashMap<String, ArrayList<String>> memo = new HashMap<>();
+        return dfs(s, set, memo);
+    }
+    
+    private List<String> dfs(String s, HashSet<String> set, HashMap<String, ArrayList<String>> memo) {
+        if(memo.get(s) != null) return memo.get(s);
+        
+        ArrayList<String> ans = new ArrayList<>();
+        if(s.length() == 0) return ans;
+        
+        for(int i = 0; i < s.length(); i++) {
+            String word = s.substring(0, i+1);
+            if(set.contains(word)) {
+                if(i == s.length()-1) ans.add(s);
+                else {
+                    List<String> list = dfs(s.substring(i+1, s.length()), set, memo);
+                    for(String str : list)
+                        ans.add(word + " " + str);
+                }
+            }
+        }
+        memo.put(s, ans);
+        return ans;
+    }
+}
+```
+
+### Solution 2
+
+* dp
+  * dp[i]表示 [0,i-1]子串中的可能拆分
+  * 状态转移方程 dp[i] = dp[j] + s.substring(j, i)，如果(j,i)在set中
+* O(n^3)/O(n)
+* 但是超时了。。Why
+
+```java
+class Solution {
+    public List<String> wordBreak(String s, List<String> wordDict) {
+        HashSet<String> set = new HashSet<>();
+        for(String word : wordDict)
+            set.add(word);
+        int n = s.length();
+        ArrayList<String>[] dp = new ArrayList[n+1];
+        ArrayList<String> initial = new ArrayList<>();
+        initial.add("");
+        dp[0] = initial;
+        
+        for(int i = 1; i <= n; i++) {
+            ArrayList<String> list = new ArrayList<>();
+            for(int j = 0; j < i; j++) {
+                String word = s.substring(j, i);
+                if(!set.contains(word)) continue;
+                for(String str : dp[j])
+                    list.add((str.equals("") ? "" : str + " ") + word);
+            }
+            dp[i] = list;
+        }
+        return dp[n];
+    }
+}
+```
+
+## 139 单词拆分
+
+* dp,dp[i]表示从0~i-1的字符串能否被拆分
+* O(n^2)/O(n)
+
+```java
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        HashSet<String> set = new HashSet<>();
+        for(String word : wordDict)
+            set.add(word);
+        boolean[] dp = new boolean[s.length() + 1];
+        dp[0] = true;
+        
+        for(int i = 1; i <= s.length(); i++) {
+            for(int j = 0; j < i; j++) {
+                if(dp[j] && set.contains(s.substring(j,i))){
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp[s.length()];
+    }
+}
+```
+
+## [818. 赛车](https://leetcode-cn.com/problems/race-car/)
+
+### Solution 1
+
+* BFS
+  * 节点：(position, speed)
+  * 选择：加速/倒车
+  * 剪枝：position >= 2 * target的节点放弃
+  * visited不能存这么多节点，只存倒车的节点
+  * 优化：原点处不能倒车（省了一半的时间）
+* O(2^tar)/O(2^tar)
+
+```java
+class Solution {
+    public int racecar(int target) {
+        HashSet<String> visited = new HashSet<>();
+        visited.add("0_1");
+        visited.add("0_-1");
+        LinkedList<Pair<Integer, Integer>> queue = new LinkedList<>();
+        queue.offer(new Pair<>(0, 1));
+        int step = 0;
+        while(!queue.isEmpty()) {
+            int size = queue.size();
+            for(int i = 0; i < size; i++) {
+                Pair<Integer, Integer> curNode = queue.poll();
+                int nextPos = curNode.getKey() + curNode.getValue();
+                int nextSpd = curNode.getValue() * 2;
+                if(nextPos == target) return step+1;
+                if(nextPos > 0 && nextPos < 2 * target) {
+                    queue.offer(new Pair<>(nextPos, nextSpd));
+                }
+                int stopSpd = curNode.getValue() > 0 ? -1 : 1;
+                String key = String.valueOf(curNode.getKey()) + "_" + String.valueOf(stopSpd);
+                if(!visited.contains(key)) {
+                    queue.offer(new Pair<>(curNode.getKey(), stopSpd));
+                    visited.add(key);
+                }
+            }
+            step++;
+        }
+        return -1;
+    }
+}
+```
+
