@@ -4047,3 +4047,208 @@ class Solution {
 }
 ```
 
+### Solution 2
+
+* DP
+
+
+
+## 224. 计算器
+
+### Solution 1
+
+* 反向遍历/栈
+* ops保存着除了左括号以外的操作符，nums保存着数字
+* 由于反转和栈，最终操作符的执行顺序是从左到右，从而避免了减少不满足结合律
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int calculate(String s) {
+        char[] chs = s.toCharArray();
+        Stack<Character> ops = new Stack<>();
+        Stack<Integer> nums = new Stack<>();
+        
+        for(int i = chs.length-1; i >= 0; i--) {
+            if(chs[i] == ' ') {
+                continue;
+            } else if (chs[i] >= '0' && chs[i] <= '9') {
+                StringBuilder sb = new StringBuilder();
+                while(i >= 0 && chs[i] >= '0' && chs[i] <= '9'){
+                    sb.insert(0, chs[i]);
+                    i--;
+                }  
+                i++;
+                nums.push(Integer.valueOf(sb.toString()));
+            } else if (chs[i] != '(') {
+                ops.push(chs[i]);
+            } else {
+                while(ops.peek() != ')') {
+                    int arg1 = nums.pop();
+                    int arg2 = nums.pop();
+                    if(ops.pop() == '+')
+                        nums.push(arg1 + arg2);
+                    else
+                        nums.push(arg1 - arg2);
+                }
+                ops.pop();
+            }
+        }
+        
+        int ans = nums.pop();
+        while(!ops.isEmpty()) {
+            if(ops.pop() == '+')
+                ans += nums.pop();
+            else
+                ans -= nums.pop();
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 2
+
+* 栈，其中stack中栈顶两个数，保存着当前括号运算结束后，需要执行的操作。
+* ans表示当前括号内，在当前位置的运算结果， sign表示符号
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int calculate(String s) {
+        char[] chs = s.toCharArray();
+        Stack<Integer> stack = new Stack<>();
+        int ans = 0, sign = 1;
+        
+        for(int i = 0; i < chs.length; i++) {
+            if(chs[i] == ' ') {
+                continue;
+            } else if(chs[i] >= '0' && chs[i] <= '9') {
+                int num = 0;
+                while(i < chs.length && chs[i] >= '0' && chs[i] <= '9'){
+                    num = num * 10 + chs[i] - '0';
+                    i++;
+                }
+                i--;
+                ans += num * sign;
+            } else if(chs[i] == '+') {
+                sign = 1;
+            } else if(chs[i] == '-') {
+                sign = -1;
+            } else if(chs[i] == '(') {
+                stack.push(ans);
+                stack.push(sign);
+                ans = 0;
+                sign = 1;
+            } else {
+                ans = ans * stack.pop() + stack.pop();
+            }
+        }
+        return ans;
+    }
+}
+```
+
+## [227. 基本计算器 II](https://leetcode-cn.com/problems/basic-calculator-ii/)
+
+### Solution 1
+
+* 反向遍历/双栈
+* ops保存着优先级递增的操作符，nums存放着数字
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int calculate(String s) {
+        char[] chs = s.toCharArray();
+        Stack<Character> ops = new Stack<>();
+        Stack<Integer> nums  = new Stack<>();
+        
+        for(int i = chs.length-1; i >= 0; i--) {
+            if(chs[i] == ' ') {
+                continue;
+            } else if(chs[i] >= '0' && chs[i] <= '9') {
+                StringBuilder sb = new StringBuilder();
+                while(i >= 0 && chs[i] >= '0' && chs[i] <= '9') {
+                    sb.insert(0, chs[i]);
+                    i--;
+                }
+                i++;
+                nums.push(Integer.valueOf(sb.toString()));
+            } else {
+                while(!ops.isEmpty() && highPriority(ops.peek(), chs[i])) {
+                    int arg1 = nums.pop();
+                    int arg2 = nums.pop();
+                    char op  = ops.pop();
+                    nums.push(cal(op, arg1, arg2));
+                }
+                ops.push(chs[i]);
+            }
+        }
+        
+        while(!ops.isEmpty()) {
+            int arg1 = nums.pop();
+            int arg2 = nums.pop();
+            char op  = ops.pop();
+            nums.push(cal(op, arg1, arg2));
+        }
+        
+        return nums.pop();
+    }
+    
+    private int cal(char op, int arg1, int arg2) {
+        if(op == '*') return arg1 * arg2;
+        if(op == '/') return arg1 / arg2;
+        if(op == '+') return arg1 + arg2;
+        return arg1 - arg2;
+    }
+    
+    private boolean highPriority(char op1, char op2) {
+        if((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-')) return true;
+        return false;
+    }
+}
+```
+
+### Solution 2
+
+* 正向遍历/单栈
+* stack中存放有符号数，有符号数由加减法，以及**合并后的乘除法**组成
+* 易错点：最后一个num入栈的情况没有考虑
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int calculate(String s) {
+        char[] chs = s.toCharArray();
+        Stack<Integer> stack = new Stack<>();
+        int num = 0;
+        char sign = '+';
+        
+        for(int i = 0; i < chs.length; i++) {
+            if(chs[i] >= '0' && chs[i] <= '9')
+                num = num * 10 + chs[i] - '0';
+            if(chs[i] == '+' || chs[i] == '-' || chs[i] == '*' || chs[i] == '/' || i == chs.length-1) {
+                if(sign == '+')
+                    stack.push(num);
+                else if(sign == '-')
+                    stack.push(-num);
+                else if(sign == '*')
+                    stack.push(stack.pop() * num);
+                else
+                    stack.push(stack.pop() / num);
+                num = 0;
+                sign = chs[i];
+            }  
+        }
+        
+        int ans = 0;
+        for(int i : stack)
+            ans += i;
+        return ans;
+    }
+}
+```
+
+
+
