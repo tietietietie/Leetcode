@@ -4310,3 +4310,37 @@ class Solution {
 }
 ```
 
+## [132. 分割回文串 II](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
+
+* DP，使用O(n^2)的时间，判断任意[i,j]子串是否为回文。另外dp[i]表示[0,i]子串的最少分割次数
+* dp[i] = min(dp[i], dp[j] + 1)，需要保证[j, i]为回文
+* O(n^2)/O(n^2)
+* 两个dp可以合并，因为都是先确定了右边界，然后左边界往右移动
+
+```java
+class Solution {
+    public int minCut(String s) {
+        int n = s.length();
+        if(n == 0) return 0;
+        boolean[][] isPalindrome = new boolean[n][n];
+        int[] dp = new int[n];
+        
+        for(int r = 0; r < n; r++)
+            for(int l = 0; l <= r; l++)
+                if(s.charAt(l) == s.charAt(r) && (r-l <= 2 || isPalindrome[l+1][r-1]))
+                    isPalindrome[l][r] = true;
+        
+        for(int i = 0; i < n; i++) {
+            if(isPalindrome[0][i]) dp[i] = 0;
+            else {
+                dp[i] = i+1;
+                for(int j = 0; j < i; j++)
+                    if(isPalindrome[j+1][i])
+                        dp[i] = Math.min(dp[i], dp[j]+1);
+            }
+        }
+        return dp[n-1];
+    }
+}
+```
+
