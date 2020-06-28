@@ -4250,5 +4250,63 @@ class Solution {
 }
 ```
 
+## [209. 长度最小的子数组](https://leetcode-cn.com/problems/minimum-size-subarray-sum/)
 
+### Solution 1
+
+* 前缀和/二分查找
+* 确定子数组的左节点后，使用二分法找到满足条件的最右节点（nums[r] - nums[l] = s）
+* O(nlogn)/O(n)
+
+```java
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        if(nums.length == 0) return 0;
+        int n = nums.length;
+        int[] prefix = new int[n+1];
+        for(int i = 1; i <= n; i++)
+            prefix[i] = prefix[i-1] + nums[i-1];
+        
+        int ans = Integer.MAX_VALUE;
+        for(int i = 0; i < n; i++) {
+            int target = s + prefix[i];
+            int bound  = Arrays.binarySearch(prefix, target);
+            if(bound < 0)
+                bound = -bound-1;
+            if(bound <= n)
+                ans = Math.min(ans, bound - i);
+        }
+        
+        return ans == Integer.MAX_VALUE ? 0 : ans;
+    }
+}
+```
+
+### Solution 2
+
+* 滑动窗口（左闭右开）
+* 相当于确定了右边界后，不断缩小左边界直到 < s，类似贪心的思想，右边界确定后，右边界左边的位置，都可以不用考虑
+* O(n)/(1)
+
+```java
+class Solution {
+    public int minSubArrayLen(int s, int[] nums) {
+        if(nums.length == 0) return 0;
+        int l = 0, r = 0, n = nums.length, sum = 0;
+        
+        int ans = Integer.MAX_VALUE;
+        while(r < n) {
+            sum += nums[r];
+            r++;
+            while(sum >= s) {
+                ans = Math.min(ans, r-l);
+                sum -= nums[l];
+                l++;
+            }
+        }
+        
+        return ans == Integer.MAX_VALUE ? 0 : ans;
+    }
+}
+```
 
