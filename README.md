@@ -4344,3 +4344,26 @@ class Solution {
 }
 ```
 
+## [214. 最短回文串](https://leetcode-cn.com/problems/shortest-palindrome/)
+
+### Solution 1
+
+* 找到以字符串最左侧字符开始的最长回文子串
+* 将原字符串反转，然后比较[0, n-i] 和反转字符串[i, n]是否相等，相等则说明子串[0, n-i]为回文
+* O(n^2)/O(n)
+```java
+class Solution {
+    public String shortestPalindrome(String s) {
+        int n = s.length();
+        String rev = new StringBuilder(s).reverse().toString();
+        for(int i = 0; i < n; i++)
+            if(s.substring(0, n-i).equals(rev.substring(i)))
+                return rev.substring(0, i) + s;
+        return "";
+    }
+}
+```
+
+### Solution 2
+
+* KMP:
