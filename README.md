@@ -4366,4 +4366,35 @@ class Solution {
 
 ### Solution 2
 
-* KMP:
+* KMP: NFA解法的KMP算法中，有一步需要构建前缀prefix的**最长相同前后缀长度**，时间复杂度为O(M),具体解法如下
+  * 首先令len = prefix[i-1]，如果此时M[len]的元素刚好等于M[i]，则说明[0.i]前缀的最长相同前后缀长度，为[0,i-1]前缀的长度加一
+  * 如果不等，则[0,i]的最长相同前后缀长度，并不会唱过[0, len-1]这个前缀的最长相同前后缀长度（可以证明，略）
+  * 对上述过程递归更新len，直到len等于1，或者M[len]的元素刚好等于M[i]
+* O(N)/O(N)
+
+```java
+class Solution {
+    public String shortestPalindrome(String s) {
+        int n = s.length();
+        String rev = new StringBuilder(s).reverse().toString();
+        String pattern = s + "#" + rev;
+        int len = findLPS(pattern);
+        return rev.substring(0, n-len) + s;
+    }
+    
+    private int findLPS(String pattern) {
+        int n = pattern.length();
+        int[] f = new int[n];
+        f[0] = 0;
+        for(int i = 1; i < n; i++) {
+            int len = f[i-1];
+            while(len != 0 && pattern.charAt(len) != pattern.charAt(i))
+                len = f[len-1];
+            if(pattern.charAt(len) == pattern.charAt(i)) f[i] = len+1;
+            else f[i] = len;
+        }
+        return f[n-1];
+    }
+}
+```
+
