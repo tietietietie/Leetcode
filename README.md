@@ -4398,3 +4398,64 @@ class Solution {
 }
 ```
 
+## 378.有序矩阵中的第K小的元素
+
+### Solution 1
+
+* 维护一个长度为三的数组的小顶堆（其中存储着矩阵的值，及其坐标）
+* 将每一行的第一个元素入堆，出队，找出最小元素，然后将其对应行的右边元素入队，出队，找出第二小元素，如此循环，直到找到第k小元素
+* O(klogn)/O(n)
+
+```java
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+        int n = matrix.length;
+        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> o1[0] - o2[0]);
+        //每一行的第一个数添加到PQ
+        for(int i = 0; i < n; i++)
+            pq.offer(new int[]{matrix[i][0], i, 0});
+        //第i次出队，都能得到第i小的数,循环k-1次
+        for(int i = 1; i < k; i++) {
+            int[] temp = pq.poll();
+            if(temp[2] != n-1)
+                pq.offer(new int[]{matrix[temp[1]][temp[2]+1], temp[1], temp[2]+1});
+        }
+        return pq.poll()[0];
+    }
+}
+```
+
+### Solution 2
+
+* 二分法，答案的取值范围在matrix\[0][0] ~ matrix\[n-1]\[n-1]之间，取中间值mid，可以确定小于等于mid的元素数量cnt，如果cnt >= k，则答案在l ~ mid之间（就算等于k，也会取满足条件的最小值，这样**这个值一定在矩阵中**）
+* O(nlog(r-l))/O(1)
+
+```java
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+        int n = matrix.length;
+        int l = matrix[0][0], r = matrix[n-1][n-1];
+        while(l < r) {
+            int mid = (l+r) / 2;
+            int cnt = count(matrix, mid);
+            if(cnt >= k) r = mid;
+            else l = mid+1;
+        }
+        return l;
+    }
+    
+    private int count(int[][] matrix, int mid) {
+        int i = matrix.length-1, j = 0, cnt = 0;
+        while(i >= 0 && j < matrix.length) {
+            if(matrix[i][j] <= mid) {
+                j++;
+                cnt += i+1;
+            }else {
+                i--;
+            }
+        }
+        return cnt;
+    }
+}
+```
+
