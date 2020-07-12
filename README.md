@@ -4459,3 +4459,351 @@ class Solution {
 }
 ```
 
+## 面试题17.13 恢复空格
+
+### Solution 1
+
+* dp
+  * dp[i]：表示[0, i-1]字串未识别字符数量，显然，dp[i]最大值为dp[i-1] + 1即增加的第i个字符未被识别
+  * 如果存在一字串[j, i-1]存在于字典，则dp[i] = dp[j]
+* O(n* n)/ O(n)
+
+```java
+class Solution {
+    public int respace(String[] dictionary, String sentence) {
+        HashSet<String> dict = new HashSet<>(Arrays.asList(dictionary));
+        int n = sentence.length();
+        int[] dp = new int[n+1];
+        
+        for(int i = 1; i <= n; i++) {
+            dp[i] = dp[i-1] + 1;
+            for(int j = 0; j < i; j++)
+                if(dict.contains(sentence.substring(j, i)))
+                    dp[i] = Math.min(dp[i], dp[j]);
+        }
+        
+        return dp[n];
+    }
+}
+```
+
+### Solution 2
+
+* trie + dp
+  * 如方法1中，需要判断[j, i-1]字串是否在字典中，而j从大到小变换，使用字典树，可以节省时间，因为如果某一子串[j, i-1]不存在于字典树时，j继续减小的字串都不会存在于字典。
+* O(n*n)/O(m * 26) m小于字典中总字符数（有公共前缀）
+
+```java
+class Solution {
+    public int respace(String[] dictionary, String sentence) {
+        Trie trie = new Trie();
+        for(String word : dictionary) trie.insert(word);
+        int n = sentence.length();
+        int[] dp = new int[n+1];
+        
+        for(int i = 1; i <= n; i++) {
+            dp[i] = dp[i-1] + 1;
+            for(int j : trie.search(sentence, i))
+                dp[i] = Math.min(dp[i], dp[j]);
+        }
+        
+        return dp[n];
+    }
+    
+    private class Trie {
+        private TrieNode root;
+        
+        public Trie() {
+            root = new TrieNode();
+        }
+        
+        private void insert(String word) {
+            TrieNode cur = root;
+            for(int i = word.length()-1; i >= 0; i--) {
+                int c = word.charAt(i) - 'a';
+                if(cur.children[c] == null) cur.children[c] = new TrieNode();
+                cur = cur.children[c];
+            }
+            cur.isWord = true;
+        }
+        
+        private ArrayList<Integer> search(String sentence, int i) {
+            ArrayList<Integer> ans = new ArrayList<>();
+            TrieNode cur = root;
+            for(int j = i-1; j >= 0; j--) {
+                int c = sentence.charAt(j) - 'a';
+                if(cur.children[c] == null) break;
+                cur = cur.children[c];
+                if(cur.isWord) ans.add(j);
+            }
+            return ans;
+        }
+    }
+    
+    private class TrieNode {
+        public boolean isWord;
+        public TrieNode[] children;
+        
+        public TrieNode() {
+            isWord = false;
+            children = new TrieNode[26];
+        }
+    }
+}
+```
+
+## [309. 最佳买卖股票时机含冷冻期](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+* dp
+  * dp[i]\[0]表示第i天手中没有股票时，能获得的最大利润
+  * dp[i]\[1]表示第i天手中持有股票时，能获得的最大利润
+  * dp[i]\[0] = max(dp[i-1]\[0], dp[i-1]\[0] + prices[i]) 今天没股票的两种情况：昨天没股票或者昨天有股票今天卖掉
+  * dp[i]\[1] = max(dp[i-1]\[1], dp[i-2]\[1] - prices[i]) 今天有股票的两种情况：昨天有股票或者前天没有股票今天买股票（因为今天买股票的话，由于冷冻期，前天一定是没有股票的）
+* O(n)/O(n)
+
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        if(n < 2) return 0;
+        int[][] dp = new int[n+1][2];
+        dp[0][0] = 0;
+        dp[0][1] = Integer.MIN_VALUE;
+        dp[1][0] = 0;
+        dp[1][1] = -prices[0];
+        
+        for(int i = 2; i <= n; i++) {
+            dp[i][0] = Math.max(dp[i-1][0], dp[i-1][1] + prices[i-1]);
+            dp[i][1] = Math.max(dp[i-1][1], dp[i-2][0] - prices[i-1]);
+        }
+        
+        return dp[n][0];
+    }
+}
+```
+
+## [315. 计算右侧小于当前元素的个数](https://leetcode-cn.com/problems/count-of-smaller-numbers-after-self/)
+
+### Solution 1
+
+* 从右到左插入排序，二分查找
+* O(n*n)/O(n) 因为插入元素需要O(n)的时间复杂度
+
+```java
+class Solution {
+    public List<Integer> countSmaller(int[] nums) {
+        LinkedList<Integer> ans  = new LinkedList<>();
+        List<Integer> list = new ArrayList<>();
+        int n = nums.length;
+        if(n == 0) return ans;
+        
+        for(int i = n-1; i >= 0; i--) {
+            int idx = binarySearch(list, nums[i]);
+            ans.offerFirst(idx);
+            list.add(idx, nums[i]);
+        }
+        
+        return ans;
+    }
+    
+    private int binarySearch(List<Integer> list, int tar) {
+        int l = 0, r = list.size() - 1;
+        while(l < r) {
+            int mid = (l + r) / 2;
+            if(list.get(mid) < tar)
+                l = mid + 1;
+            else
+                r = mid;
+        }
+        
+        if(l == r && list.get(l) < tar) return l + 1;
+        return l;
+    }
+}
+```
+
+### Solution 2
+
+* 归并排序，因为在归并两排序子区间[l, mid] 和 [mid+1, r]过程中，能够确定右区间中，小于左区间元素nums[i]的元素个数，从而可以统计出每一个元素nums[i]， 右侧小于nums[i]的元素个数
+* 也可以这样理解，归并过实际上会对每一个nums[i]的右侧小于nums[i]的元素左移，记录左移元素的个数即是答案
+* O(nlogn)/O(n)
+
+```java
+class Solution {
+    public List<Integer> countSmaller(int[] nums) {
+        List<Integer> ans = new ArrayList<>();
+        int n = nums.length;
+        if(n == 0) return ans;
+        Pair<Integer, Integer>[] arr = new Pair[n];
+        Pair<Integer, Integer>[] aux = new Pair[n];
+        int[] counts = new int[n];
+        for(int i = 0; i < n; i++){
+            arr[i] = new Pair<>(i, nums[i]);
+            aux[i] = new Pair<>(i, nums[i]);
+        }
+        mergeSort(arr, aux, 0, n-1, counts);
+        for(int i = 0; i < n; i++)
+            ans.add(counts[i]);
+        return ans;
+    }
+    
+    private void mergeSort(Pair<Integer, Integer>[] arr, Pair<Integer, Integer>[] aux, int l, int r, int[] counts) {
+        if(l >= r) return;
+        int mid = (l + r) / 2;
+        mergeSort(arr, aux, l, mid, counts);
+        mergeSort(arr, aux, mid+1, r, counts);
+        if(arr[mid].getValue() > arr[mid+1].getValue())
+            merge(arr, aux, l, mid, r, counts);
+    }
+    
+    private void merge(Pair<Integer, Integer>[] arr, Pair<Integer, Integer>[] aux, int l, int mid, int r, int[] counts) {
+        for(int i = l; i <= r; i++)
+            aux[i] = arr[i];
+        int i = l, j = mid + 1, k = l;
+        while(i <= mid || j <= r) {
+            if(j > r || (i <= mid && aux[i].getValue() <= aux[j].getValue())) {
+                arr[k++] = aux[i];
+                counts[aux[i].getKey()] += j - mid - 1;
+                i++;
+            } else {
+                arr[k++] = aux[j++];
+            }
+        }
+    }
+}
+```
+
+### Solution 3
+
+* Fenwick tree（树状数组），可以处理元素不断变化的数组的前缀和问题（更新元素logn, 求和logn）[参考视频](https://www.bilibili.com/video/BV1EW411d75F?from=search&seid=6516510607417910092)
+* 问题转换为统计nums[i]右侧小于nums[i]的元素频率和，将数组**离散化**后，统计nums[i]-1的前缀和。
+* O(nlogn)/O(s) s为独立元素个数
+
+```java
+class Solution {
+    public List<Integer> countSmaller(int[] nums) {
+        LinkedList<Integer> ans = new LinkedList<>();
+        int n = nums.length;
+        if(n == 0) return ans;
+        discretize(nums);
+        FenwickTree tree = new FenwickTree(n + 1);
+        
+        for(int i = n-1; i >= 0; i--) {
+            tree.update(nums[i], 1);
+            ans.addFirst(tree.query(nums[i] - 1));
+        }
+        
+        return ans;
+    }
+    
+    private void discretize(int[] nums) {
+        HashSet<Integer> set = new HashSet<>();
+        for(int i = 0; i < nums.length; i++)
+            set.add(nums[i]);
+        Integer[] ranks = set.toArray(new Integer[0]);
+        Arrays.sort(ranks);
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < ranks.length; i++)
+            map.put(ranks[i], i + 1);
+        for(int i = 0; i < nums.length; i++)
+            nums[i] = map.get(nums[i]);
+    }
+    
+    private class FenwickTree {
+        int[] arr;
+        
+        public FenwickTree(int n) {
+            arr = new int[n];
+        }
+        
+        private int lowbit(int x) {return x & (-x);}
+        
+        private void update(int i, int delta) {
+            while(i < arr.length) {
+                arr[i] += delta;
+                i += lowbit(i);
+            }
+        }
+        
+        private int query(int i) {
+            int sum = 0;
+            while(i > 0) {
+                sum += arr[i];
+                i -= lowbit(i);
+            }
+            return sum;
+        }
+    }
+}
+```
+
+### Solution 4
+
+* BST,构建BST的过程中，存储val重复出现次数，以及小于val的元素个数
+* O(n*n)/O(n)
+
+```java
+class Solution {
+    public List<Integer> countSmaller(int[] nums) {
+        LinkedList<Integer> ans = new LinkedList<>();
+        int n = nums.length;
+        if(n == 0) return ans;
+        BST tree = new BST(nums[n-1]);
+        ans.addFirst(0);
+        for(int i = n-2; i >= 0; i--) {
+            ans.addFirst(tree.insert(nums[i]));
+        }
+        return ans;
+    }
+    
+    private class BST {
+        TreeNode root;
+        
+        public BST(int num) {
+            root = new TreeNode(num);
+        }
+        
+        private int insert(int num) {
+            return insert(root, num);
+        }
+        
+        private int insert(TreeNode root, int num) {
+            if(root.val == num) {
+                root.dup++;
+                return root.leftCount;
+            }
+            
+            if(root.val < num) {
+                if(root.right == null) {
+                    root.right = new TreeNode(num);
+                    return root.dup + root.leftCount;
+                } else {
+                    return root.dup + root.leftCount + insert(root.right, num);
+                }
+            }
+            
+            root.leftCount++;
+            if(root.left == null) {
+                root.left = new TreeNode(num);
+                return 0;
+            }
+            return insert(root.left, num);
+        }
+    }
+    
+    private class TreeNode {
+        private int val;
+        private int dup;
+        private int leftCount;
+        private TreeNode left;
+        private TreeNode right;
+        
+        public TreeNode(int num) {
+            this.val = num;
+            this.dup = 1;
+            this.leftCount = 0;
+        }
+    }
+}
+```
+
