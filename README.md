@@ -4950,3 +4950,98 @@ class Skiplist {
 }
 ```
 
+## [785. 判断二分图](https://leetcode-cn.com/problems/is-graph-bipartite/)
+
+* dfs：stack中存储着已经着色，但是还没有判断其冲突的节点（必须与邻接点颜色不同），color分为三种情况，未着色（0）/白（1）/黑（-1）
+* 每一次着色，都把其放在stack
+* O(n)/O(n)
+
+```java
+class Solution {
+    public boolean isBipartite(int[][] graph) {
+        int n = graph.length;
+        int[] color = new int[n];
+        
+        for(int i = 0; i < n; i++) {
+            if(color[i] == 0) {
+                Stack<Integer> stack = new Stack<>();
+                color[i] = 1;
+                stack.push(i);
+
+                while(!stack.isEmpty()) {
+                    int node = stack.pop();
+                    int[] neighbors = graph[node];
+                    for(int neighbor : neighbors) {
+                        if(color[neighbor] == color[node]) 
+                            return false;
+                        else if(color[neighbor] == 0) {
+                            stack.push(neighbor);
+                            color[neighbor] = -color[node];
+                        }
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+}
+```
+
+## [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
+### Solution 1
+
+* 大顶堆，维护最小的k个数（堆内元素为k+1时，poll最大的元素）
+* O(nlogk)/O(k)
+
+```java
+class Solution {
+    public int[] getLeastNumbers(int[] arr, int k) {
+        PriorityQueue<Integer> maxPQ = new PriorityQueue<>((o1, o2) -> o2 - o1);
+        for(int num : arr) {
+            maxPQ.offer(num);
+            if(maxPQ.size() > k)
+                maxPQ.poll();
+        }
+        int[] ans = new int[k];
+        for(int i = 0; i < k; i++)
+            ans[i] = maxPQ.poll();
+        return ans;
+    }
+}
+```
+
+### Solution 2
+
+* 快排：每次partition能够找到最小的pivot +1 个数，如果 pivot + 1 == k则停止排序
+* 时间复杂度期望为O(n)，最坏为O(n * n)证明略，递归深度O(logn)
+
+```java
+class Solution {
+    public int[] getLeastNumbers(int[] arr, int k) {
+        if(k == 0) return new int[]{};
+        int l = 0, r = arr.length-1;
+        while(true) {
+            int pivot = partition(arr, l, r);
+            if(pivot == k-1) break;
+            else if(pivot > k-1) r = pivot - 1;
+            else l = pivot + 1;
+        }
+        return Arrays.copyOfRange(arr, 0, k);
+    }
+    
+    private int partition(int[] arr, int l, int r) {
+        int tar = arr[l], i = l, j = r;
+        while(i < j) {
+            while(i < j && arr[j] >= tar) j--;
+            arr[i] = arr[j];
+            while(i < j && arr[i] <= tar) i++;
+            arr[j] = arr[i];
+        }
+        arr[i] = tar;
+        return i;
+    }
+}
+```
+
