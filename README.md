@@ -4807,3 +4807,146 @@ class Solution {
 }
 ```
 
+## [45. 跳跃游戏 II](https://leetcode-cn.com/problems/jump-game-ii/)
+
+* 贪心，从0位置开始，在下一步区间内，找到能够到达的最远位置，从而确定下一步位置
+* O(n)/O(1)
+
+```java
+class Solution {
+    public int jump(int[] nums) {
+        int l = 0, r = 0, step = 0, n = nums.length;
+        while(r < n-1) {
+            int maxPos = 0, temp = 0;
+            for(int i = l; i <= r; i++) {
+                if(nums[i] + i >= maxPos) {
+                    maxPos = nums[i] + i;
+                    temp = i;
+                }
+            }
+            l = temp;
+            r = maxPos;
+            step++;
+        }
+        return step;
+    }
+}
+```
+
+## [96. 不同的二叉搜索树](https://leetcode-cn.com/problems/unique-binary-search-trees/)
+
+### Solution 1
+
+* 记忆化递归
+* O(n * n)/O(n * n)
+
+```java
+class Solution {
+    public int numTrees(int n) {
+        int[] memo = new int[n+1];
+        return numTrees(0, n-1, memo);
+    }
+    
+    private int numTrees(int l, int r, int[] memo) {
+        if(l == r || l > r) return 1;
+        if(memo[r-l+1] != 0) return memo[r-l+1];
+        int ans = 0;
+        for(int i = l; i <= r; i++) {
+            ans += numTrees(l, i-1, memo) * numTrees(i+1, r, memo);
+        }
+        memo[r-l+1] = ans;
+        return ans;
+    }
+}
+```
+
+### Solution 2
+
+* dp  dp[i]：表示长度为i的递增数组所能组成的BST， dp[i] += dp[j] * dp[i-j] 
+* O(n * n ) / O(n)
+
+```java
+class Solution {
+    public int numTrees(int n) {
+        int[] dp = new int[n+1];
+        dp[0] = 1;
+        
+        for(int i = 1; i <= n; i++) 
+            for(int j = 0; j < i; j++)
+                dp[i] += dp[j] * dp[i-1-j];
+        
+        return dp[n]; 
+    }
+}
+```
+
+## [1206. 设计跳表](https://leetcode-cn.com/problems/design-skiplist/)
+
+* head：始终在左上角
+* 多级链表，从上到小，链表逐渐密集，最底层存储着全部的有序数字
+* 节点：包括右指针和下指针和值，其中右指针指向不小于它的数，下指针指向下一层链表相同的数。
+* 如何增加层数：随机增加，如果inser过程中向上insert时，超过了最顶层，则会增加一层，并更新head
+* 如何存储副本：随机向上存储，向上复制一个副本的概率为1/2
+* 插入/搜索/删除的平均时间复杂度为O(logn)，空间复杂度O(n)
+
+```java
+class Skiplist {
+
+    Node head;
+    
+    public Skiplist() {
+        head = new Node(null, null, -1);
+    }
+    
+    public boolean search(int target) {
+        for(Node cur = head; cur != null; cur = cur.down){
+            while(cur.right != null && cur.right.val < target) cur = cur.right;
+            if(cur.right != null && cur.right.val == target) return true;
+        }
+        return false;
+    }
+    
+    public void add(int num) {
+        Stack<Node> stack = new Stack<>();
+        for(Node cur = head; cur != null; cur = cur.down) {
+            while(cur.right != null && cur.right.val < num) cur = cur.right;
+            stack.push(cur);
+        }
+        Random rand = new Random();
+        boolean randomInsert = true;
+        Node downNode = null;
+        while(randomInsert && !stack.isEmpty()) {
+            Node insertNode = stack.pop();
+            insertNode.right = new Node(insertNode.right, downNode, num);
+            downNode = insertNode.right;
+            randomInsert = (rand.nextInt() & 1) == 0;
+        }
+        if(randomInsert) head = new Node(new Node(null, downNode, num), head, -1);
+    }
+    
+    public boolean erase(int num) {
+        boolean erased = false;
+        for(Node cur = head; cur != null; cur = cur.down) {
+            while(cur.right != null && cur.right.val < num) cur = cur.right;
+            if(cur.right != null && cur.right.val == num) {
+                erased = true;
+                cur.right = cur.right.right;
+            }
+        }
+        return erased;
+    }
+    
+    private class Node {
+        Node right;
+        Node down;
+        int val;
+        
+        public Node(Node right, Node down, int val) {
+            this.right = right;
+            this.down = down;
+            this.val = val;
+        }
+    }
+}
+```
+
