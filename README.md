@@ -5045,4 +5045,34 @@ class Solution {
 }
 ```
 
-123132123
+## 312.戳气球
+
+* 区间dp，其中dp\[i][j]表示开区间(i, j)的最大硬币数，需要在原数组上添加两个边界气球(值为1)且不能被戳破。
+* 状态转移方程：dp\[i][j] = dp\[i][k] + dp\[k][j] + vals[i] * vals[k] * vals[j] k表示**最后一个**戳破的气球， 因为只有最后一个戳破，才能保证(i, k)的区间的边界是不变的。  k : [i+1, j-1]
+* O(n^3)/O(n^2)
+
+```java
+class Solution {
+    public int maxCoins(int[] nums) {
+        int n = nums.length;
+        int[] vals = new int[n+2];
+        vals[0] = 1;
+        vals[n+1] = 1;
+        for(int i = 1; i <= n; i++)
+            vals[i] = nums[i-1];
+        int[][] dp = new int[n+2][n+2];
+        
+        for(int len = 3; len <= n+2; len++)
+            for(int i = 0; i+len-1 <= n+1; i++) {
+                int j = i + len - 1;
+                for(int k = i+1; k <= j-1; k++) {
+                    int coins = vals[k] * vals[i] * vals[j] + dp[i][k] + dp[k][j];
+                    dp[i][j] = Math.max(dp[i][j], coins);
+                }
+            }
+        
+        return dp[0][n+1];
+    }
+}
+```
+
