@@ -5076,3 +5076,86 @@ class Solution {
 }
 ```
 
+## [60. 第k个排列](https://leetcode-cn.com/problems/permutation-sequence/)
+
+### Solution 1
+
+* 树的遍历，可以按照一定的顺序，将全排列看成如下树的节点，而且每一层节点表示的子树，其叶子节点数都能快速算出
+* O(n^2)/O(n)
+
+```java
+class Solution {
+    public String getPermutation(int n, int k) {
+        int[] counts = new int[n+1];
+        for(int i = 1; i <= n; i++)
+            counts[i] = countRoot(i, n);
+        boolean[] visited = new boolean[n+1];
+        int node = 1, level = 1;
+        StringBuilder sb = new StringBuilder();
+        while(level <= n) {
+            if(k > counts[level]) {
+                for(int i = node+1; i <= n; i++) {
+                    if(!visited[i]) {
+                        node = i;
+                        break;
+                    }
+                }
+                k -= counts[level];
+            }else {
+                sb.append(node);
+                visited[node] = true;
+                level++;
+                node = getNextNode(n, visited);
+            }
+        }
+        return sb.toString();
+    }
+    
+    private int countRoot(int level, int n) {
+        int count = 1;
+        while(n - level > 0) {
+            count = count * (n-level);
+            level++;
+        }
+        return count;
+    }
+    
+    private int getNextNode(int n, boolean[] visited) {
+        for(int i = 1; i <= n; i++)
+            if(!visited[i])
+                return i;
+        return -1;
+    }
+}
+```
+
+### Solution 2
+
+* solution1其实是一次确定了每一位的值，而每一位的值根据counts可以快速算出来
+* O(n^2)/O(n)
+
+```java
+class Solution {
+    public String getPermutation(int n, int k) {
+        int[] counts = new int[n];
+        counts[n-1] = 1;
+        for(int i = n-2; i >= 0; i--)
+            counts[i] = counts[i+1] * (n-i-1);
+        ArrayList<Integer> unused = new ArrayList<>();
+        for(int i = 1; i <= n; i++)
+            unused.add(i);
+        StringBuilder sb = new StringBuilder();
+        k--;
+        
+        for(int i = 0; i < n; i++) {
+            int idx = k / counts[i];
+            k -= idx * counts[i];
+            sb.append(unused.get(idx));
+            unused.remove(idx);
+        }
+        
+        return sb.toString();
+    }
+}
+```
+
