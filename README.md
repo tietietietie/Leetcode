@@ -5080,7 +5080,8 @@ class Solution {
 
 ### Solution 1
 
-* 树的遍历，可以按照一定的顺序，将全排列看成如下树的节点，而且每一层节点表示的子树，其叶子节点数都能快速算出
+* 树的遍历，可以按照一定的顺序，将全排列看成如下树的节点，而且每一层节点表示的子树，其叶子节点数都能快速算出。
+* level表示第几位，每一层节点能够确定一位。
 * O(n^2)/O(n)
 
 ```java
@@ -5155,6 +5156,59 @@ class Solution {
         }
         
         return sb.toString();
+    }
+}
+```
+
+## [1520. 最多的不重叠子字符串](https://leetcode-cn.com/problems/maximum-number-of-non-overlapping-substrings/)
+
+* 计算每个字符出现范围的最小子字符串  ---> 扩展区间，可以得到所有符合要求的子字符串集合 ---> 对该集合进行筛选，去掉包裹小区间的大区间（右边界排序）(因为此时两区间只有不相交和包裹两种情况)
+* O(26n)/O(1)
+
+```java
+class Solution {
+    public List<String> maxNumOfSubstrings(String s) {
+        int n = s.length();
+        //处理每个字符的区间
+        int[][] intervals = new int[26][2];
+        for(int i = 0; i < 26; i++) {
+            intervals[i][0] = -1;
+            intervals[i][1] = -1;
+        }   
+        for(int i = 0; i < n; i++) {
+            int c = s.charAt(i) - 'a';
+            if(intervals[c][0] == -1)
+                intervals[c][0] = i;
+            intervals[c][1] = i;
+        }
+        
+        //处理不合格区间
+        List<int[]> looseIntervals = new ArrayList<>();
+        for(int i = 0; i < 26; i++) {
+            if(intervals[i][0] == -1) continue;
+            int l = intervals[i][0], r = intervals[i][1];
+            boolean keepLeft = true;
+            for(int j = l; j <= r; j++) {
+                int c = s.charAt(j) - 'a';
+                if(intervals[c][0] < l) {
+                    keepLeft = false;
+                    break;
+                }
+                r = Math.max(r, intervals[c][1]);
+            }
+            if(keepLeft) looseIntervals.add(new int[]{l, r});
+        }
+        
+        //处理宽松区间，按右区间排序，可以排除外部大区间
+        List<String> ans = new ArrayList<>();
+        Collections.sort(looseIntervals, (o1, o2) -> o1[1] - o2[1]);
+        int curR = -1;
+        for(int[] interval : looseIntervals) {
+            if(interval[0] > curR)
+                ans.add(s.substring(interval[0], interval[1] + 1));
+            curR = interval[1];
+        }
+        return ans;
     }
 }
 ```
