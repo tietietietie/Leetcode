@@ -239,3 +239,55 @@ class Solution {
 }
 ```
 
+## [329. 矩阵中的最长递增路径](https://leetcode-cn.com/problems/longest-increasing-path-in-a-matrix/)
+
+### Solution 1
+
+* 记忆化dfs，计算每一个节点(i, j)为起点的最长路径
+* 不需要考虑有环的情况，也就是说不需要visited，因为路径是严格递增的
+* O(m\*n)/O(m\*n)
+
+```java
+class Solution {
+    private int[][] directions = new int[][]{{1,0}, {0,1}, {-1,0}, {0,-1}};
+    public int longestIncreasingPath(int[][] matrix) {
+        int m = matrix.length;
+        if(m == 0) return 0;
+        int n = matrix[0].length;
+        if(n == 0) return 0;
+        int ans = 0;
+        int[][] memo = new int[m][n];
+        
+        for(int i = 0; i < m; i++)
+            for(int j = 0; j < n; j++) {
+                ans = Math.max(ans, dfs(i, j, m, n, matrix, memo));
+            }
+        return ans;
+    }
+    
+    private int dfs(int i, int j, int m, int n, int[][] matrix, int[][] memo) {
+        if(memo[i][j] != 0) return memo[i][j];
+        int ans = 0;
+        for(int[] dir : directions) {
+            int nextI = i + dir[0];
+            int nextJ = j + dir[1];
+            if(nextI >= 0 && nextI < m && nextJ >= 0 && nextJ < n && matrix[i][j] < matrix[nextI][nextJ])
+                ans = Math.max(ans, dfs(nextI, nextJ, m, n, matrix, memo));
+        }
+        memo[i][j] = ans+1;
+        return ans+1;
+    }
+}
+```
+
+### Solution 2
+
+* 有向图的拓扑排序：计算每一个节点的出度，即节点(I,j)的下一节点个数
+* 将出度为0的节点入队，并将其周围的节点（出度一定大于0）的出度减一，将新产生的出度为0的节点入队，实现BFS
+
+* O(m\*n)/O(m\*n)
+
+```java
+
+```
+
