@@ -291,3 +291,146 @@ class Solution {
 
 ```
 
+## [LCP 13. 寻宝](https://leetcode-cn.com/problems/xun-bao/)
+
+* 寻宝路径为 S ---> O ---> M1 ---> O ---> M2 ---> O ... ---> Mn ---> T
+* 预处理，使用bfs，得到每一个机关到任意节点的最短路径，时间复杂度为O(nb * m * n)
+* 预处理，求出任意两机关间的最短距离（距离是指从已激活的机关i出发，经过某一石头堆k，到达未激活的机关j的最短距离），显然距离可以通过遍历石头堆得到，时间复杂度问O(nb * nb * ns)
+
+* 经过预处理，可以得到从任意机关出发，到达另一机关/出发点（S--->O--->M)/终点的最短距离dist[i]\[j]
+* 定义mask表示已经激活的机关和未激活的机关（位表示，状态压缩），显然mask的范围为[1, 1 << nb -1]
+* dp[mask]\[i] = min(dp[mask xor 1 << i]\[j], dist[i]\[j])
+  * 到达某一状态mask时处于已激活的机关i,则他的上一状态为mask xor (1 << i)，其中J为mask中已经已经激活的机关，可以由mask & (1 << j) ！= 0判断
+  * 由于mask的上一状态 mask xor 1 << i 一定是小于mask的，所以dp中的mask可以直接从小到大迭代。
+* dp的时间复杂度为O(2^nb * nb * nb)
+
+```java
+class Solution {
+    private int[][] directions = new int[][]{{1,0}, {0,1}, {-1,0}, {0, -1}};
+    int m, n;
+    public int minimalSteps(String[] maze) {
+        m = maze.length;
+        n = maze[0].length();
+        //统计所有的机关(buttons)和石头堆的坐标，以及开始位置和结束位置的坐标
+        ArrayList<int[]> buttons = new ArrayList<>();
+        ArrayList<int[]> stones  = new ArrayList<>();
+        int sx = -1, sy = -1, tx = -1, ty = -1;
+        for(int i = 0; i < m; i++)
+            for(int j = 0; j < n; j++) {
+                if(maze[i].charAt(j) == 'M')
+                    buttons.add(new int[]{i, j});
+                if(maze[i].charAt(j) == 'O')
+                    stones.add(new int[]{i, j});
+                if(maze[i].charAt(j) == 'S') {
+                    sx = i;
+                    sy = j;
+                }
+                if(maze[i].charAt(j) == 'T') {
+                    tx = i;
+                    ty = j;
+                }
+            }
+        
+        int nb = buttons.size(), ns = stones.size();
+        //计算start到所有石头堆/终点/起点的最短路径
+        int[][] startDist = bfs(maze, sx, sy);
+        if(nb == 0)
+            return startDist[tx][ty];
+        
+        int[][][] dd = new int[nb][][];
+        for(int i = 0; i < nb; i++)
+            dd[i] = bfs(maze, buttons.get(i)[0], buttons.get(i)[1]);
+        
+        //dist[i][nb]表示从 S ---> Oi ---> Mi的最短距离 
+        //dist[i][nb+1]表示 Mi ---> T的最短距离
+        int[][] dist = new int[nb][nb+2];
+        for(int i = 0; i < nb; i++)
+            Arrays.fill(dist[i], -1);
+        
+        for(int i = 0; i < nb; i++) {
+            int temp = -1;
+            for(int k = 0; k < ns; k++) {
+                int stoneX = stones.get(k)[0], stoneY = stones.get(k)[1];
+                if(startDist[stoneX][stoneY] != -1 && dd[i][stoneX][stoneY] != -1 
+                   && (startDist[stoneX][stoneY] + dd[i][stoneX][stoneY] < temp || temp == -1))
+                    temp = startDist[stoneX][stoneY] + dd[i][stoneX][stoneY];
+            }
+            dist[i][nb] = temp;
+            
+            for(int j = i+1; j < nb; j++) {
+                temp = -1;
+                for(int k = 0; k < ns; k++) {
+                    int stoneX = stones.get(k)[0], stoneY = stones.get(k)[1];
+                    if(dd[j][stoneX][stoneY] != -1 && dd[i][stoneX][stoneY] != -1 
+                       && (dd[j][stoneX][stoneY] + dd[i][stoneX][stoneY] < temp || temp == -1))
+                        temp = dd[j][stoneX][stoneY] + dd[i][stoneX][stoneY];
+                }
+                dist[i][j] = temp;
+                dist[j][i] = temp;
+            }
+
+            
+            dist[i][nb+1] = dd[i][tx][ty];
+        }
+        
+        for(int i = 0; i < nb; i++)
+            if(dist[i][nb] == -1 || dist[i][nb+1] == -1)
+                return -1;
+        
+        //dp[mask][i]表示在状态mask下，位于机关i时，最小步数
+        int[][] dp = new int[1 << nb][nb];
+        for(int mask = 0; mask < (1 << nb); mask++)
+            Arrays.fill(dp[mask], -1);
+        for(int i = 0; i < nb; i++)
+            dp[1 << i][i] = dist[i][nb];
+        
+        for(int mask = 1; mask < (1 << nb); mask++)
+            for(int i = 0; i < nb; i++) {
+                if((mask & (1 << i)) != 0) {
+                    for(int j = 0; j < nb; j++) 
+                        if((mask & (1 << j)) == 0) {
+                            int next = mask | (1 << j);
+                            if(dp[next][j] == -1 || dp[next][j] > dp[mask][i] + dist[i][j])
+                                dp[next][j] = dp[mask][i] + dist[i][j];
+                        }
+                }
+            }
+        
+        int ans = -1, finalMask = (1 << nb) - 1;
+        for(int i = 0; i < nb; i++)
+            if(ans == -1 || ans > dp[finalMask][i] + dist[i][nb+1])
+                ans = dp[finalMask][i] + dist[i][nb+1];
+        
+        return ans;
+    }
+    
+    private int[][] bfs(String[] maze, int x, int y) {
+        int[][] dist = new int[m][n];
+        for(int i = 0; i < m; i++)
+            Arrays.fill(dist[i], -1);
+        LinkedList<int[]> queue = new LinkedList<>();
+        dist[x][y] = 0;
+        queue.offer(new int[]{x, y});
+        while(!queue.isEmpty()) {
+            int[] curNode = queue.poll();
+            int curX = curNode[0], curY = curNode[1];
+            for(int[] direction : directions) {
+                int nextX = curX + direction[0], nextY = curY + direction[1];
+                if(withinBound(nextX, nextY) && dist[nextX][nextY] == -1 && maze[nextX].charAt(nextY) != '#') {
+                    queue.offer(new int[]{nextX, nextY});
+                    dist[nextX][nextY] = dist[curX][curY] + 1;
+                }
+                    
+            }
+        }
+        return dist;
+    }
+    
+    private boolean withinBound(int x, int y) {
+        return x >= 0 && x < m && y >= 0 && y < n;
+    }
+}
+```
+
+
+
