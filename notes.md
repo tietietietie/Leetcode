@@ -432,5 +432,44 @@ class Solution {
 }
 ```
 
+## [343. 整数拆分](https://leetcode-cn.com/problems/integer-break/)
 
+### Solution 1
+
+* dp[i]表示整数i的最大乘积拆分
+  * dp[i] = max(dp[j] * (i - j), j * (i - j))
+  * 注意考虑dp[j]不被拆分的情况
+* O(n * n) / O(n)
+
+```java
+class Solution {
+    public int integerBreak(int n) {
+        int[] dp = new int[n+1];
+        dp[1] = 0;
+        dp[2] = 1;
+        for(int i = 3; i <= n; i++)
+            for(int j = 1; j <= i-1; j++) {
+                dp[i] = Math.max(dp[i], Math.max(dp[j] * (i - j), j * (i - j)));
+            }
+        return dp[n];
+    }
+}
+```
+
+### Solution 2
+
+* 贪心，如果拆分元素中有大于等于4的元素f，由于 (f - 2) * 2 = 2 * f - 2 >= f,所以拆分元素一定为1，2，3这三种元素之一，又因为 2 * 2 * 2 < 3 * 3 ，所以需要尽可能多的三
+* O(1) / O(1)
+
+```java
+class Solution {
+    public int integerBreak(int n) {
+        if(n <= 3) return n-1;
+        int a = n/3, b = n%3;
+        if(b == 0) return (int)Math.pow(3,a);
+        if(b == 1) return (int)Math.pow(3,a-1) * 4;
+        return (int)Math.pow(3,a) * 2;
+    }
+}
+```
 
