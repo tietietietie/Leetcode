@@ -473,3 +473,55 @@ class Solution {
 }
 ```
 
+## [632. 最小区间](https://leetcode-cn.com/problems/smallest-range-covering-elements-from-k-lists/)
+
+### Solution 1
+
+* 小顶堆，维护来自各个数组的K个数，取最小值和最大值组成[l, r]，并保证此时的r一定为l的最小r
+* O(nklogk)/O(k)
+
+```java
+class Solution {
+    private class Node {
+        //i,j表示第i个数组的第j个数组，val为值
+        int i;
+        int j;
+        int val;
+        public Node(int i, int j, int val) {
+            this.i = i;
+            this.j = j;
+            this.val = val;
+        }
+    }
+    
+    public int[] smallestRange(List<List<Integer>> nums) {
+        int n = nums.size();
+        int st = 0, ed = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+        PriorityQueue<Node> pq = new PriorityQueue<>((o1, o2) -> o1.val - o2.val);
+        for(int i = 0; i < n; i++) {
+            int val = nums.get(i).get(0);
+            pq.offer(new Node(i, 0, val));
+            max = Math.max(max, val);
+        }
+        
+        while(pq.size() == n) {
+            Node curNode = pq.poll();
+            int curI = curNode.i;
+            int curJ = curNode.j;
+            int min = curNode.val;
+            if(max - min < ed - st) {
+                st = min;
+                ed = max;
+            }
+            if(curJ+1 < nums.get(curI).size()) {
+                int nextVal = nums.get(curI).get(curJ+1);
+                max = Math.max(max, nextVal);
+                pq.offer(new Node(curI, curJ+1, nextVal));
+            }
+        }
+        
+        return new int[]{st, ed};
+    }
+}
+```
+
