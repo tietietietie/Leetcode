@@ -299,7 +299,7 @@ class Solution {
 
 * 经过预处理，可以得到从任意机关出发，到达另一机关/出发点（S--->O--->M)/终点的最短距离dist[i]\[j]
 * 定义mask表示已经激活的机关和未激活的机关（位表示，状态压缩），显然mask的范围为[1, 1 << nb -1]
-* dp[mask]\[i] = min(dp[mask xor 1 << i]\[j], dist[i]\[j])
+* dp[mask]\[i] = min(dp[mask xor 1 << i]\[j] + dist[i]\[j])
   * 到达某一状态mask时处于已激活的机关i,则他的上一状态为mask xor (1 << i)，其中J为mask中已经已经激活的机关，可以由mask & (1 << j) ！= 0判断
   * 由于mask的上一状态 mask xor 1 << i 一定是小于mask的，所以dp中的mask可以直接从小到大迭代。
 * dp的时间复杂度为O(2^nb * nb * nb)
@@ -477,7 +477,7 @@ class Solution {
 
 ### Solution 1
 
-* 小顶堆，维护来自各个数组的K个数，取最小值和最大值组成[l, r]，并保证此时的r一定为l的最小r
+* 小顶堆，维护来自各个数组的K个数，取最小值和最大值组成[l, r]，并保证对于每一个确定的l，都有最小且合法的r
 * O(nklogk)/O(k)
 
 ```java
@@ -521,6 +521,173 @@ class Solution {
         }
         
         return new int[]{st, ed};
+    }
+}
+```
+
+## [207. 课程表](https://leetcode-cn.com/problems/course-schedule/)
+
+### Solution 1
+
+* 判断有向图是否有环 ---> 拓扑排序问题
+* BFS，统计每个节点的入度，将**入度为0**的节点入队，并记录为visited，入度为0的相邻节点的度数减1。
+* O(V + E) / O(V)
+
+```java
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        List<Integer>[] adjaList = new List[numCourses];
+        int[] inDegree = new int[numCourses];
+        boolean[] visited = new boolean[numCourses];
+        for(int i = 0; i < numCourses; i++)
+            adjaList[i] = new ArrayList<>();
+        for(int[] pre : prerequisites) {
+            adjaList[pre[1]].add(pre[0]);
+            inDegree[pre[0]]++;
+        }
+        
+        LinkedList<Integer> queue = new LinkedList<>();
+        for(int i = 0; i < numCourses; i++)
+            if(inDegree[i] == 0)
+                queue.offer(i);
+        while(!queue.isEmpty()) {
+            int cur = queue.poll();
+            visited[cur] = true;
+            for(int next : adjaList[cur]) {
+                inDegree[next]--;
+                if(inDegree[next] == 0)
+                    queue.offer(next);
+            }
+        }
+        for(int i = 0; i < numCourses; i++)
+            if(!visited[i])
+                return false;
+        return true;
+    }
+}
+```
+
+### Solution 2
+
+* DFS,其中节点有三种状态：1，已经把节点V的所有能达到的节点访问完成。(visited[node] = true) 2，OnSearch，表示该节点正在进行dfs(onSearch[node] =  true) 3，该节点没有在dfs（onSearch[node] = false)
+* 如果存在环，则会有在访问节点node的next时，发现next正在search，此时存在环
+* O(V + E) / O(V)
+
+```java
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        List<Integer>[] adjaList = new List[numCourses];
+        boolean[] onSearch = new boolean[numCourses];
+        boolean[] visited  = new boolean[numCourses];
+        for(int i = 0; i < numCourses; i++)
+            adjaList[i] = new ArrayList<>();
+        for(int[] pre : prerequisites) {
+            adjaList[pre[1]].add(pre[0]);
+        }
+        
+        for(int i = 0; i < numCourses; i++)
+            if(!visited[i] && hasCycle(adjaList, i, visited, onSearch))
+                return false;
+        return true;
+    }
+    
+    private boolean hasCycle(List<Integer>[] adjaList, int node, boolean[] visited, boolean[] onSearch) {
+        if(visited[node]) return false;
+        onSearch[node] = true;
+        for(int next : adjaList[node]) {
+            if(onSearch[next])
+                return true;
+            if(hasCycle(adjaList, next, visited, onSearch))
+                return true;
+        }
+        onSearch[node] = false;
+        visited[node] = true;
+        return false;
+    }
+}
+```
+
+## [210. 课程表 II](https://leetcode-cn.com/problems/course-schedule-ii/)
+
+### Solution 1
+
+* BFS：邻接表 + 入度表
+* O(V + E) / O(V)
+
+```java
+class Solution {
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        int count = 0;
+        int[] path = new int[numCourses];
+        int[] inDegree = new int[numCourses];
+        List<Integer>[] adjaList = new List[numCourses];
+        for(int i = 0; i < numCourses; i++)
+            adjaList[i] = new ArrayList<>();
+        for(int[] pre : prerequisites) {
+            adjaList[pre[1]].add(pre[0]);
+            inDegree[pre[0]]++;
+        }
+        
+        LinkedList<Integer> queue = new LinkedList<>();
+        for(int i = 0; i < numCourses; i++)
+            if(inDegree[i] == 0)
+                queue.offer(i);
+        while(!queue.isEmpty()) {
+            int cur = queue.poll();
+            path[count++] = cur;
+            for(int next : adjaList[cur]) {
+                inDegree[next]--;
+                if(inDegree[next] == 0)
+                    queue.offer(next);
+            }
+        }
+        if(count != numCourses) return new int[0];
+        return path;
+    }
+}
+```
+
+### Solution 2
+
+* DFS : visited[node] = true 表示node节点为起点的图没有环，且所有相连节点都已入栈，onSearch[node] = true，表示正在对node为起点的图进行遍历，bfs返回的值为当前Node为起点的图是否有环，如果有环，则无法拓扑排序，stack.push(node)时，node的后续节点都已经入栈。
+* O(V + E) / O(V)
+
+```java
+class Solution {
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        Stack<Integer> stack = new Stack<>();
+        boolean[] visited = new boolean[numCourses];
+        boolean[] onSearch = new boolean[numCourses];
+        List<Integer>[] adjaList = new List[numCourses];
+        for(int i = 0; i < numCourses; i++)
+            adjaList[i] = new ArrayList<>();
+        for(int[] pre : prerequisites) 
+            adjaList[pre[1]].add(pre[0]);
+        
+        for(int i = 0; i < numCourses; i++)
+            if(!visited[i] && bfs(adjaList, i, visited, onSearch, stack))
+                return new int[0];
+        
+        int[] path = new int[numCourses];
+        for(int i = 0; i < numCourses; i++)
+            path[i] = stack.pop();
+        return path;
+    }
+    
+    //return hasCycle
+    private boolean bfs(List<Integer>[] adjaList, int node, boolean[] visited, boolean[] onSearch, Stack<Integer> stack) {
+        if(visited[node]) return false;
+        onSearch[node] = true;
+        for(int next : adjaList[node]) {
+            if(onSearch[next])
+                return true;
+            if(bfs(adjaList, next, visited, onSearch, stack))
+                return true;
+        }
+        onSearch[node] = false;
+        visited[node] = true;
+        stack.push(node);
+        return false;
     }
 }
 ```
