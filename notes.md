@@ -692,3 +692,35 @@ class Solution {
 }
 ```
 
+## [1171. 从链表中删去总和值为零的连续节点](https://leetcode-cn.com/problems/remove-zero-sum-consecutive-nodes-from-linked-list/)
+
+* hashmap:(prefixSum, node)
+
+* 第一次遍历，保存前缀和（前缀和相同时，保存最后面的节点）
+* 第二次遍历，如果当前节点的前缀和在后面出现过，则直接忽略掉中间的区间，跳转到此前缀和最后出现的位置的next
+* O(n) / O(n)
+
+```java
+class Solution {
+    public ListNode removeZeroSumSublists(ListNode head) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        HashMap<Integer, ListNode> map = new HashMap<>();
+        
+        int sum = 0;
+        for(ListNode cur = dummy; cur != null; cur = cur.next) {
+            sum += cur.val;
+            map.put(sum, cur);
+        }
+        
+        sum = 0;
+        for(ListNode cur = dummy; cur != null; cur = cur.next) {
+            sum += cur.val;
+            cur.next = map.get(sum).next;
+        }
+        
+        return dummy.next;
+    }
+}
+```
+
