@@ -724,3 +724,66 @@ class Solution {
 }
 ```
 
+## [336. 回文对](https://leetcode-cn.com/problems/palindrome-pairs/)
+
+* 两字符串组成回文的三种情况，len1 == len2说明s1的倒叙为s2， len1 > len2，说明s1可以分为两部分t1和t2，t1的转置为s2，t2本身为字符串，len1 < len2，s2也可以分为两部分
+* 根据上述三种情况分析，可以枚举出s的所有前缀回文串和后缀回文串，从而得到有效的后缀和前缀，把words中的所有字符串转置，判断与有效前后缀是否相等
+* 特殊情况len1等于len2，我们可以把后缀回文串是空的情况当成这种情况，但是当s本身为回文串时，其转置是自己，从而造成错误
+* 暴力法为O(n^2m)，对每个字符找出有效前缀和后缀的时间复杂度为O(m^2)
+
+```java
+class Solution {
+    public List<List<Integer>> palindromePairs(String[] words) {
+        int n = words.length;
+        HashMap<String, Integer> map = new HashMap<>();
+        for(int i = 0; i < n; i++) {
+            String s = new StringBuilder(words[i]).reverse().toString();
+            map.put(s, i);
+        }
+        List<List<Integer>> ans = new ArrayList<>();
+        
+        for(int i = 0; i < n; i++) {
+            ArrayList<String> validPrefix = getValidPrefix(words[i]);
+            for(String s : validPrefix)
+                if(map.get(s) != null && map.get(s) != i)
+                    ans.add(Arrays.asList(i, map.get(s)));
+            ArrayList<String> validSuffix = getValidSuffix(words[i]);
+            for(String s : validSuffix)
+                if(map.get(s) != null)
+                    ans.add(Arrays.asList(map.get(s), i));
+        }
+        
+        return ans;
+    }
+    
+    private ArrayList<String> getValidPrefix(String word) {
+        ArrayList<String> ans = new ArrayList<>();
+        ans.add(word);
+        int n = word.length();
+        for(int i = n-1; i >= 0; i--) {
+            if(isPalindrome(word.substring(i, n)))
+                ans.add(word.substring(0, i));
+        }
+        return ans;
+    }
+    
+    private ArrayList<String> getValidSuffix(String word) {
+        ArrayList<String> ans = new ArrayList<>();
+        int n = word.length();
+        for(int i = 0; i <= n-1; i++) {
+            if(isPalindrome(word.substring(0, i+1)))
+                ans.add(word.substring(i+1));
+        }
+        return ans;
+    }
+    
+    private boolean isPalindrome(String s) {
+        int i = 0, j = s.length()-1;
+        while(i <= j)
+            if(s.charAt(i++) != s.charAt(j--))
+                return false;
+        return true;
+    }
+}
+```
+
