@@ -787,3 +787,39 @@ class Solution {
 }
 ```
 
+## [1531. 压缩字符串 II](https://leetcode-cn.com/problems/string-compression-ii/)
+
+* dp[i]\[j] : 表示[0 : i)字串删除j个字符，最小编码长度
+  * dp\[i][j] = dp[i-1]\[j-1] （删除s[i]）
+  * dp[i]\[j] = min(calc(same) + dp[l]\[j-diff]) (0 <= l <= i-1) (不删除s[i]，则一定能和左侧same个s[i]字符组成编码，长度为calc(same), 需要删除的字符数为diff)
+  * 初始情况dp[0]\[j] = 0 
+
+* O(n ^ 2 * k) / O(n * k)
+
+```java
+class Solution {
+    public int getLengthOfOptimalCompression(String s, int k) {
+        int n = s.length();
+        int[][] dp = new int[n+1][k+1];
+        
+        for(int i = 1; i <= n; i++)
+            for(int j = 0; j <= k; j++) {
+                dp[i][j] = Integer.MAX_VALUE;
+                if(j > 0) dp[i][j] = dp[i-1][j-1];
+                int same = 0, diff = 0, len = 0;
+                for(int l = i-1; l >= 0; l--) {
+                    if(s.charAt(l) == s.charAt(i-1)) {
+                        same++;
+                        if(same <= 2 || same == 10 || same == 100) len++;
+                    } else
+                        diff++;
+                    if(diff > j) break;
+                    dp[i][j] = Math.min(dp[i][j], dp[l][j-diff] + len);
+                }
+            }
+        
+        return dp[n][k];
+    }
+}
+```
+
