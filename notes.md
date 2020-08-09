@@ -823,3 +823,148 @@ class Solution {
 }
 ```
 
+## [99. 恢复二叉搜索树](https://leetcode-cn.com/problems/recover-binary-search-tree/)
+
+* 找到乱序的两个节点，分为两种情况
+  * 两节点相邻，且pre > cur，保存这两个节点在s, t
+  * 两乱序节点不相邻，则会出现两次pre.val > cur.val，保存第一个pre，以及第二个cur
+* 掌握空间复杂度为1的中序遍历morris_inorder
+  * 关键点为找到cur的前驱节点predecessor，分为三种情况，1，存在predecessor，并且predessor的right不是cur，说明cur的左子树还没有被遍历过，此时cur连接前驱节点，并cur = cur.left。2，存在predecessor，并且predecessor.right = cur，说明cur的左侧子树全部遍历过，断开连接，cur = cur.right。3，不存在predecessor，cur = cur.right
+  * 一定要注意恢复现场，不是仅仅是中序遍历
+*  O(N)/O(1)
+```java
+class Solution {
+    private TreeNode pre, s, t;
+    public void recoverTree(TreeNode root) {
+        pre = null;
+        s = null;
+        t = null;
+        morrisInorder(root);
+        int temp = s.val;
+        s.val = t.val;
+        t.val = temp;
+    }
+    
+    private void morrisInorder(TreeNode root) {
+        TreeNode cur = root;
+        while(cur != null) {
+            TreeNode predecessor = getPredecessor(cur);
+            if(predecessor != null && predecessor.right == null) {
+                predecessor.right = cur;
+                cur = cur.left;
+            } else {
+                if(predecessor != null && predecessor.right == cur)
+                    predecessor.right = null;
+                if(pre == null) pre = cur;
+                else if(pre.val > cur.val) {
+                    s = s == null ? pre : s;
+                    t = cur;
+                }
+                pre = cur;
+                cur = cur.right;
+            }
+        }
+    }
+    
+    private TreeNode getPredecessor(TreeNode root) {
+        if(root.left == null) return null;
+        TreeNode predecessor = root.left;
+        while(predecessor.right != null && predecessor.right != root)
+            predecessor = predecessor.right;
+        return predecessor;
+    }
+}
+```
+## 93. 复原IP地址
+* dfs，不要用StringBuilder来保存path，因为delete很麻烦，用一个长度为4的数组保存即可
+* O(N)/O(N)
+```java
+class Solution {
+    public List<String> restoreIpAddresses(String s) {
+        int[] path = new int[4];
+        List<String> ans = new ArrayList<>();
+        dfs(s, 0, 0, path, ans);
+        return ans;
+    }
+    
+    private void dfs(String s, int pivot, int depth, int[] path, List<String> ans) {
+        if(pivot == s.length() && depth == 4) {
+            StringBuilder sb = new StringBuilder();
+            for(int i = 0; i < 3; i++)
+                sb.append(path[i] + ".");
+            sb.append(path[3]);
+            ans.add(sb.toString());
+            return;
+        }
+        if(pivot == s.length() || depth == 4)
+            return;
+        
+        if(s.charAt(pivot) == '0') {
+            path[depth] = 0;
+            dfs(s, pivot + 1, depth + 1, path, ans);
+        } else {
+            for(int i = 1; i <= 3 && pivot + i <= s.length(); i++) {
+                Integer num = Integer.valueOf(s.substring(pivot, pivot + i));
+                if(num <= 255) {
+                    path[depth] = num;
+                    dfs(s, pivot + i, depth + 1, path, ans);
+                }
+            }
+        }
+    }
+}
+```
+
+## 5471. 和为目标值的最大数目不重叠非空子数组数目
+### Solution 1
+* 前缀和 + hashmap + 贪心
+  * hashmap中保存最右出现的(preSum[i], i)
+  * 贪心：右边界r递增，只有当[l, r]与上一个curR不重叠，才会更新curR,并增加一个区间
+* O(N)/O(N)
+```java
+class Solution {
+    public int maxNonOverlapping(int[] nums, int target) {
+        int curR = Integer.MIN_VALUE, ans = 0, sum = 0;
+        HashMap<Integer, Integer> map = new HashMap<>();
+        map.put(0, -1);
+        for(int r = 0; r < nums.length; r++) {
+            sum += nums[r];
+            if(map.get(sum - target) != null) {
+                int l = map.get(sum - target) + 1;
+                if(l > curR) {
+                    curR = r;
+                    ans++;
+                }
+            }
+            map.put(sum, r);
+        }
+        return ans;
+    }
+}
+```
+### Solution 2
+* 前缀和 + hashmap + dp，dp[i]为[0, i)区间的最多子区间个数
+  * dp[i] = max(dp[i-1], dp[j] + 1), dp[j]为preSum[i] - preSum[j] = tar
+* O(N)/O(N)
+```java
+class Solution {
+    public int maxNonOverlapping(int[] nums, int target) {
+        int n = nums.length;
+        int[] preSum = new int[n+1];
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for(int i = 1; i <= n; i++)
+            preSum[i] = preSum[i-1] + nums[i-1];
+        map.put(0, 0);
+        int[] dp = new int[n+1];
+        for(int i = 1; i <= n; i++) {
+            dp[i] = dp[i-1];
+            if(map.get(preSum[i] - target) != null) {
+                int j = map.get(preSum[i] - target);
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+            }
+            map.put(preSum[i], i);
+        }
+        return dp[n];
+    }
+}
+```
