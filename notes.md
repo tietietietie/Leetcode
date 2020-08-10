@@ -968,3 +968,40 @@ class Solution {
     }
 }
 ```
+ ## 696. 计数二进制子串
+* preCount:上一个相同字符连续字串， count：当前相同字符连续子串长度
+* ans += min(preCount, count)
+* O(N)/O(1)
+```java
+class Solution {
+    public int countBinarySubstrings(String s) {
+        if(s.length() <= 1) return 0;
+        int count1 = 0, count2 = 0, n = s.length(), i = 0;
+        char c = s.charAt(0);
+        while(i < n && s.charAt(i) == c) {
+            count1++;
+            i++;
+        }  
+        while(i < n && s.charAt(i) != c) {
+            count2++;
+            i++;
+            if(count1 == count2) 
+                return countBinarySubstrings(s.substring(i)) + count1;
+        }
+        return countBinarySubstrings(s.substring(1));
+    }
+}
+```
+
+## 458. 可怜的小猪
+* 进制问题，每只猪一共有minutesToTest / minutesToDie + 1种状态
+* x只猪能表示state ^ x桶水
+* O(1)/O(1)
+```java
+class Solution {
+    public int poorPigs(int buckets, int minutesToDie, int minutesToTest) {
+        int state = minutesToTest / minutesToDie + 1;
+        return (int)Math.ceil(Math.log(buckets) / Math.log(state));
+    }
+}
+```
