@@ -1005,3 +1005,43 @@ class Solution {
     }
 }
 ```
+
+## 166. 分数到小数
+* hashmap判断是否出现循环小数
+* 有以下特殊情况考虑
+  * 分子和分母可能异号，此时不能用两数相乘小于0判断(Integer.MIN_VALUE * -1 < 0)
+  * 将分子分母转换为long并取绝对值时，不能写成Long.valueOf(Math.abs(x)),因为x可能为MIN_VA
+  * 使用String.valueOf(long)比较省事
+  * 结果为整数的情况分开讨论
+* O(dividend) / O(dividend)
+```java
+class Solution {
+    public String fractionToDecimal(int numerator, int denominator) {
+        StringBuilder sb = new StringBuilder();
+        if((numerator > 0 && denominator < 0) || (numerator < 0 && denominator > 0))
+            sb.append("-");
+        long divisor   = Math.abs(Long.valueOf(numerator));
+        long dividend  = Math.abs(Long.valueOf(denominator));
+        long remainder = divisor % dividend;
+        sb.append(String.valueOf(divisor / dividend));
+        if(remainder == 0) return sb.toString();
+        sb.append(".");
+        HashMap<Long, Integer> map = new HashMap<>();
+        fractionToDecimal(remainder, dividend, sb, map);
+        return sb.toString();
+    }
+    
+    private void fractionToDecimal(long remainder, long dividend, StringBuilder sb, HashMap<Long, Integer> map)     {
+        if(remainder == 0) return;
+        if(map.get(remainder) != null) {
+            sb.insert(map.get(remainder), "(");
+            sb.append(")");
+            return;
+        }
+        map.put(remainder, sb.length());
+        sb.append(String.valueOf(remainder * 10 / dividend));
+        remainder  = remainder * 10 % dividend;
+        fractionToDecimal(remainder, dividend, sb, map);
+    }
+}
+```
