@@ -1045,3 +1045,77 @@ class Solution {
     }
 }
 ```
+
+## 421. 数组中两个数的最大异或值
+### Solution1
+* 从高到低逐位确定，每次确定需要O(N)的时间
+* prefixes：保存num的[l-1, i]位，每次只需确定是否存在prefix[i] ^ prefix[j] == cur
+* O(N)/O(1)
+```java
+class Solution {
+    public int findMaximumXOR(int[] nums) {
+        int maxNum = nums[0];
+        for(int num : nums)
+            maxNum = Math.max(maxNum, num);
+        int L = Integer.toBinaryString(maxNum).length();
+        
+        int ans = 0;
+        HashSet<Integer> prefixes = new HashSet<>();
+        for(int i = L - 1; i >= 0; i--) {
+            ans = ans << 1;
+            int cur = ans | 1;
+            prefixes.clear();
+            for(int num : nums)
+                prefixes.add(num >>> i);
+            for(int prefix : prefixes)
+                if(prefixes.contains(cur ^ prefix)) {
+                    ans = cur;
+                    break;
+                }   
+        }
+        
+        return ans;
+    }
+}
+```
+### Solution2
+* 使用trie（其实是二叉树）来保存每个num的二进制，root ---> leaf的路径
+* 对于每一个num，在生成二进制trie时，利用是否存在toggleBit来判断当前ans位是否置1
+* toggleBit位不存在？至少存在bit位(当前num的bit)
+* O(N)/O(1)
+```java
+class Solution {
+    class Trie {
+        Trie[] children;
+        public Trie() {
+            children = new Trie[2];
+        }
+    }
+    
+    public int findMaximumXOR(int[] nums) {
+        Trie root = new Trie();
+        int ans = 0;
+        
+        for(int num : nums) {
+            int max = 0;
+            Trie node = root, XORnode = root;
+            for(int i = 31; i >= 0; i--) {
+                int bit = (num >>> i) & 1;
+                if(node.children[bit] == null)
+                    node.children[bit] = new Trie();
+                node = node.children[bit];
+                
+                int toggledBit = 1 - bit;
+                if(XORnode.children[toggledBit] != null) {
+                    max = max | (1 << i);
+                    XORnode = XORnode.children[toggledBit];
+                } else
+                    XORnode = XORnode.children[bit];
+            }
+            ans = Math.max(ans, max);
+        }
+        
+        return ans;
+    }
+}
+```
