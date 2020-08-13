@@ -1119,3 +1119,75 @@ class Solution {
     }
 }
 ```
+
+## 450. 删除二叉搜索树中的节点
+* 找到目标节点的前驱节点或者后继节点，返回前驱/后继节点值后把前驱/后继节点删掉，把目标节点的值替换为前驱/后继节点值
+* 关键点
+  * 不能单纯的将tarNode/前驱/后继节点的值赋值为null，这是指把指针设置为空，并没有达到删除的目的
+  * 保留要删除节点的父节点，删除节点时，把节点的非空侧子树接上去
+* O(logn)/O(logn)
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if(root == null) return null;
+        if(root.val < key) root.right = deleteNode(root.right, key);
+        else if(root.val > key) root.left  = deleteNode(root.left, key);
+        else {
+            if(root.left != null) {
+                root.val = findAndDelPredecessor(root);
+            } else if(root.right != null) {
+                root.val = findAndDelSuccessor(root);
+            } else
+                root = null;
+        }
+        return root;
+    }
+    
+    private int findAndDelPredecessor(TreeNode node) {
+        if(node.left.right == null) {
+            int ans = node.left.val;
+            node.left = node.left.left;
+            return ans;
+        }
+        
+        TreeNode pre = node.left;
+        TreeNode cur = node.left;
+        while(cur.right != null) {
+            pre = cur;
+            cur = cur.right;
+        }
+        int ans = cur.val;
+        pre.right = cur.left;
+        return ans;
+    }
+    
+    private int findAndDelSuccessor(TreeNode node) {
+        if(node.right.left == null) {
+            int ans = node.right.val;
+            node.right = node.right.right;
+            return ans;
+        }
+        
+        TreeNode pre = node.right;
+        TreeNode cur = node.right;
+        while(cur.left != null) {
+            pre = cur;
+            cur = cur.left;
+        }
+        int ans = cur.val;
+        pre.left = cur.right;
+        return ans;
+    }
+}
+```
+注：1,也可以先找到前驱节点值predecessor.val，将key赋值为该值，然后**递归删除**deleteNode(root.left, root.val);
+2,也可以通过判断tarNode是否存在空子树，若tarNode.left == null, return tarNode.right即可，若不存在空子树，按我的方式，把predecessor找到，然后删除即可。
