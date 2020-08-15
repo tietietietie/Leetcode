@@ -1191,3 +1191,66 @@ class Solution {
 ```
 注：1,也可以先找到前驱节点值predecessor.val，将key赋值为该值，然后**递归删除**deleteNode(root.left, root.val);
 2,也可以通过判断tarNode是否存在空子树，若tarNode.left == null, return tarNode.right即可，若不存在空子树，按我的方式，把predecessor找到，然后删除即可。
+
+##  546 移除盒子
+### My Solution
+* dp[i][j]表示区间[i, j]的最大得分，则消除j时，可以从右到左，确定区间中与j相同的颜色，进行组合（count++）
+* 问题：比如确定用count == 2，即将j与左侧一个同色相连，但是你不能简单的认为该颜色就是j左侧的第一个数
+```java
+class Solution {
+    public int removeBoxes(int[] boxes) {
+        int n = boxes.length;
+        int[][] dp = new int[n+1][n+1];
+        for(int i = 1; i <= n; i++)
+            dp[i][i] = 1;
+        
+        for(int len = 2; len <= n; len++)
+            for(int i = 1; i + len - 1 <= n; i++) {
+                int j = i + len - 1;
+                int lastPos = j;
+                int count = 1;
+                int curColor = boxes[j-1];
+                dp[i][j] = dp[i][j-1] + 1;
+                int cur = dp[i][j];
+                for(int k = j-1; k >= i; k--)
+                    if(boxes[k-1] == curColor) {
+                        count++;
+                        cur = cur - dp[i][lastPos-1] + dp[k+1][lastPos-1] + dp[i][k-1]
+                            - (count - 1) * (count - 1) + count * count;
+                        lastPos = k;
+                        dp[i][j] = Math.max(dp[i][j], cur);
+                    }
+            }
+        
+        return dp[1][n];
+    }
+}
+```
+### Solution 2
+* 记忆化递归，dp[l][r][k]表示区间[l, r]的最大积分，但是需要添加**额外信息**，k表示消除j时，左侧与j相连的同色数量
+* dp[l][r][k] = max(dp[l][r-1][0] * k+1 * k+1, dp[l][i][k+1] + dp[i+1][l-1][0])
+* O(n^4)/O(n^3)
+```java
+class Solution {
+    public int removeBoxes(int[] boxes) {
+        int n = boxes.length;
+        int[][][] memo = new int[n][n][n];
+        return removeBoxes(boxes, 0, n-1, 0, memo);
+    }
+    
+    private int removeBoxes(int[] boxes, int l, int r, int k, int[][][] memo) {
+        if(r < l) return 0;
+        if(memo[l][r][k] != 0) return memo[l][r][k];
+        while(r > l && boxes[r-1] == boxes[r]) {
+            r--;
+            k++;
+        }
+        memo[l][r][k] = removeBoxes(boxes, l, r-1, 0, memo) + (k+1) * (k+1);
+        for(int i = l; i < r; i++) 
+            if(boxes[i] == boxes[r])
+                memo[l][r][k] = Math.max(memo[l][r][k], removeBoxes(boxes, i+1, r-1, 0, memo)
+                                        + removeBoxes(boxes, l, i, k+1, memo));
+        return memo[l][r][k];
+    }
+}
+```
