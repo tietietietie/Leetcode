@@ -1312,13 +1312,13 @@ class Solution {
             next[i] = next[tail] + 1;
         }
         
-        int matched = -1;
+        int match = 0;
         for(int i = 1; i < s.length() - 1; i++) {
-            while(matched != -1 && s.charAt(i) != pattern.charAt(matched + 1))
-                matched = next[matched];
-            if(s.charAt(i) == pattern.charAt(matched + 1)) {
-                matched++;
-                if(matched == len - 1)
+            while(match != 0 && s.charAt(i) != pattern.charAt(match))
+                match = next[match];
+            if(s.charAt(i) == pattern.charAt(match)) {
+                match++;
+                if(match == len)
                     return true;
             }
         }
