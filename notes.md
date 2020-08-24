@@ -1254,3 +1254,76 @@ class Solution {
     }
 }
 ```
+
+## 459：重复的子字符串
+### Solution1
+* 枚举：枚举子串[0, i-1]，判断其是否能构成原串
+* 判断方法：s[j] == s[j - i] j属于[i, n-1]
+* O(n^2)
+```java
+class Solution {
+    public boolean repeatedSubstringPattern(String s) {
+        int n = s.length();
+        for (int i = 1; i * 2 <= n; ++i) {
+            if (n % i == 0) {
+                boolean match = true;
+                for (int j = i; j < n; ++j) {
+                    if (s.charAt(j) != s.charAt(j - i)) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+```
+
+### Solution2
+* s有重复子串的充要条件是：s + s去掉首尾后，包含s
+* 正确性证明
+  * 存在下标i(0,n)，使得从[i, i+n-1]与s相等
+  * 将ss[i, i+n-1]分为两段：ss[i, n-1] 和 ss[n, i+n-1]（即ss[0, i-1]
+  * 可知s[0, n-i-1] == s[i, n-1], s[n-i, n-1] = s[0, i-1]
+  * 可知s关于i点旋转后保持不变（旋转不变性）
+  * 可知s[j] = s[j + i] = s[j + ki] 其中 j + i = mod(j+i, n)
+  * 取gcd(n, i)，则gcd(n ,i)一定是重复子串（但是为什么一定存在呢）
+* KMP算法略
+* O(n)
+```java
+class Solution {
+    public boolean repeatedSubstringPattern(String s) {
+        return kmp(s+s, s);
+    }
+    
+    private boolean kmp(String s, String pattern) {
+        int len = pattern.length();
+        
+        int[] next = new int[len];
+        next[0] = -1;
+        for(int i = 1; i < len; i++) {
+            int tail = i-1;
+            while(tail > 0 && pattern.charAt(i-1) != pattern.charAt(next[tail]))
+                tail = next[tail];
+            next[i] = next[tail] + 1;
+        }
+        
+        int matched = -1;
+        for(int i = 1; i < s.length() - 1; i++) {
+            while(matched != -1 && s.charAt(i) != pattern.charAt(matched + 1))
+                matched = next[matched];
+            if(s.charAt(i) == pattern.charAt(matched + 1)) {
+                matched++;
+                if(matched == len - 1)
+                    return true;
+            }
+        }
+        
+        return false;
+    }
+}
+```
