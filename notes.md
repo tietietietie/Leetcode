@@ -1287,10 +1287,10 @@ class Solution {
 * s有重复子串的充要条件是：s + s去掉首尾后，包含s
 * 正确性证明
   * 存在下标i(0,n)，使得从[i, i+n-1]与s相等
-  * 将ss[i, i+n-1]分为两段：ss[i, n-1] 和 ss[n, i+n-1]（即ss[0, i-1]
+  * 将ss[i, i+n-1]分为两段：ss[i, n-1] 和 ss[n, i+n-1]（即ss[0, i-1])
   * 可知s[0, n-i-1] == s[i, n-1], s[n-i, n-1] = s[0, i-1]
   * 可知s关于i点旋转后保持不变（旋转不变性）
-  * 可知s[j] = s[j + i] = s[j + ki] 其中 j + i = mod(j+i, n)
+  * 可知s[j] = s[j + i] = s[j + ki] 其中 j + i = (j+i) mod n
   * 取gcd(n, i)，则gcd(n ,i)一定是重复子串（但是为什么一定存在呢）
 * KMP算法略
 * O(n)
@@ -1324,6 +1324,101 @@ class Solution {
         }
         
         return false;
+    }
+}
+```
+
+## 491:递增子序列
+### Solution1
+* dfs枚举
+  * 每个数字有两种可能，选择或者不选择，**确认完所有**的数字的状态，可以得到一种可能
+  * 递增限制条件：cur >= pre
+  * 去重限制条件：if pre == cur, 有四种情况（选，选）（选，不选）（不选，选）（不选，不选），第二和第三种情况相同，当前一个字符pre是选的时候，不会进行不选操作，排除第二种情况。
+* O(2^n * n) /O(n)
+```java
+class Solution {
+    private List<List<Integer>> ans;
+    private List<Integer> path;
+    
+    public List<List<Integer>> findSubsequences(int[] nums) {
+        ans = new ArrayList<List<Integer>>();
+        path = new ArrayList<Integer>();
+        dfs(nums, 0, -101);
+        return ans;
+    }
+    
+    private void dfs(int[] nums, int index, int pre) {
+        if(index == nums.length) {
+            if(path.size() > 1)
+                ans.add(new ArrayList<>(path));
+            return;
+        }
+        if(nums[index] >= pre) {
+            path.add(nums[index]);
+            dfs(nums, index + 1, nums[index]);
+            path.remove(path.size() - 1);
+        }
+        if(pre != nums[index])
+            dfs(nums, index + 1, pre);
+    }
+}
+```
+### Solution2
+* 二进制枚举 + hash去重
+  * 枚举原理：元素个数小于16，所以可以用对应二进制位0还是1，表示选择与否
+  * 去重原理：串哈希算法（Rabin-Karp编码），给定序列a0, a1, a2, ... ,an，可以表示位max(ai) + 1进制的数（如果超出整型范围，取大素数模P）
+* O(2^n * n)/ O(2^n)
+```java
+class Solution {
+    private List<List<Integer>> ans;
+    private List<Integer> temp;
+    private Set<Integer> set;
+    int n;
+    
+    public List<List<Integer>> findSubsequences(int[] nums) {
+        ans  = new ArrayList<List<Integer>>();
+        temp = new ArrayList<Integer>();
+        set  = new HashSet<Integer>();
+        n = nums.length;
+        for(int mask = 1; mask < (1 << n); mask++) {
+            getSubsequences(nums, mask);
+            int hashNum = getHash(202, (int)1E9 + 7);
+            if(check() && !set.contains(hashNum)) {
+                ans.add(new ArrayList<Integer>(temp));
+                set.add(hashNum);
+            }
+        }
+        return ans;
+    }
+    
+    private void getSubsequences(int[] nums, int mask) {
+        temp.clear();
+        for(int i = 0; i < n; i++) {
+            if((mask & 1) == 1) {
+                temp.add(nums[i]);
+            }
+            mask >>= 1;
+        }
+    }
+
+    private boolean check() {
+        int size = temp.size();
+        if(size <= 1) return false;
+        for(int i = 1; i < size; i++) {
+            if(temp.get(i) < temp.get(i-1))
+                return false;
+        }
+        return true;
+    }
+    
+    private int getHash(int base, int mod){
+        int hashNum = 0;
+        int size = temp.size();
+        for(int i = 0; i < size; i++) {
+            hashNum = hashNum * base % mod + (temp.get(i) + 101);
+            hashNum = hashNum % mod;
+        }
+        return hashNum;
     }
 }
 ```
