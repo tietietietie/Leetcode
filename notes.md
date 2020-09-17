@@ -1422,3 +1422,72 @@ class Solution {
     }
 }
 ```
+## 332:重新安排行程
+* 穷举法
+
+## 685：冗余连接Ⅱ
+* 三种情况：
+  * 没有入度为2的点 ---> 多余的边指向了根节点：使用uf从左往右遍历，第一个成环的位置，就是最右边得成环边
+  * 有入度为2的点:保存edge1和edge2，答案在这两个之间，删除edge2：
+    * 如果还是有环，返回edge1
+    * 没有环，返回edge2
+```java
+class Solution {
+    public int[] findRedundantDirectedConnection(int[][] edges) {
+        int n = edges.length;
+        //统计入度，删除入度为2的第二条边
+        int[] inDegree = new int[n+1];
+        int[] edge1 = new int[2];
+        int[] edge2 = new int[2];
+        for(int[] edge : edges) {
+            int u = edge[0], v = edge[1];
+            if(inDegree[v] > 0) {
+                edge1[0] = inDegree[v];
+                edge1[1] = v;
+                edge2[0] = u;
+                edge2[1] = v;
+                edge[0] = edge[1] = -1;
+            }
+            inDegree[v] = u;
+        }
+        
+        UF uf = new UF(n+1);
+        for(int[] edge : edges) {
+            int u = edge[0], v= edge[1];
+            if(u == -1)
+                continue;
+            if(uf.union(u, v))
+                return edge1[0] == 0 ? edge : edge1;
+        
+        }
+        
+        return edge2;
+    }
+    
+    private class UF {
+        int[] nodes;
+        public UF(int n) {
+            nodes = new int[n];
+            for(int i = 0; i < n; i++)
+                nodes[i] = i;
+        }
+        
+        public int find(int node) {
+            int p = nodes[node];
+            while(nodes[p] != p) {
+                nodes[p] = nodes[nodes[p]];
+                p = nodes[p];
+            }
+            return p;
+        }
+        
+        private boolean union(int p, int q) {
+            int pParent = this.find(p);
+            int qParent = this.find(q);
+            nodes[pParent] = qParent;
+            if(pParent == qParent) return true;
+            else return false;
+        }
+    }
+}
+```
