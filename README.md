@@ -39,22 +39,28 @@ class Solution {
   * carry为1，就算俩节点为空，也要创建新节点。
 
 ```java
-class Solution {
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        ListNode l = new ListNode((l1.val+l2.val)%10);
-        int carry = (l1.val+l2.val)/10;
-        ListNode temp = l;
-        for(ListNode i = l1.next, j = l2.next; i != null || j != null || carry != 0;
-        i = i.next, j = j.next){
-            if(i == null)
-                i = new ListNode(0);
-            if(j == null)
-                j = new ListNode(0);
-            temp.next = new ListNode((i.val+j.val+carry)%10);
-            temp = temp.next;
-            carry = (i.val+j.val+carry)/10;
+        ListNode dummy = new ListNode(-1);
+        ListNode cur = dummy;
+        int carry = 0, digit1 = 0, digit2 = 0;
+        while(l1 != null || l2 != null || carry != 0) {
+            if(l1 == null) {
+                digit1 = 0;
+            } else {
+                digit1 = l1.val;
+                l1 = l1.next;
+            }
+            if(l2 == null) {
+                digit2 = 0;
+            } else {
+                digit2 = l2.val;
+                l2 = l2.next;
+            }
+            cur.next = new ListNode((digit1 + digit2 + carry) % 10);
+            carry = (digit1 + digit2 + carry) / 10;
+            cur = cur.next;
         }
-        return l;
+        return dummy.next;
     }
 }
 ```
@@ -191,12 +197,15 @@ class Solution {
 }
 ```
 
-## 11.承最多水的容器
+## 11.盛最多水的容器
 
 * 正确思路：双指针
 * 注意
   * 默认最大容积为宽最长的容器，要使容积变大，必须在宽度变小的同时，增大最小边。
-  * 为什么不能移动最长边呢？因为移动最长边，并不能使容积变大
+  * 为什么不能移动最长边呢？因为移动最长边，并不能使容积变大\
+  * 找到第一个大于短边的边，在向内移动的过程中，小于短边的边，也一定不会使容积变大
+
+证明：s(i, j)表示区间[i, j]的容积，移动短边i即s(i+1, j)，则忽略了s(i, j-1), s(i, j-2)... s(i, i+1)，这些忽略的容积，都不会比s(i, j)大，也就是每次移动，我们都不会遗漏掉最短边。
 
 ```java
 class Solution {
@@ -220,7 +229,7 @@ class Solution {
 }
 ```
 
-## 15.三数和
+## 15.三数之和
 
 ### Solution 1
 
@@ -367,13 +376,13 @@ class Solution {
 ```java
 class Solution {
     public int removeDuplicates(int[] nums) {
-        int s = nums.length == 0 ? 0 : 1;
-        for(int num : nums)
-            if(num > nums[s-1])
-                nums[s++] = num;
-        return s;
+        int t = 0;
+        for(int i = 0; i < nums.length; i++) {
+            if(i == 0 || nums[i] != nums[i-1]) nums[t++] = nums[i];
+        }
+        return t;
     }
-}
+}	
 ```
 
 ## 27.移除元素
@@ -384,11 +393,11 @@ class Solution {
 ```java
 class Solution {
     public int removeElement(int[] nums, int val) {
-        int s = 0;
-        for(int num : nums)
-            if(num != val)
-                nums[s++] = num;
-        return s;
+        int t = 0;
+        for(int num : nums) {
+            if(num != val) nums[t++] = num;
+        }
+        return t;
     }
 }
 ```
@@ -445,7 +454,7 @@ class Solution {
 
 
 
-## 33.查询旋转有序数组
+## 33. 搜索旋转有序数组
 
 ### Solution 1
 
@@ -486,26 +495,31 @@ class Solution {
 
 ### Solution 2
 
-* 二分法：判断mid和target是否在同一个递增数组，如果在，则按照常规二分处理，如果在两个不同的数组，则判断target在左侧数组还是右侧数组，按照此来进行二分。
+* 二分法：先判断mid在左侧递增区间还是右侧递增区间，再根据target, nums[r] nums[mid]的关系，缩小l, r
 * 时间复杂度：o(n)，空间复杂度o(1)。
 
 ```java
 class Solution {
     public int search(int[] nums, int target) {
-        if(nums == null || nums.length == 0) return -1;
-        int l = 0, r = nums.length-1, n = nums.length;
-        while(l < r){
-            int mid = (l+r)/2;
-            if((nums[mid] - nums[n-1]) * (target - nums[n-1]) > 0){
-                if(nums[mid] < target) l = mid+1;
-                else r = mid;
-            }else if(target > nums[n-1])
-                r = mid;
-            else
-                l = mid+1;
+        int l = 0, r = nums.length - 1;
+        while(l < r) {
+            int mid = (l + r) / 2;
+            if(nums[mid] > nums[r]) {
+                if(nums[mid] >= target && target > nums[r]) {
+                    r = mid;
+                } else {
+                    l = mid + 1;
+                }
+            } else {
+                if(nums[mid] < target && target <= nums[r]) {
+                    l = mid + 1;
+                } else {
+                    r = mid;
+                }
+            }
         }
-        if(nums[l] == target) return l;
-        return -1;
+        if(nums[l] != target) return -1;
+        return l;
     }
 }
 ```
@@ -530,9 +544,28 @@ class Solution {
 }
 ```
 
+```java
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        //找大于等于target的第一个数位置
+        int l = 0, r = nums.length - 1;
+        while(l < r) {
+            int mid = (l + r) / 2;
+            if(nums[mid] < target) l = mid + 1;
+            else r = mid;
+        }
+        if(nums[l] < target) return l + 1;
+        return l;
+    }
+}
+```
+
+
+
 ## 39.组合总和
 
 * 回溯法：排序数组，由于是组合问题和无限背包问题，需要设置start节点，start的子节点只能在start~n-1中选择，选择并递归后，记得撤销选择。
+* 如何防止重复：随着DFS递归深度变大，每个节点能选择的路径是不断减小的，这由start保证。
 * 时间复杂度：o(n^target)，空间复杂度：o(target)
 
 ```java
@@ -562,10 +595,45 @@ class Solution {
 }
 ```
 
+1. DFS：类似于定长DFS，candidates[idx]有两种状态：选择和不被选择
+
+```java
+class Solution {
+    List<Integer> path = new ArrayList<>();
+    List<List<Integer>> ans = new ArrayList<>();
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        dfs(candidates, 0, 0, target);
+        return ans;
+    }
+
+    private void dfs(int[] candidates, int idx, int sum, int target) {
+        if(sum == target) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+
+        if(sum + candidates[idx] <= target) {
+            path.add(candidates[idx]);
+            dfs(candidates, idx, sum + candidates[idx], target);
+            path.remove(path.size() - 1);
+        }
+
+        if(idx + 1 < candidates.length) {
+            dfs(candidates, idx + 1, sum, target);
+        }
+    }
+}
+```
+
+
+
+
+
 ## 40.组合总和Ⅱ
 
 * 回溯法：
-  * 重复值问题：路径选择时，重复的数值只能只能选一次
+  * 重复值问题：路径选择时，重复的数值只能选一次
   * 有限背包问题：下一层的路径选择只能从 i+1~n-1
 * 时间复杂度：min(2^n,n^target)，空间复杂度：o(target)
 
@@ -597,9 +665,45 @@ class Solution {
 }
 ```
 
+1. 定长DFS，每个节点有两种可能：选和不被选。
+2. 去重：当前数和上一个数相同，且上一个数没被选择，当前数不能被选。
+
+```java 
+class Solution {
+    List<Integer> path = new ArrayList<>();
+    List<List<Integer>> ans = new ArrayList<>();
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        dfs(candidates, 0, 0, target, false);
+        return ans;
+    }
+
+    private void dfs(int[] candidates, int idx, int sum, int target, boolean lastAdd) {
+        if(sum == target) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+        if(idx == candidates.length) return;
+        //选择candidates[idx]
+        if(sum + candidates[idx] <= target) {
+            if(idx == 0 || candidates[idx] != candidates[idx - 1] || lastAdd) {
+                path.add(candidates[idx]);
+                dfs(candidates, idx + 1, sum + candidates[idx], target, true);
+                path.remove(path.size() - 1);
+            }
+        }
+        //不选择candidates[idx]
+        dfs(candidates, idx + 1, sum, target, false);
+    }
+}
+```
+
+
+
 ## 41.缺失的第一个正数
 
-* 元素nums[index]的正负号作为该该数组是否存在index的标志，首先，将数组中的非正数全部设置为n+1，对于nums[index]大于n的元素不需要考虑，小于等于n的元素，将对应index的元素值设置为负数，最后遍历整个数组，如果nums[index]处的元素为正，说明index+1没有出现过，返回第一个正数下标。
+* 用负数表示idx + 1出现过。
+* 对结果产生影响的，只有[1, N]之间的数，所以对于小于等于0的数，都可以替换为N+1。
 * 注意，当数组全部为负数，说明1~n的正数全部存在，返回n+1.
 * 时间复杂度：o(n)，空间复杂度：o(1)。
 
@@ -621,6 +725,26 @@ class Solution {
             if(nums[i] > 0)
                 return i+1;
         return n+1;
+    }
+}
+```
+
+1. 将[1, N]之间的数，置换到正确位置，如果nums[idx] != idx + 1，则说明idx + 1没有出现过
+
+```java
+class Solution {
+    public int firstMissingPositive(int[] nums) {
+        for(int i = 0; i < nums.length; i++) {
+            while(nums[i] >= 1 && nums[i] <= nums.length && nums[nums[i] - 1] != nums[i]) {
+                int tmp = nums[nums[i] - 1];
+                nums[nums[i] - 1] = nums[i];
+                nums[i] = tmp;
+            }
+        }
+        for(int i = 0; i < nums.length; i++)
+            if(nums[i] != i + 1)
+                return i + 1;
+        return nums.length + 1;
     }
 }
 ```
@@ -777,7 +901,7 @@ class Solution {
             curNode = curNode.next;
         }
         ListNode newHead = reverse(head,k);
-        head.next = reverseKGroup(curNode,k);
+        head.next = reverseKGroup(curNode,k);	
         return newHead;
     }
     
@@ -1168,7 +1292,7 @@ class Solution {
 }
 ```
 
-## 218.奇偶链表
+## 328.奇偶链表
 
 * 由于oddCur.next为evenCur，所以执行oddCur.next = oddCur.next.next时，不会出现指针丢失
 * 时间复杂度O(n)，空间复杂度O(1)·
@@ -2277,7 +2401,7 @@ class Solution {
 }
 ```
 
-## 8.atoi
+## 8.字符串转换整数atoi
 
 ### Solution 1
 
@@ -3454,8 +3578,11 @@ class Solution {
 
 ## 9.回文数
 
-* 只需要反转一半的数字进行比较
-* O(n)/O(1)
+只需要反转一半的数字进行比较
+
+1. 如果x的位数为偶数，则循环停止条件为a. x为回文数，x == y时退出 b. x不为回文数，则x < y退出，**且x == y/10永远不会成立**
+2. 如果x的位数为奇数，则循环停止条件为x < y，且如果为回文，则x == y/10成立
+3. 必须考虑x是否以0结尾，不然会出现“990”是回文串
 
 ```java
 class Solution {
@@ -3470,6 +3597,10 @@ class Solution {
     }
 }
 ```
+
+可以发现，进行半数的数字反转，需要判断较多的边界情况，直接整个数字反转，思路更简洁。
+
+
 
 ## 1210.穿过迷宫的最小次数
 
@@ -3604,8 +3735,9 @@ class Solution {
 
 ## 43.字符串乘法
 
-* 竖式乘法
-  * 如何进位？从低位开始，得到p1,p2，其中p2的值一定<10，而p1的值可以大于10，由于是从大到小更新digits，最终只有最高位的值可以>10
+* 竖式乘法：abcd * efg = d * g * 10^0 + d * f * 10^1 + ... + d * e * 10^5
+  * 构造数组int[] digits，保存乘法过程中的每一位结果，num1的第i位和num2的第j位相乘，就是num1[i] * num2[j]的结果，与digits[i+j] digits[i+j+1]相加，相加过程中，**保证digits[i+j+1] < 10，也就是低位<10**
+  * 最终只有最高位可能>=10，且只有最高位可能为0，需要去掉。
 * O(nm)/O(m+n)
 
 ```java
@@ -3803,6 +3935,7 @@ class Solution {
 ## [42. 接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)
 
 * 单调栈（单调递减），能够快速找到栈顶元素的右边第一个大于它的值和左边第一个大于它的值
+* 相当于按行统计，
 * ![water.gif](README.assets/7d5ff9af88634d417d7925e8987b7db92d3a26766bd9078215ab63df424fa745-water.gif)
 * O(n)/O(n)
 
@@ -3822,6 +3955,28 @@ class Solution {
             stack.push(cur);
             cur++;
         }
+        return ans;
+    }
+}
+```
+
+1. 按列统计，每一列的水，由左侧最大值，右侧最大值两者的较小值，与当前列高的差值决定
+
+```java
+class Solution {
+    public int trap(int[] height) {
+        int n = height.length;
+        if(n <= 2) return 0;
+
+        int[] lMax = new int[n];
+        int[] rMax = new int[n];
+        lMax[0] = height[0];
+        rMax[n-1] = height[n-1];
+        for(int i = 1; i < n; i++) lMax[i] = Math.max(height[i], lMax[i-1]);
+        for(int i = n-2; i >= 0; i--) rMax[i] = Math.max(height[i], rMax[i+1]);
+
+        int ans = 0;
+        for(int i = 0; i < n; i++) ans += Math.min(lMax[i], rMax[i]) - height[i];
         return ans;
     }
 }
@@ -4366,10 +4521,10 @@ class Solution {
 
 ### Solution 2
 
-* KMP: NFA解法的KMP算法中，有一步需要构建前缀prefix的**最长相同前后缀长度**，时间复杂度为O(M),具体解法如下
+* KMP: NFA解法的KMP算法中，有一步需要构建**前缀**prefix**不包括本身**的**最长相同前后缀长度**，时间复杂度为O(M),具体解法如下
   * 首先令len = prefix[i-1]，如果此时M[len]的元素刚好等于M[i]，则说明[0.i]前缀的最长相同前后缀长度，为[0,i-1]前缀的长度加一
-  * 如果不等，则[0,i]的最长相同前后缀长度，并不会唱过[0, len-1]这个前缀的最长相同前后缀长度（可以证明，略）
-  * 对上述过程递归更新len，直到len等于1，或者M[len]的元素刚好等于M[i]
+  * 如果不等，则[0,i]的最长相同前后缀长度，并不会超过[0, len-1]这个前缀的最长相同前后缀长度（可以证明，略）
+    * 对上述过程递归更新len，直到len等于1，或者M[len]的元素刚好等于M[i]
 * O(N)/O(N)
 
 ```java
@@ -4809,24 +4964,20 @@ class Solution {
 
 ## [45. 跳跃游戏 II](https://leetcode-cn.com/problems/jump-game-ii/)
 
-* 贪心，从0位置开始，在下一步区间内，找到能够到达的最远位置，从而确定下一步位置
+* 贪心：确定第step步能到的最远位置nextMax，当i == curMax，表示到达了第step步的最远位置，i + 1是需要加一步才能到达的
+* curMax：当前step步能到达的最远位置，nextMax：step + 1步能到达的最远位置
 * O(n)/O(1)
 
 ```java
 class Solution {
     public int jump(int[] nums) {
-        int l = 0, r = 0, step = 0, n = nums.length;
-        while(r < n-1) {
-            int maxPos = 0, temp = 0;
-            for(int i = l; i <= r; i++) {
-                if(nums[i] + i >= maxPos) {
-                    maxPos = nums[i] + i;
-                    temp = i;
-                }
+        int curMax = 0, nextMax = 0, step = 0;
+        for(int i = 0; i < nums.length - 1; i++) {
+            nextMax = Math.max(nextMax, nums[i] + i);
+            if(i == curMax) {
+                step++;
+                curMax = nextMax;
             }
-            l = temp;
-            r = maxPos;
-            step++;
         }
         return step;
     }
@@ -5213,4 +5364,1131 @@ class Solution {
 }
 ```
 
-##
+
+
+## 340 最多含有K个不同字符的最长字串
+
+### Solution1
+
+* 滑动窗口，统计窗口内的不同字符个数，超过K个就左移左边界
+
+```java
+class Solution {
+    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        //统计字符最右出现的位置
+        int[] map = new int[128];
+        Arrays.fill(map, -1);
+        int count = 0, l = 0, r = 0, ans = 0;
+        while(r < s.length()) {
+            char c = s.charAt(r);
+            if(map[c] < l) count++;
+            map[c] = r;
+            if(count > k) {
+                int minIdx = Integer.MAX_VALUE;
+                for(int i = 0; i < 128; i++) {
+                    if(map[i] >= l) minIdx = Math.min(minIdx, map[i] + 1);
+                }
+                l = minIdx;
+                count--;
+            }
+            ans = Math.max(ans, r - l + 1);
+            r++;
+        }
+        return ans;
+    }
+}
+```
+
+改进：map存放字符频率，l右移过程中，减少字符频率。
+
+```java
+class Solution {
+    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        //统计字符最右出现的位置
+        int[] map = new int[128];
+        int count = 0, l = 0, r = 0, ans = 0;
+        while(r < s.length()) {
+            char c = s.charAt(r++);
+            if(map[c] == 0) count++;
+            map[c]++;
+            if(count > k) {
+                while(l <= r) {
+                    map[s.charAt(l)]--;
+                    if(map[s.charAt(l++)] == 0) {
+                        count--;
+                        break;
+                    }
+                }
+            }
+            ans = Math.max(ans, r - l);
+        }
+        return ans;
+    }
+}
+```
+
+
+
+## 218 天际线问题
+
+### Solution1: 扫描线 + TreeMap
+
+1. 用ArrayList<int[]>存储建筑的{边界， 高度}List，其中左边界boundary[1] < 0标识。 （不能使用边界标识，要排序！）
+2. 用TreeMap统计高度和频率，遇到左边界，对应频率加1，遇到右边界，频率减1。（TreeMap和普通Map一样，但能快速得到最值）
+3. TreeMap能用logN的时间复杂度，找到最大值（默认最小值，需要传入比较器）。
+
+CornerCase: 
+
+* 当多个建筑的左边界，右边界重合，应该先遍历哪个边界，来更新高度？ 先遍历最大高度的左边界，再遍历高度最小的右边界。因为如果先遍历高度最小的左边界，会造成该边界的maxHeight不断更新。先遍历高度最大的右边界，假设此时的高度，刚好为频率为1的最大高度，则最大高度更新，第二大高度的右边界，刚好是此时频率为1的最大高度，最大高度cnt - 1，最大高度又要更新，依次类推，造成边界最大高度多次更新。
+
+* 当在distance\[i][0]位置，所有高度都被remove，此时的tMap.firstKey()可能为null，报错，所以需要在一开始tMap.put(0, 1)；
+
+```java
+class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        //遍历所有边界，得到{边界，高度}List
+        ArrayList<int[]> boundaries = new ArrayList<>();
+        for(int[] building : buildings) {
+            boundaries.add(new int[]{building[0], -building[2]});
+            boundaries.add(new int[]{building[1], building[2]});
+        }
+        Collections.sort(boundaries, (o1, o2) -> o1[0] == o2[0] ? o1[1] - o2[1] : o1[0] - o2[0]);
+        //和普通map一样，但能快速得到最值
+        TreeMap<Integer, Integer> tMap = new TreeMap<>(Collections.reverseOrder());
+        tMap.put(0, 1);
+        int preHeight = 0;
+        List<List<Integer>> ans = new ArrayList<>();
+        for(int[] boundary : boundaries) {
+            if(boundary[1] < 0) {
+                tMap.put(-boundary[1], tMap.getOrDefault(-boundary[1], 0) + 1);
+            } else {
+                int cnt = tMap.get(boundary[1]);
+                if(cnt == 1) {
+                    tMap.remove(boundary[1]);
+                } else {
+                    tMap.put(boundary[1], cnt - 1);
+                }
+            }
+            if(tMap.firstKey() != preHeight) {
+                ans.add(Arrays.asList(boundary[0], tMap.firstKey()));
+                preHeight = tMap.firstKey();
+            }
+        }
+        return ans;
+    }
+}
+```
+
+### Solution 2: 扫描线 + 优先队列
+
+1. 得到左右边界下标集合boundaries，这里是产生轮廓的位置。
+2. 维护一个优点队列，元素为int[]{右边界， 高度}。依次遍历boundaries，和当前建筑idx。
+3. 当一个建筑的[l, r)包含boundary，则会对高度产生影响，如果l <= boundary，入队，是可能对高度产生影响的建筑。拿栈顶元素前，将r <= boundary的区间出队。由于建筑是按左边界排序，所有i < idx的元素，也已经入队。
+
+Corner Case:
+
+* 判断pq是否为空，空则说明目前没有建筑对boundary造成影响，此时位于一个建筑群的末端，(boundary, 0)为轮廓。
+
+```java
+class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        //所有左右边界, TreeSet为排序集合
+        Set<Integer> boundaries = new TreeSet<>((o1, o2) -> o1 - o2);
+        for(int[] building : buildings) {
+            boundaries.add(building[0]);
+            boundaries.add(building[1]);
+        }
+        List<List<Integer>> ans = new ArrayList<>();
+        PriorityQueue<int[]> pq = new PriorityQueue<>(
+            (o1, o2) -> o2[1] - o1[1]);
+        int idx = 0, n = buildings.length, preHeight = 0;
+        for(int boundary : boundaries) {
+            while(idx < n && buildings[idx][0] <= boundary) {
+                pq.offer(new int[]{buildings[idx][1], buildings[idx][2]});
+                idx++;
+            }
+            while(!pq.isEmpty() && pq.peek()[0] <= boundary) pq.poll();
+            if(pq.isEmpty()) {
+                ans.add(Arrays.asList(boundary, 0));
+                preHeight = 0;
+            } else if(pq.peek()[1] != preHeight) {
+                ans.add(Arrays.asList(boundary, pq.peek()[1]));
+                preHeight = pq.peek()[1];
+            }
+        }
+        return ans;
+    }
+}
+```
+
+###  Solution3: 二分
+
+问题转换为，如何将左轮廓和右轮廓合并
+
+* 得到左轮廓和右轮廓后，遍历其轮廓(边界， 高度)，新的轮廓在这两者的边界子集中产生，从左至右依次遍历两者边界。
+* 维护左右轮廓当前高度，取当前边界处，两者最大值。
+
+```java
+class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        if(buildings.length == 0){
+            return  new ArrayList<>();
+        }
+        return merge(buildings, 0, buildings.length - 1);
+    }
+    
+    private List<List<Integer>> merge(int[][] buildings, int start, int end) {
+        if(start > end) return new ArrayList<>();
+        if(start == end){
+            List<List<Integer>> skyline = new ArrayList<>();
+            skyline.add(Arrays.asList(buildings[start][0],buildings[start][2]));
+            skyline.add(Arrays.asList(buildings[start][1],0));
+            return skyline;
+        }
+        int mid = (start + end) / 2;
+        List<List<Integer>> leftSkyline  = merge(buildings,start,mid);
+        List<List<Integer>> rightSkyline = merge(buildings,mid+1,end);
+        List<List<Integer>> curSkyline = new ArrayList<>();
+        int leftHeight = 0, rightHeight = 0, curHeight = 0, i = 0, j = 0;
+        while(i < leftSkyline.size() || j < rightSkyline.size()){
+            if(i == leftSkyline.size()){
+                curSkyline.add(rightSkyline.get(j));
+                j++;
+                continue;
+            }
+            if(j == rightSkyline.size()){
+                curSkyline.add(leftSkyline.get(i));
+                i++;
+                continue;
+            }
+            int leftX  = leftSkyline.get(i).get(0);
+            int rightX = rightSkyline.get(j).get(0);
+            int curX = leftX < rightX ? leftX : rightX;
+            if(leftX < rightX){
+                leftHeight = leftSkyline.get(i).get(1);
+                i++;
+            }else if(leftX > rightX){
+                rightHeight = rightSkyline.get(j).get(1);
+                j++;
+            }else{
+                leftHeight = leftSkyline.get(i).get(1);
+                rightHeight = rightSkyline.get(j).get(1);
+                i++;
+                j++;
+            }
+            int maxHeight = Math.max(leftHeight,rightHeight);
+            if(maxHeight != curHeight){
+                curSkyline.add(Arrays.asList(curX,maxHeight));
+                curHeight = maxHeight;
+            }
+        }
+        return curSkyline;
+    }
+}
+```
+
+### Solution4: 离散化 + 线段树
+
+问题转换为：先离散化边界，更新线段树区间的最值，然后求区间每个点的最值。因为涉及区间更新，用懒更新线段树。
+
+* 写离散化和线段树的模板
+* 更新区间的最值：注意区间更新时，是左闭右开区间，但线段树都是双闭区间的更新，更新时，只需更新[l, r-1]区间即可。（这样并不会对结果产生影响，有preHeight帮助，在r-1的位置，不会产生轮廓）
+* 遍历边界，求最值
+
+线段树太长了，不知道有没有简单的写法😭
+
+```java
+class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        //离散化：1. treeset排序+去重 2. 用arr和map分别存起来
+        TreeSet<Integer> set = new TreeSet<>();
+        for(int[] building : buildings) {
+            set.add(building[0]);
+            set.add(building[1] - 1);
+            set.add(building[1]);
+        }
+        int[] discreArr = new int[set.size()];
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int idx = 0;
+        for(int num : set) {
+            discreArr[idx] = num;
+            map.put(num, idx++);
+        }
+
+
+        int[] arr = new int[discreArr.length];
+        //线段树
+        SegmentTree st = new SegmentTree(arr);
+        for(int[] building : buildings) {
+            st.updateLazyInTree(map.get(building[0]), map.get(building[1] - 1), building[2]);
+        }
+        boolean begin = true;
+        int preHeight = 0;
+        List<List<Integer>> ans = new ArrayList<>();
+        for(int i = 0; i < discreArr.length; i++) {
+            int h = st.query(i, i);
+            if(begin && h != 0) {
+                ans.add(Arrays.asList(discreArr[i], h));
+                begin = false;
+            } else if(begin == false && h != preHeight) {
+                ans.add(Arrays.asList(discreArr[i], h));
+            }
+            preHeight = h;
+        }
+        return ans;
+    }
+}
+
+class SegmentTree {
+    int[] arr, tree, lazy;
+
+    public SegmentTree(int[] arr) {
+        this.arr = arr;
+        tree = new int[arr.length * 4];
+        lazy = new int[arr.length * 4];
+        buildTree(tree, arr, 0, 0, arr.length - 1);
+    }
+
+    private void buildTree(int[] tree, int[] arr, int node, int l, int r) {
+        if(l == r) {
+            tree[node] = arr[l];
+            return;
+        }
+        int lNode = 2 * node + 1, rNode = 2 * node + 2, mid = (l + r) / 2;
+        buildTree(tree, arr, lNode, l, mid);
+        buildTree(tree, arr, rNode, mid + 1, r);
+        tree[node] = Math.max(tree[lNode], tree[rNode]);
+    }
+
+    public void updateLazyInTree(int l, int r, int val) {
+        updateLazyInTree(0, 0, arr.length - 1, l, r, val);
+    }
+
+    private void updateLazyInTree(int node ,int s, int e, int l, int r, int val) {
+        if(s >= l && e <= r) {
+            tree[node] = Math.max(tree[node], val);
+            lazy[node] = Math.max(lazy[node], val);
+            return;
+        }
+        pushDown(node, s, e);
+        int lNode = 2 * node + 1, rNode = 2 * node + 2, mid = (s + e) / 2;
+        if(r <= mid) {
+            updateLazyInTree(lNode, s, mid, l, r, val);
+            return;
+        } else if (l > mid) {
+            updateLazyInTree(rNode, mid + 1, e, l, r, val);
+            return;
+        }
+        updateLazyInTree(lNode, s, mid, l, mid, val);
+        updateLazyInTree(rNode, mid + 1, e, mid + 1, r, val);
+    }
+
+    private void pushDown(int node, int s, int e) {
+        if(s < e) {
+            int lNode = 2 * node + 1, rNode = 2 * node + 2, mid = (s + e) / 2;
+            tree[lNode] = Math.max(tree[lNode], lazy[node]);
+            tree[rNode] = Math.max(tree[rNode], lazy[node]);
+            lazy[lNode] = Math.max(lazy[lNode], lazy[node]);
+            lazy[rNode] = Math.max(lazy[rNode], lazy[node]);
+            lazy[node] = -1;
+        }
+    }
+
+    public int query(int l, int r) {
+        return query(0, 0, arr.length - 1, l, r);
+    }
+
+    private int query(int node, int s, int e, int l, int r) {
+        if(s >= l && e <= r) {
+            return tree[node];
+        }
+        pushDown(node, s, e);
+        int lNode = 2 * node + 1, rNode = 2 * node + 2, mid = (s + e) / 2;
+        if(r <= mid) {
+            return query(lNode, s, mid, l, r);
+        } else if(l > mid) {
+            return query(rNode, mid + 1, e, l ,r);
+        }
+        return Math.max(query(lNode, s, mid, l, mid), query(rNode, mid + 1, e, mid + 1, r));
+    }
+}
+```
+
+
+
+## 6.Z字型变换
+
+模拟按什么顺序，在numRows个字符串后添加字符。
+
+StringBuilder比String快很多
+
+```java
+class Solution {
+    public String convert(String s, int numRows) {
+        StringBuilder[] strArr = new StringBuilder[numRows];
+        for(int i = 0; i < numRows; i++) strArr[i] = new StringBuilder();
+        int idx = 0;
+        while(idx < s.length()) {
+            for(int i = 0; i < numRows; i++) {
+                if(idx == s.length()) break;
+                strArr[i].append(s.charAt(idx++));
+            }
+            for(int i = numRows - 2; i >= 1; i--) {
+                if(idx == s.length()) break;
+                strArr[i].append(s.charAt(idx++));
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < numRows; i++) sb.append(strArr[i]);
+        return sb.toString();
+    }
+}
+```
+
+
+
+
+
+## 7.整数反转
+
+关键点在于，怎么判断x反转后，有没有越界
+
+证明： rev <= Integer.MAX_VALUE. ---> rev * 10 + digit <= MAX_VALUE/10 * 10 + 7. ---> (rev - MAX_VALUE/10) * 10 <= 7 - digit
+
+因为digit是x的最高位，Integer.MAX_VALUE最高位为2，所以digit <= 2，所以当rev <= MAX_VALUE/10时，不等式一定满足的。
+
+同理，rev >= MIN_VALUE/10，不会越界。
+
+```java
+class Solution {
+    public int reverse(int x) {
+        int rev = 0;
+        while(x != 0) {
+            if(rev < Integer.MIN_VALUE / 10 || rev > Integer.MAX_VALUE / 10)
+                return 0;
+            rev = rev * 10 + x % 10;
+            x /= 10;
+        }
+        return rev;
+    }
+}
+```
+
+也可以用StringBuilder方法，需要用**Integer.parseInt(s)**和**try -catch**判断越界
+
+
+
+## 8.字符串转换整数
+
+判断字符串ans乘10后是否越界，不推荐使用ans > Integer.MAX_VALUE / 10 ? 好像并不是充要条件。还是用lon g比较靠谱
+
+```java
+class Solution {
+    public int myAtoi(String s) {
+        //删除前置的空格，判断符号，读取右边界得到，从低位到高位构造整数
+        s = s.trim();
+        if(s.length() == 0) return 0;
+        if(s.charAt(0) != '+' && s.charAt(0) != '-' && (s.charAt(0) < '0' || s.charAt(0) > '9')) return 0;
+        int flag = 1;
+        if(s.charAt(0) == '-') flag = -1;
+        if(s.charAt(0) == '+' || s.charAt(0) == '-') s = s.substring(1);
+        int idx = 0;
+        long ans = 0;
+        while(idx < s.length() && s.charAt(idx) >= '0' && s.charAt(idx) <= '9') {
+            ans = ans * 10 + (long)(s.charAt(idx++) - '0');
+            if((ans * (long)flag) > (long)Integer.MAX_VALUE) return Integer.MAX_VALUE;
+            if((ans * (long)flag) < (long)Integer.MIN_VALUE) return Integer.MIN_VALUE;
+        }
+        return (int)(ans * flag);
+    }
+}
+```
+
+## 10. 正则表达式匹配
+
+dp，注意p.charAt(j) == '*'时，且前一个字符匹配成功时，dp\[i][j] = dp\[i-1][j] || dp\[i][j-2]; 表示如果\*表示一个或多个p.charAt(j-1)，则可以认为dp\[i][j] = ddp\[i-1][j]，否则可以认为\*代表了0个上一个字符，即dp\[i][j-2]
+
+```java
+class Solution {
+    public boolean isMatch(String s, String p) {
+        //dp[i][j]表示[0, i)和p[0, j]是否匹配
+        //初始化dp
+        int m = s.length(), n = p.length();
+        boolean[][] dp = new boolean[m + 1][n + 1];
+        dp[0][0] = true;
+        for(int j = 1; j <= n; j++) {
+            if(p.charAt(j - 1) == '*') {
+                dp[0][j] = dp[0][j-2];
+            }
+        }
+        for(int i = 1; i <= m; i++)
+            for(int j = 1; j <= n; j++) {
+                if(s.charAt(i - 1) == p.charAt(j - 1) || p.charAt(j - 1) == '.') {
+                    dp[i][j] = dp[i-1][j-1];
+                }
+                if(p.charAt(j-1) == '*') {
+                    if(s.charAt(i - 1) == p.charAt(j - 2) || p.charAt(j - 2) == '.') {
+                        dp[i][j] = dp[i-1][j] || dp[i][j-2];
+                    } else {
+                        dp[i][j] = dp[i][j-2];
+                    }
+                }
+            }
+        return dp[m][n];
+    }
+}
+```
+
+
+
+## 14. 最长公共前缀
+
+根据第一个字符串，判断最长公共前缀
+
+注意越界判断
+
+```java
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if(strs.length == 0) return "";
+        for(int i = 0; i < strs[0].length(); i++) {
+            char c = strs[0].charAt(i);
+            for(int j = 1; j < strs.length; j++) {
+                if(i >= strs[j].length() || strs[j].charAt(i) != c) {
+                    return strs[0].substring(0, i);
+                }
+            }
+        }
+        return strs[0];
+    }
+}
+```
+
+
+
+## 17.电话号码的字母组合
+
+定长DFS模板题，注意路径直接可以用数组char[] path保存。
+
+```java
+class Solution {
+    public List<String> letterCombinations(String digits) {
+        int n = digits.length();
+        if(n == 0) return new ArrayList<>();
+        char[] path = new char[n];
+        List<String> ans = new ArrayList<>();
+        String[] phone = new String[]{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+        dfs(phone, digits, 0, path, ans);
+        return ans;
+    }
+    
+    private void dfs(String[] phone, String digits, int index, char[] path, List<String> ans) {
+        if(index == digits.length()) {
+            ans.add(new String(path));
+            return;
+        }
+        char c = digits.charAt(index);
+        for(int i = 0; i < phone[c-'0'].length(); i++) {
+            path[index] = phone[c-'0'].charAt(i);
+            dfs(phone, digits, index+1, path, ans);
+        }  
+    }
+}
+```
+
+
+
+## 20. 有效的括号
+
+```java
+class Solution {
+    public boolean isValid(String s) {
+        Stack<Character> stk = new Stack<>();
+        for(char c : s.toCharArray()) {
+            if(c == '[' || c == '{' || c == '(') {
+                stk.push(c);
+            } else if(c == ']' && !stk.isEmpty() && stk.peek() == '[') {
+                stk.pop();
+            } else if(c == '}' && !stk.isEmpty() && stk.peek() == '{') {
+                stk.pop();
+            } else if(c == ')' && !stk.isEmpty() && stk.peek() == '(') {
+                stk.pop();
+            } else {
+                return false;
+            }
+        }
+        return stk.isEmpty();
+    }
+}
+```
+
+
+
+## 21. 合并两个有序链表
+
+```java
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if(l1 == null) return l2;
+        if(l2 == null) return l1;
+        if(l1.val <= l2.val) {
+            l1.next = mergeTwoLists(l1.next, l2);
+            return l1;
+        }
+        l2.next = mergeTwoLists(l1, l2.next);
+        return l2;
+    }
+}
+```
+
+
+
+## 22. 括号生成
+
+1. 定长DFS，可以用char[]表示路径。
+2. 遍历过程中，保证生成有效括号的充要条件：左括号数量 >= 右括号数量。换句话说，只要保证此条件，并且左括号数量 <= n，递归终止时，一定是有效括号。
+
+```java
+class Solution {
+    public List<String> generateParenthesis(int n) {
+        List<String> ans = new ArrayList<>();
+        dfs(0, 0, n, new char[2 * n], ans);
+        return ans;
+    }
+
+    private void dfs(int lCount, int rCount, int n, char[] path, List<String> ans) {
+        int idx = lCount + rCount;
+        if(idx == 2 * n) {
+            ans.add(new String(path));
+            return;
+        }
+        if(lCount >= rCount && lCount < n) {
+            path[idx] = '(';
+            dfs(lCount + 1, rCount, n, path, ans);
+        }
+        if(lCount > rCount) {
+            path[idx] = ')';
+            dfs(lCount, rCount + 1, n, path, ans);
+        }
+    }
+}
+```
+
+
+
+## 28. 实现strStr()
+
+KMP模板题
+
+1. 构造next数组，next[]含义是，在[0, i]的子串，不包含自身的最长相等前后缀长度。作用是匹配时s1[i] != s1[j]，可以快速移动j
+2. 构造next数组从下标为1开始构造，找到某一下标j，使得s2[j] == s2[i]，不等，则**j = next[j-1]**（可以证明next[i]的最长前后缀长度一定在next[j-1]中，证明略）。
+3. 匹配时，不等则移动s2的待匹配下标j至**next[j-1]**，匹配相等则j++
+
+```java
+class Solution {
+    public int strStr(String haystack, String needle) {
+        if(needle.length() == 0) return 0;
+        return kmp(haystack, needle);
+    }
+
+    private int kmp(String str1, String str2) {
+        int[] next = new int[str2.length()];
+        for(int i = 1; i < str2.length(); i++) {
+            int j = next[i-1];
+            while(j != 0 && str2.charAt(i) != str2.charAt(j)) {
+                j = next[j-1];
+            }
+            if(str2.charAt(j) == str2.charAt(i)) next[i] = j + 1;
+        }
+
+        int j = 0;
+        for(int i = 0; i < str1.length(); i++) {
+            while(j != 0 && str1.charAt(i) != str2.charAt(j)) {
+                j = next[j-1];
+            }
+            if(str1.charAt(i) == str2.charAt(j)) {
+                j++;
+                if(j == str2.length()) return i - j  + 1;
+            }
+        }
+
+        return -1;
+    }
+}
+```
+
+## 32. 最长有效括号
+
+### Solution1: DP
+
+dp[i]表示以i结尾的最长有效括号，显然有效括号必须以右括号结束。当dp[i]为右括号时，有两种情况：
+
+1. dp[i-1]为左括号，则dp[i] = dp[i-2] + 2
+2. dp[i-1]为右括号，则需要考虑下标为i - 2 - dp[i-1]是否为左括号，是左括号，则dp[i] = dp[i-1] + 2 + **dp[i-2-dp[i-1]]**
+
+```java
+class Solution {
+    public int longestValidParentheses(String s) {
+        int n = s.length();
+        if(n == 0) return 0;
+        int[] dp = new int[n+1];
+        dp[0] = 0;
+        dp[1] = 0;
+        int ans = 0;
+        for(int i = 2; i <= n; i++) {
+            if(s.charAt(i-1) == ')') {
+                if(s.charAt(i-2) == '(') {
+                    dp[i] = dp[i-2] + 2;
+                } else if(i - 2 - dp[i-1] >= 0 && s.charAt(i - 2 - dp[i-1]) == '(') {
+                    dp[i] = dp[i-1] + dp[i-dp[i-1]-2] + 2;
+                }
+                ans = Math.max(ans, dp[i]);
+            }
+        }
+        return ans;
+    }
+}
+```
+
+### Solution2: stack
+
+1. 栈底保存最新未匹配的右括号
+2. 遇到右括号，出栈，并且根据stk.peek()获得当前右括号的最长有效括号
+
+```java
+class Solution {
+    public int longestValidParentheses(String s) {
+        //stack: stack栈底储存上一个未被匹配的')'下标，其余存储'('的下标
+        Stack<Integer> stack = new Stack<>();
+        stack.push(-1);
+        int ans = 0;
+        for(int i = 0; i < s.length(); i++) {
+            if(s.charAt(i) == '(') {
+                stack.push(i);
+            } else{
+                stack.pop();
+                if(stack.isEmpty()) {
+                    //此右括号没有被匹配上，更新栈底
+                    stack.push(i);
+                }else {
+                    ans = Math.max(ans, i - stack.peek());
+                }
+            }
+        }
+        return ans;
+    }
+}
+```
+
+
+
+## 37. 解数独
+
+1. DFS：从上到下，从左到右穷举所有"."的可能结果，到达棋盘最末端即返回成功。
+2. DFS返回true：表示(i, j)位置填入num，是一种可能解，返回false，表示(i, j)无论填什么，都无法构成有效解，需要之前节点重新选择
+
+1. 如果保存已经填入的结果：boolean\[][] rows, cols, cubes
+2. 如何计算(i, j)在某一cube内？(i / 3) * 3 + j / 3
+
+```java
+class Solution {
+    boolean[][] rows, cols, cubes;
+    char[][] board;
+    public void solveSudoku(char[][] board) {
+        rows = new boolean[9][10];
+        cols = new boolean[9][10];
+        cubes = new boolean[9][10];
+        this.board = board;
+        for(int i = 0; i < 9; i++)
+            for(int j = 0; j < 9; j++)
+                if(board[i][j] != '.') {
+                    int digit = board[i][j] - '0';
+                    rows[i][digit] = cols[j][digit] = cubes[cptCube(i, j)][digit] = true;
+                }
+        dfs(0, 0);
+    }
+
+    private boolean dfs(int i, int j) {
+        //快速移动到下一个节点
+        while(i < 9 && board[i][j] != '.') {
+            i = j == 8 ? i + 1 : i;
+            j = j == 8 ? 0 : j + 1;
+        }
+        if(i == 9) return true;
+        //穷举每个节点路径
+        for(int num = 1; num <= 9; num++) {
+            if(rows[i][num] || cols[j][num] || cubes[cptCube(i, j)][num]) continue;
+            rows[i][num] = cols[j][num] = cubes[cptCube(i, j)][num] = true;
+            board[i][j] = (char)('0' + num);
+            if(dfs(i, j)) return true;
+            board[i][j] = '.';
+            rows[i][num] = cols[j][num] = cubes[cptCube(i, j)][num] = false;
+        }
+        return false;
+    }
+
+    private int cptCube(int i, int j) {
+        return (i / 3) * 3 + j / 3;
+    }
+}
+```
+
+
+
+## 44. 通配符匹配
+
+dp
+
+```java
+class Solution {
+    public boolean isMatch(String s, String p) {
+        int m = s.length(), n = p.length();
+        boolean[][] dp = new boolean[m+1][n+1];
+        dp[0][0] = true;
+        for(int i = 1; i <= n; i++) {
+            if(p.charAt(i-1) != '*')
+                break;
+            dp[0][i] = true;
+        }
+        
+        for(int i = 1; i <= m; i++)
+            for(int j = 1; j <= n; j++) {
+                if(s.charAt(i-1) == p.charAt(j-1) || p.charAt(j-1) == '?')
+                    dp[i][j] = dp[i-1][j-1];
+                else if(p.charAt(j-1) == '*')
+                    dp[i][j] = dp[i-1][j] || dp[i][j-1];
+                else
+                    dp[i][j] = false;
+            }
+        
+        return dp[m][n];
+    }
+}
+```
+
+
+
+## 46.全排列
+
+1. 定长DFS，用visited数组标记已访问元素很容易。
+2. 可以直接在nums上进行当前位置start与[start, len-1]元素交换，使用常数空间。
+3. 注意Java中int[]转List
+
+```java
+class Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> ans = new ArrayList<>();
+        dfs(nums, ans, 0);
+        return ans;
+    }
+
+    private void dfs(int[] nums, List<List<Integer>> ans, int start) {
+        if(start == nums.length) {
+            ans.add(Arrays.stream(nums).boxed().collect(Collectors.toList()));
+            return;
+        }
+
+        for(int i = start; i < nums.length; i++) {
+            swap(nums, start, i);
+            dfs(nums, ans, start + 1);
+            swap(nums, start, i);
+        }
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int tmp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = tmp;
+    }
+}
+```
+
+## 47. 全排列II
+
+1. 关键点在于如何去重：先排序数组，然后在idx位置填入数字时，保证不填入重复数字。
+2. i > 0 && nums[i] == nums[i-1] && !visited[i-1]：保证从左到右，只填入第一个未被填入数字。
+3. 三个连续数字，一次经过[未填入，未填入，未填入] [填入，未填入，未填入] [填入，填入，未填入] [填入，填入，填入]。
+4. 不能简单的利用nums[i] == nuts[i-1]，还需要判断visited数组。
+
+```java
+class Solution {
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        List<List<Integer>> ans = new ArrayList<>();
+        ArrayList<Integer> path = new ArrayList<>();
+        boolean[] visited = new boolean[nums.length];
+        Arrays.sort(nums);
+        permuteGenerate(nums, visited, path, ans);
+        return ans;
+    }
+    
+    private void permuteGenerate(int[] nums, boolean[] visited, ArrayList<Integer> path, List<List<Integer>> ans) {
+        if(path.size() == nums.length) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+        
+        for(int i = 0; i < nums.length; i++) {
+            if(i > 0 && nums[i] == nums[i-1] && !visited[i-1]) {
+                continue;
+            }
+            if(!visited[i]) {
+                visited[i] = true;
+                path.add(nums[i]);
+                permuteGenerate(nums, visited, path, ans);
+                visited[i] = false;
+                path.remove(path.size()-1);
+            }
+        }
+    }
+}
+```
+
+## 48.旋转图像
+
+1. 先上下翻转图像，再沿主对角线对称翻转图像.
+
+```java
+class Solution {
+    public void rotate(int[][] matrix) {
+        //坐标关系matrix_temp[j][n-i-1] = matrix[i][j];
+        //分解为先上下翻转，在对角线翻转
+        int n = matrix.length;
+        for(int i = 0; i < n / 2; i++) {
+            for(int j = 0; j < matrix[0].length; j++) {
+                int tmp = matrix[i][j];
+                matrix[i][j] = matrix[n-1-i][j];
+                matrix[n-1-i][j] = tmp; 
+            }
+        }
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < i; j++) {
+                int tmp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = tmp;
+            }
+        }
+    }
+}
+```
+
+## 49.字母异位词分组
+
+1. 将异位单词转换为相同的key，放在map里面，从而实现分组。
+   1. 单词字典序构造key
+   2. 统计频率构造key
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        HashMap<String, List<String>> map = new HashMap<>();
+        for(String str : strs) {
+            String tmp = convert(str);
+            List<String> list = map.computeIfAbsent(tmp, k -> new ArrayList<String>());
+            list.add(str);
+        }
+        return new ArrayList<List<String>>(map.values());
+    }
+
+    private String convert(String str) {
+        char[] chs = str.toCharArray();
+        Arrays.sort(chs);
+        return new String(chs);
+    }
+}
+```
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        HashMap<String, List<String>> map = new HashMap<>();
+        for(String str : strs) {
+            String tmp = convert(str);
+            List<String> list = map.computeIfAbsent(tmp, k -> new ArrayList<String>());
+            list.add(str);
+        }
+        return new ArrayList<List<String>>(map.values());
+    }
+
+    private String convert(String str) {
+        int[] counts = new int[26];
+        for(char c : str.toCharArray()) {
+            counts[c-'a']++;
+        }
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < 26; i++) {
+            if(counts[i] != 0) {
+                sb.append((char)(i + 'a'));
+                sb.append(counts[i]);
+            }
+        }
+        return sb.toString();
+    }
+}
+```
+
+
+
+## 51.N皇后
+
+1. 定长DFS（递归终止深度是N）+ 回溯（每次递归，放置棋子+撤销棋子)
+2. 使用布尔数组记录纵线，斜线上是否放置有棋子，从而判断(i, j)是否能放棋子。
+3. 如何表示不同方向斜线：i+j 和i-j，为了保证大于等于0，i-j+n-1
+
+```java
+class Solution {
+    boolean[] cols, dia1, dia2;
+    int[] queens;
+    int n;
+
+    public List<List<String>> solveNQueens(int n) {
+        cols = new boolean[n];
+        dia1 = new boolean[2 * n];
+        dia2 = new boolean[2 * n];
+        queens = new int[n];
+        this.n = n;
+        List<List<String>> ans = new ArrayList<>();
+        dfs(0, ans);
+        return ans;
+    }
+
+    private void dfs(int row, List<List<String>> ans) {
+        for(int i = 0; i < n; i++) {
+            if(canPlace(row, i)) {
+                placeQueen(row, i);
+                if(row == n - 1) {buildBoard(ans);}
+                else dfs(row + 1, ans);
+                removeQueen(row, i);
+            }
+        }
+    }
+
+    private boolean canPlace(int i, int j) {
+        return !cols[j] && !dia1[i+j] && !dia2[i-j+n-1];
+    }
+
+    private void placeQueen(int i, int j) {
+        cols[j] = true;
+        dia1[i+j] = true;
+        dia2[i-j+n-1] = true;
+        queens[i] = j;
+    }
+
+    private void removeQueen(int i, int j) {
+        cols[j] = false;
+        dia1[i+j] = false;
+        dia2[i-j+n-1] = false;
+    }
+
+    private void buildBoard(List<List<String>> ans) {
+        List<String> board = new ArrayList<>();
+        for(int i = 0; i < n; i++) {
+            char[] chs = new char[n];
+            Arrays.fill(chs, '.');
+            chs[queens[i]] = 'Q';
+            board.add(new String(chs));
+        }
+        ans.add(board);
+    }
+}
+```
+
+
+
+## 52.N皇后
+
+与51题一样
+
+```java
+class Solution {
+    boolean[] cols, dia1, dia2;
+    int[] queens;
+    int n, ans;
+    public int totalNQueens(int n) {
+        cols = new boolean[n];
+        dia1 = new boolean[2 * n];
+        dia2 = new boolean[2 * n];
+        queens = new int[n];
+        this.n = n;
+        this.ans = 0;
+        dfs(0);
+        return ans;
+    }
+
+    private void dfs(int row) {
+        for(int i = 0; i < n; i++) {
+            if(canPlace(row, i)) {
+                placeQueen(row, i);
+                if(row == n - 1) {ans++;}
+                else dfs(row + 1);
+                removeQueen(row, i);
+            }
+        }
+    }
+
+    private boolean canPlace(int i, int j) {
+        return !cols[j] && !dia1[i+j] && !dia2[i-j+n-1];
+    }
+
+    private void placeQueen(int i, int j) {
+        cols[j] = true;
+        dia1[i+j] = true;
+        dia2[i-j+n-1] = true;
+        queens[i] = j;
+    }
+
+    private void removeQueen(int i, int j) {
+        cols[j] = false;
+        dia1[i+j] = false;
+        dia2[i-j+n-1] = false;
+    }
+}
+```
+
+
+
+## 54.螺旋矩阵
+
+1. 维护四条边，每循环一次，消除一圈。
+2. 消除过程中无法构成矩形，退出循环。
+
+```java
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        int u = 0, d = matrix.length - 1, l = 0, r = matrix[0].length - 1;
+        List<Integer> ans = new ArrayList<>();
+        while(true) {
+            for(int i = l; i <= r; i++) ans.add(matrix[u][i]);
+            if(++u > d) break;
+            for(int i = u; i <= d; i++) ans.add(matrix[i][r]);
+            if(--r < l) break;
+            for(int i = r; i >= l; i--) ans.add(matrix[d][i]);
+            if(--d < u) break;
+            for(int i = d; i >= u; i--) ans.add(matrix[i][l]);
+            if(++l > r) break;
+        }
+        return ans;
+    }
+}
+```
+
+
+
+## 55. 跳跃游戏
+
+* r为行动右边界，i为当前位置
+
+```java
+class Solution {
+    public boolean canJump(int[] nums) {
+        int r = 0;
+        for(int i = 0; i < nums.length; i++) {
+            if(r < i) return false;
+            r = Math.max(r, i + nums[i]);
+        }
+        return true;
+    }
+}
+```
+
+
+
