@@ -5283,30 +5283,33 @@ class Solution {
 
 ### Solution 2
 
-* solution1其实是一次确定了每一位的值，而每一位的值根据counts可以快速算出来
+* solution1其实是一次确定了每一位的值，而每一位的值根据factorials可以快速算出来
 * O(n^2)/O(n)
 
 ```java
 class Solution {
     public String getPermutation(int n, int k) {
-        int[] counts = new int[n];
-        counts[n-1] = 1;
-        for(int i = n-2; i >= 0; i--)
-            counts[i] = counts[i+1] * (n-i-1);
+        int[] factorials = calcu(n);
+        char[] path = new char[n];
         ArrayList<Integer> unused = new ArrayList<>();
-        for(int i = 1; i <= n; i++)
-            unused.add(i);
-        StringBuilder sb = new StringBuilder();
         k--;
-        
+        for(int i = 1; i <= n; i++) unused.add(i);
         for(int i = 0; i < n; i++) {
-            int idx = k / counts[i];
-            k -= idx * counts[i];
-            sb.append(unused.get(idx));
-            unused.remove(idx);
+            int j = k / factorials[n-i-1];
+            k -= j * factorials[n-i-1];
+            path[i] = Character.forDigit(unused.get(j), 10);
+            unused.remove(j);
         }
-        
-        return sb.toString();
+        return new String(path);
+    }
+
+    private int[] calcu(int n) {
+        int[] res = new int[n+1];
+        res[0] = 1;
+        for(int i = 1; i <= n; i++) {
+            res[i] = res[i-1] * i;
+        }
+        return res;
     }
 }
 ```

@@ -1491,3 +1491,163 @@ class Solution {
     }
 }
 ```
+
+
+
+## 56.合并区间
+
+* 按左边界排序后，开一个List存区间容易想到。
+* 但其实可以原地实现，[0, r）已合并区间，r:正在合并区间，idx：待合并区间
+
+```java
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        Arrays.sort(intervals, (o1, o2) -> o1[0] == o2[0] ? o1[1] - o2[1] : o1[0] -o2[0]);
+        int r = 0, idx = 0;
+        while(idx < intervals.length) {
+            if(intervals[r][1] >= intervals[idx][0]) {
+                intervals[r][1] = Math.max(intervals[r][1], intervals[idx][1]);
+            } else {
+                intervals[++r] = intervals[idx]; 
+            } 
+            idx++;
+        }
+        return Arrays.copyOf(intervals, r+1);
+    }
+}
+```
+
+
+
+## 75. 颜色分类
+
+1. 3-way partition：分为四个区间0: [0, i), 1: [i, cur), 待判断：[cur, j], 2: (j, end]
+
+```java
+class Solution {
+    public void sortColors(int[] nums) {
+        int i = 0, j = nums.length - 1, cur = 0;
+        while(cur <= j) {
+            if(nums[cur] == 1) {
+                cur++;
+            } else if(nums[cur] == 0) {
+                swap(nums, i, cur);
+                cur++;
+                i++;
+            } else {
+                swap(nums, cur, j);
+                j--;
+            }
+        }
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int tmp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = tmp;
+    }
+}
+```
+
+
+
+## 77. 组合
+
+1. 定长dfs，使用start保证组合升序，从而去重。
+2. 不需要使用visited，因为start后面的数，一定是没有访问过的
+
+```java
+class Solution {
+    public List<List<Integer>> combine(int n, int k) {
+        List<Integer> path = new ArrayList<>();
+        List<List<Integer>> ans = new ArrayList<>();
+        dfs(n, k, 1, path, ans);
+        return ans;
+    }
+
+    private void dfs(int n, int k, int start, List<Integer> path, List<List<Integer>> ans) {
+        if(k == 0) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+        if(n - start + 1 < k) return;
+        for(int i = start; i <= n; i++) {
+            path.add(i);
+            dfs(n, k - 1, i + 1, path, ans);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+
+
+78.
+
+
+
+## 美团笔试：计算消耗字符的数量
+
+**题目**
+
+给定字符串s和a，其中s用来构造源源不断的字符流，如s = "meituan"，则字符流为"meituanmeituanmei..."，从该字符流中，依次从左到右提取字符串a中的字符，问提取完成时，一共消耗多少字符串？
+
+**样例**
+
+s = "meituan", a = "uta" 则当字符流为meituanmeitua时，能提取字符串a，消耗10个字符。
+
+思路
+
+1. 构造records[]， 其中records[i]表示[i, n-1]中，字符串第一次出现的位置。
+2. idx表示当前s所在指针，i表示a所在指针，显然需要找到a[i]在[idx, n-1]子串中第一次出现位置
+
+```java
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        String s1 = "meituan";
+        String s2 = "uta";
+        System.out.println(wastedChars(s1, s2));
+    }
+
+    private static int wastedChars(String s, String a) {
+        //记录[idx, n-1]间，每个字符的最后出现位置
+        int n = s.length();
+        HashMap<Character, Integer>[] records = new HashMap[n];
+        HashMap<Character, Integer> record = new HashMap<>();
+        for(int i = n-1; i >= 0; i--) {
+            record.put(s.charAt(i), i);
+            records[i] = new HashMap<>(record);
+        }
+        //先判断是否能提取a
+        for(char c : a.toCharArray()) {
+            if(record.get(c) == null) {
+                return -1;
+            }
+        }
+        //idx:s的指针，i: a的指针， res：消耗的字符数量
+        int idx = 0, i = 0, res = 0;
+        while(i < a.length()) {
+            char c = a.charAt(i);
+            if(idx == n) {
+                idx = 0;
+                continue;
+            }
+            HashMap<Character, Integer> treRecord = records[idx];
+            if(!treRecord.keySet().contains(c)) {
+                res += (n - idx);
+                idx = 0;
+                continue;
+            }
+            int next_idx = treRecord.get(c);
+            res += (next_idx - idx);
+            idx = next_idx + 1;
+            i++;
+        }
+        return res;
+    }
+}
+```
+
+
+
